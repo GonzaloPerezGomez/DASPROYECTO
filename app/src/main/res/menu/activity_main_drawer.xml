@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_tareas"
+            android:icon="@android:drawable/ic_menu_agenda"
+            android:title="Mis Tareas" />
+        <item
+            android:id="@+id/nav_prioridad"
+            android:icon="@android:drawable/ic_menu_sort_by_size"
+            android:title="Ver por Prioridad" />
+        <item
+            android:id="@+id/nav_exportar"
+            android:icon="@android:drawable/ic_menu_save"
+            android:title="Exportar (.txt)" /> </group>
+    <item android:title="Configuración">
+        <menu>
+            <item
+                android:id="@+id/nav_ajustes"
+                android:icon="@android:drawable/ic_menu_preferences"
+                android:title="Ajustes" />
+        </menu>
+    </item>
+</menu>
