@@ -18,7 +18,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingTop="8dp"
-        android:text="Gestor de Tareas DAS"
+        android:text="@string/gestor_de_tareas_das"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
         android:textStyle="bold" />
 
@@ -26,6 +26,6 @@
         android:id="@+id/textViewUser"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="usuario@ingenieria.ehu.es" />
+        android:text="@string/usuario_ingenieria_ehu_es" />
 
 </LinearLayout>

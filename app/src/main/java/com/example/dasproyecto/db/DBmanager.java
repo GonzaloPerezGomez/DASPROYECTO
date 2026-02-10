@@ -5,8 +5,10 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 public class DBmanager {
+    private static final String TAG = "DBmanager";
     public static final String TABLE_NAME = "tareas";
     public static final String COL_ID = "id";
     public static final String COL_TITULO = "titulo";
@@ -63,6 +65,11 @@ public class DBmanager {
         values.put(COL_FECHALIMITE, fecha);
         values.put(COL_DIRECCION, direccion);
         db.insert(TABLE_NAME, null, values);
+        Log.i(TAG, "Tarea guardada: " + titulo);
+    }
+
+    public void eliminar(long id) {
+        db.delete(TABLE_NAME, COL_ID + " = " + id, null);
     }
 
 

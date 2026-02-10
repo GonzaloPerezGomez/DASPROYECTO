@@ -1,5 +1,31 @@
 <resources>
     <string name="app_name">DAS PROYECTO</string>
     <string name="navigation_drawer_open" />
-    <string name="navigation_drawer_close" />
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="title_activity_add_tarea">Nueva Tarea</string>
+    <string name="hint_titulo">Título</string>
+    <string name="hint_descripcion">Descripción</string>
+    <string name="hint_fecha">Fecha Límite (DD/MM/AAAA)</string>
+    <string name="hint_direccion">Dirección</string>
+    <string name="label_prioridad">Prioridad</string>
+    <string name="btn_guardar">Guardar</string>
+    <string name="btn_cancelar">Cancelar</string>
+    <string name="error_titulo_requerido">El título es obligatorio</string>
+    <string name="_09_03_2026">📅 09/03/2026</string>
+    <string name="abrir_en_maps">Abrir en Maps</string>
+    <string name="descripci_n_breve">Descripción breve...</string>
+    <string name="t_tulo_de_la_tarea">Título de la Tarea</string>
+    <string name="titulo_de_la_tarea" />
+    <string name="editar">Editar</string>
+    <string name="completar">Completar</string>
+    <string name="eliminar">Eliminar</string>
+    <string name="opciones">Opciones</string>
+    <string name="add_task">Add Task</string>
+    <string name="gestor_de_tareas_das">Gestor de Tareas DAS</string>
+    <string name="usuario_ingenieria_ehu_es">usuario@ingenieria.ehu.es</string>
+    <string name="mis_tareas">Mis Tareas</string>
+    <string name="ver_por_prioridad">Ver por Prioridad</string>
+    <string name="exportar_txt">Exportar (.txt)</string>
+    <string name="configuraci_n">Configuración</string>
+    <string name="ajustes">Ajustes</string>
 </resources>

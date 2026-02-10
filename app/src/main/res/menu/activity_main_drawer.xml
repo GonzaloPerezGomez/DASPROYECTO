@@ -4,21 +4,21 @@
         <item
             android:id="@+id/nav_tareas"
             android:icon="@android:drawable/ic_menu_agenda"
-            android:title="Mis Tareas" />
+            android:title="@string/mis_tareas" />
         <item
             android:id="@+id/nav_prioridad"
             android:icon="@android:drawable/ic_menu_sort_by_size"
-            android:title="Ver por Prioridad" />
+            android:title="@string/ver_por_prioridad" />
         <item
             android:id="@+id/nav_exportar"
             android:icon="@android:drawable/ic_menu_save"
-            android:title="Exportar (.txt)" /> </group>
-    <item android:title="Configuración">
+            android:title="@string/exportar_txt" /> </group>
+    <item android:title="@string/configuraci_n">
         <menu>
             <item
                 android:id="@+id/nav_ajustes"
                 android:icon="@android:drawable/ic_menu_preferences"
-                android:title="Ajustes" />
+                android:title="@string/ajustes" />
         </menu>
     </item>
 </menu>
