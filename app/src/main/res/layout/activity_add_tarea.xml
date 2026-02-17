@@ -10,12 +10,13 @@
         android:orientation="vertical">
 
         <TextView
+            android:id="@+id/tituloActivity"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
             android:text="@string/title_activity_add_tarea"
             android:textSize="24sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="16dp"/>
+            android:textStyle="bold" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
@@ -65,6 +66,8 @@
                 android:id="@+id/etFecha"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:focusable="false"
+                android:clickable="true"
                 android:hint="@string/hint_fecha"
                 android:inputType="date" />
         </com.google.android.material.textfield.TextInputLayout>

@@ -4,8 +4,8 @@
 - [x] **Configuración del Proyecto**: Crear proyecto en Android Studio (Java, API 29+) y configurar el repositorio Git.
 - [x] **Base de Datos Local (SQLite/Room)**: Diseñar e implementar la tabla `Tareas` (id, titulo, descripcion, prioridad, fechaLimite, direccion, completada).
 - [x] **Interfaz Principal (RecyclerView)**: Implementar el listado de tareas usando `CardView` para un diseño atractivo.
-- [ ] **Operaciones CRUD**: Crear actividades/formularios para añadir nuevas tareas, editarlas y eliminarlas de la BBDD.
-- [ ] **Interacción con Diálogos**: Implementar `DatePickerDialog` para fechas y un `AlertDialog` de confirmación para borrar tareas.
+- [x] **Operaciones CRUD**: Crear actividades/formularios para añadir nuevas tareas, editarlas y eliminarlas de la BBDD.
+- [x] **Interacción con Diálogos**: Implementar `DatePickerDialog` para fechas y un `AlertDialog` de confirmación para borrar tareas.
 - [ ] **Notificaciones Locales**: Programar avisos que salten en el móvil cuando una tarea esté próxima a su fecha límite.
 - [ ] **Gestión de la Pila (Backstack)**: Verificar que la navegación entre pantallas no cierre la app y mantenga el estado.
 

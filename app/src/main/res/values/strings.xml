@@ -28,4 +28,8 @@
     <string name="exportar_txt">Exportar (.txt)</string>
     <string name="configuraci_n">Configuración</string>
     <string name="ajustes">Ajustes</string>
+    <string name="title_activity_edit_tarea">EditTareaActivity</string>
+    <string name="editar_tarea">Editar Tarea</string>
+    <string name="editar_tarea_titulo">Editando Tarea\n</string>
+    <string name="añadir_tarea_titulo">Nueva Tarea</string>
 </resources>

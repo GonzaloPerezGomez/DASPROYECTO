@@ -1,8 +1,12 @@
 package com.example.dasproyecto;
 
+import static androidx.core.content.ContextCompat.startActivity;
+
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Color;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +14,8 @@ import android.widget.TextView;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.AlertDialog;
@@ -17,6 +23,7 @@ import android.content.DialogInterface;
 import android.widget.PopupMenu;
 import android.widget.Toast;
 
+import com.example.dasproyecto.Dialogs.EliminarTareaDialog;
 import com.example.dasproyecto.db.DBmanager;
 
 public class TareasAdapter extends RecyclerView.Adapter<TareasAdapter.TareaViewHolder> {
@@ -57,6 +64,15 @@ public class TareasAdapter extends RecyclerView.Adapter<TareasAdapter.TareaViewH
         String fecha = cursor.getString(cursor.getColumnIndexOrThrow(DBmanager.COL_FECHALIMITE));
         int prioridad = cursor.getInt(cursor.getColumnIndexOrThrow(DBmanager.COL_PRIORIDAD));
         long id = cursor.getLong(cursor.getColumnIndexOrThrow(DBmanager.COL_ID));
+        int completada = cursor.getInt(cursor.getColumnIndexOrThrow(DBmanager.COL_COMPLETADA));
+
+        if (completada == 1) {
+            holder.cardView.setCardBackgroundColor(Color.parseColor("#E0E0E0")); // Gris claro
+            holder.tvTitulo.setPaintFlags(holder.tvTitulo.getPaintFlags() | android.graphics.Paint.STRIKE_THRU_TEXT_FLAG); // Opcional: Tachado
+        } else {
+            holder.cardView.setCardBackgroundColor(Color.WHITE);
+            holder.tvTitulo.setPaintFlags(holder.tvTitulo.getPaintFlags() & (~android.graphics.Paint.STRIKE_THRU_TEXT_FLAG)); // Quitar tachado
+        }
 
         holder.tvTitulo.setText(titulo);
         holder.tvDescripcion.setText(descripcion);
@@ -80,34 +96,39 @@ public class TareasAdapter extends RecyclerView.Adapter<TareasAdapter.TareaViewH
                 if (itemId == R.id.action_completar) {
                     // Logic to complete task
                     Toast.makeText(context, "Completar tarea: " + titulo, Toast.LENGTH_SHORT).show();
+                    DBmanager dbManager = new DBmanager(context);
+                    dbManager.open();
+                    dbManager.actualizarEstado(id, 1);
+                    if (context instanceof MainActivity) {
+                        ((MainActivity) context).onResume(); // Quick way to refresh
+                    }
                     return true;
+
                 } else if (itemId == R.id.action_eliminar) {
-                    // Logic to delete task
-                    new AlertDialog.Builder(context)
-                        .setTitle("Eliminar tarea")
-                        .setMessage("¿Estás seguro de que quieres eliminar la tarea '" + titulo + "'?")
-                        .setPositiveButton("Eliminar", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                DBmanager dbManager = new DBmanager(context);
-                                dbManager.open();
-                                dbManager.eliminar(id);
-                                dbManager.close();
-                                
-                                // Refresh logic
-                                if (context instanceof MainActivity) {
-                                    ((MainActivity) context).onResume(); // Quick way to refresh
-                                }
-                                Toast.makeText(context, "Tarea eliminada", Toast.LENGTH_SHORT).show();
+                    EliminarTareaDialog dialogo = EliminarTareaDialog.newInstance(id, titulo, new EliminarTareaDialog.ConfirmacionListener() {
+                        @Override
+                        public void onTareaEliminada() {
+                            // Mantenemos tu lógica de refresco original
+                            if (context instanceof MainActivity) {
+                                ((MainActivity) context).onResume();
                             }
-                        })
-                        .setNegativeButton("Cancelar", null)
-                        .show();
-                    
+                            Toast.makeText(context, "Tarea eliminada correctamente", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+
+                    // Mostramos el diálogo usando el FragmentManager de la Activity
+                    dialogo.show(((AppCompatActivity) context).getSupportFragmentManager(), "EliminarTareaDialog");
+
                     return true;
                 } else if (itemId == R.id.action_editar) {
-                    // Logic to delete task
-                    Toast.makeText(context, "Editar tarea: " + titulo, Toast.LENGTH_SHORT).show();
+                    // Logic to edite task
+                    Intent intent = new Intent(context, EditTareaActivity.class);
+                    Log.i("EditTareaActivity", "Editando tarea con ID:" + id);
+                    intent.putExtra(DBmanager.COL_ID, id);
+                    context.startActivity(intent);
+                    if (context instanceof MainActivity) {
+                        ((MainActivity) context).onResume(); // Quick way to refresh
+                    }
                     return true;
                 }
 
@@ -125,6 +146,7 @@ public class TareasAdapter extends RecyclerView.Adapter<TareasAdapter.TareaViewH
     static class TareaViewHolder extends RecyclerView.ViewHolder {
         TextView tvTitulo, tvDescripcion, tvFecha;
         ImageView btnMaps, btnMenu;
+        CardView cardView;
 
         public TareaViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -133,6 +155,7 @@ public class TareasAdapter extends RecyclerView.Adapter<TareasAdapter.TareaViewH
             tvFecha = itemView.findViewById(R.id.tvFecha);
             btnMaps = itemView.findViewById(R.id.btnMaps);
             btnMenu = itemView.findViewById(R.id.btnMenu);
+            cardView = itemView.findViewById(R.id.cardViewTarea);
         }
     }
 }

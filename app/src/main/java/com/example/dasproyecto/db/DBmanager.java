@@ -51,10 +51,10 @@ public class DBmanager {
         return c;
     }
 
-    public int actualizarEstado(long id, int estado) {
+    public void actualizarEstado(long id, int estado) {
         ContentValues values = new ContentValues();
         values.put(COL_COMPLETADA, estado);
-        return db.update(TABLE_NAME, values, COL_ID + " = " + id, null);
+        db.update(TABLE_NAME, values, COL_ID + " = " + id, null);
     }
 
     public void insertar(String titulo, String desc, int prioridad, String fecha, String direccion) {
@@ -73,5 +73,26 @@ public class DBmanager {
     }
 
 
+    public void actualizarTareaCompleta(long tareaId, String titulo, String descripcion, int prioridad, String fecha, String direccion) {
+        ContentValues values = new ContentValues();
+        values.put(COL_TITULO, titulo);
+        values.put(COL_DESCRIPCION, descripcion);
+        values.put(COL_PRIORIDAD, prioridad);
+        values.put(COL_FECHALIMITE, fecha);
+        values.put(COL_DIRECCION, direccion);
+        int actualizados = db.update(TABLE_NAME, values, COL_ID + " = " + tareaId, null);
+        if (actualizados == 0) {
+            Log.e(TAG, "No se encontró la tarea con ID: " + tareaId);
+        }else{
+            Log.i(TAG, "Tarea actualizada: " + titulo);
+        }
+    }
 
+    public Cursor getTarea(long id) {
+        String[] columnas = {COL_ID, COL_TITULO, COL_DESCRIPCION, COL_PRIORIDAD, COL_FECHALIMITE, COL_DIRECCION};
+        Cursor cursor = db.query(TABLE_NAME, columnas, COL_ID + " = ?",
+                new String[]{String.valueOf(id)}, null, null, null);
+        cursor.moveToFirst();
+        return cursor;
+    }
 }

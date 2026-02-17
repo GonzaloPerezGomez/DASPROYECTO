@@ -24,6 +24,10 @@
             android:name=".AddTareaActivity"
             android:label="@string/title_activity_add_tarea"
             android:parentActivityName=".MainActivity" />
+        <activity
+            android:name=".EditTareaActivity"
+            android:label="@string/title_activity_edit_tarea"
+            android:parentActivityName=".MainActivity" />
     </application>
 
 </manifest>
