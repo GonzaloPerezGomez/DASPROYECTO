@@ -10,7 +10,6 @@
 - [ ] **Gestión de la Pila (Backstack)**: Verificar que la navegación entre pantallas no cierre la app y mantenga el estado.
 
 ## Requisitos Avanzados (Para alcanzar el Excelente)
-- [ ] **Geolocalización**: Añadir campo de dirección a las tareas y usar *Intents Implícitos* para abrir Google Maps al pulsar en la ubicación.
 - [ ] **Panel de Navegación (Navigation Drawer)**: Crear menú lateral para filtrar por categorías (Trabajo, Personal, Ocio).
 - [ ] **ToolBar Personalizada**: Sustituir la ActionBar por defecto por una `Toolbar` con iconos de acción (buscar, filtrar).
 - [ ] **Uso de Fragments**: Implementar una vista de "Detalle" que se cargue dinámicamente (especialmente útil para modo horizontal).

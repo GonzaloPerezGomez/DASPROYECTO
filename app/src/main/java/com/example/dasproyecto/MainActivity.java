@@ -58,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
         // Initialize DB and Adapter
         dbManager = new DBmanager(this);
         dbManager.open();
-        Cursor cursor = dbManager.listarTareas();
+        Cursor cursor = dbManager.getTareas();
         
         adapter = new TareasAdapter(this, cursor);
         recyclerView.setAdapter(adapter);
@@ -66,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
 
         fab.setOnClickListener(v -> {
             Log.d(TAG, "Botón flotante presionado - Abriendo AddTareaActivity");
-            Intent intent = new Intent(MainActivity.this, AddTareaActivity.class);
+            Intent intent = new Intent(this, AddTareaActivity.class);
             startActivity(intent);
         });
 
@@ -81,15 +81,18 @@ public class MainActivity extends AppCompatActivity {
         toggle.syncState();
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
+    public void refreshTareas() {
         if (dbManager != null) {
-            Cursor newCursor = dbManager.listarTareas();
+            Cursor newCursor = dbManager.getTareas();
             if (adapter != null) {
                 adapter.updateCursor(newCursor);
             }
         }
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        refreshTareas();
     }
 
     @Override

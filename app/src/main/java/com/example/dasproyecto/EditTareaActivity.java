@@ -14,13 +14,13 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.dasproyecto.Dialogs.ElegirFechaDialog;
+import com.example.dasproyecto.dialog.ElegirFechaDialog;
 import com.example.dasproyecto.db.DBmanager;
 
 public class EditTareaActivity extends AppCompatActivity {
 
     private static final String TAG = "EditTareaActivity";
-    private EditText etTitulo, etDescripcion, etFecha, etDireccion;
+    private EditText etTitulo, etDescripcion, etFecha;
     private Spinner spinnerPrioridad;
     private Button btnGuardar, btnCancelar;
     private DBmanager dbManager;
@@ -41,7 +41,6 @@ public class EditTareaActivity extends AppCompatActivity {
         etTitulo = findViewById(R.id.etTitulo);
         etDescripcion = findViewById(R.id.etDescripcion);
         etFecha = findViewById(R.id.etFecha);
-        etDireccion = findViewById(R.id.etDireccion);
         spinnerPrioridad = findViewById(R.id.spinnerPrioridad);
         btnGuardar = findViewById(R.id.btnGuardar);
         btnCancelar = findViewById(R.id.btnCancelar);
@@ -63,7 +62,6 @@ public class EditTareaActivity extends AppCompatActivity {
                 etTitulo.setText(cursor.getString(cursor.getColumnIndexOrThrow(DBmanager.COL_TITULO)));
                 etDescripcion.setText(cursor.getString(cursor.getColumnIndexOrThrow(DBmanager.COL_DESCRIPCION)));
                 etFecha.setText(cursor.getString(cursor.getColumnIndexOrThrow(DBmanager.COL_FECHALIMITE)));
-                etDireccion.setText(cursor.getString(cursor.getColumnIndexOrThrow(DBmanager.COL_DIRECCION)));
                 spinnerPrioridad.setSelection(cursor.getInt(cursor.getColumnIndexOrThrow(DBmanager.COL_PRIORIDAD)));
             }
         }
@@ -71,7 +69,7 @@ public class EditTareaActivity extends AppCompatActivity {
         etFecha.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                configurarSelectorFecha(etFecha.getText().toString());
+                configurarSelectorFecha();
             }
         });
 
@@ -84,7 +82,6 @@ public class EditTareaActivity extends AppCompatActivity {
         String titulo = etTitulo.getText().toString().trim();
         String descripcion = etDescripcion.getText().toString().trim();
         String fecha = etFecha.getText().toString().trim();
-        String direccion = etDireccion.getText().toString().trim();
         int prioridadIndex = spinnerPrioridad.getSelectedItemPosition();
 
         if (TextUtils.isEmpty(titulo)) {
@@ -94,7 +91,7 @@ public class EditTareaActivity extends AppCompatActivity {
 
         // 4. ACTUALIZAR EN LUGAR DE INSERTAR
         // Usamos el ID recuperado para modificar la tarea existente
-        dbManager.actualizarTareaCompleta(tareaId, titulo, descripcion, prioridadIndex, fecha, direccion);
+        dbManager.actualizarTareaCompleta(tareaId, titulo, descripcion, prioridadIndex, fecha);
 
         Toast.makeText(this, "Tarea actualizada", Toast.LENGTH_SHORT).show();
         setResult(RESULT_OK);
@@ -109,26 +106,16 @@ public class EditTareaActivity extends AppCompatActivity {
         }
     }
 
-    private void configurarSelectorFecha(String fechaActual) {
-        int d = 0, m = 0, a = 0;
-
-        // Intentar leer la fecha que ya está puesta
-        if (!fechaActual.isEmpty()) {
-            try {
-                String[] partes = fechaActual.split("/");
-                d = Integer.parseInt(partes[0]);
-                m = Integer.parseInt(partes[1]) - 1; // El diálogo usa meses de 0 a 11
-                a = Integer.parseInt(partes[2]);
-            } catch (Exception e) {
-                // Si falla el parseo, se quedan en 0 y el diálogo usará la actual
-            }
-        }
-
-        ElegirFechaDialog dialogoFecha = ElegirFechaDialog.newInstance(d, m, a, (view, year, month, dayOfMonth) -> {
-            String fechaSeleccionada = dayOfMonth + "/" + (month + 1) + "/" + year;
-            etFecha.setText(fechaSeleccionada);
+    private void configurarSelectorFecha() {
+        getSupportFragmentManager().setFragmentResultListener("fechaSeleccionada", this, (requestKey, bundle) -> {
+            int year = bundle.getInt("year");
+            int month = bundle.getInt("month");
+            int day = bundle.getInt("day");
+            String fecha = day + "/" + (month + 1) + "/" + year;
+            etFecha.setText(fecha);
         });
 
+        ElegirFechaDialog dialogoFecha = new ElegirFechaDialog();
         dialogoFecha.show(getSupportFragmentManager(), "ElegirFecha");
     }
 }

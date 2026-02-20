@@ -66,13 +66,6 @@
                 android:layout_weight="1"
                 android:text="@string/_09_03_2026"
                 android:textSize="12sp" />
-
-            <ImageView
-                android:id="@+id/btnMaps"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@android:drawable/ic_dialog_map"
-                android:contentDescription="@string/abrir_en_maps" />
         </LinearLayout>
 
     </LinearLayout>

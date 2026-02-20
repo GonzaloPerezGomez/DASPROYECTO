@@ -12,7 +12,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.dasproyecto.Dialogs.ElegirFechaDialog;
+import com.example.dasproyecto.dialog.ElegirFechaDialog;
 import com.example.dasproyecto.db.DBmanager;
 
 import android.util.Log;
@@ -20,7 +20,7 @@ import android.util.Log;
 public class AddTareaActivity extends AppCompatActivity {
 
     private static final String TAG = "AddTareaActivity";
-    private EditText etTitulo, etDescripcion, etFecha, etDireccion;
+    private EditText etTitulo, etDescripcion, etFecha;
     private Spinner spinnerPrioridad;
     private Button btnGuardar, btnCancelar;
     private TextView tituloActivity;
@@ -38,13 +38,12 @@ public class AddTareaActivity extends AppCompatActivity {
         etTitulo = findViewById(R.id.etTitulo);
         etDescripcion = findViewById(R.id.etDescripcion);
         etFecha = findViewById(R.id.etFecha);
-        etDireccion = findViewById(R.id.etDireccion);
         spinnerPrioridad = findViewById(R.id.spinnerPrioridad);
         btnGuardar = findViewById(R.id.btnGuardar);
         btnCancelar = findViewById(R.id.btnCancelar);
 
         // Setup Spinner
-        String[] prioridades = {"Baja", "Media", "Alta"};
+        String[] prioridades = {getString(R.string.baja), "Media", "Alta"};
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, prioridades);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerPrioridad.setAdapter(adapter);
@@ -82,7 +81,6 @@ public class AddTareaActivity extends AppCompatActivity {
         String titulo = etTitulo.getText().toString().trim();
         String descripcion = etDescripcion.getText().toString().trim();
         String fecha = etFecha.getText().toString().trim();
-        String direccion = etDireccion.getText().toString().trim();
 
         int prioridadIndex = spinnerPrioridad.getSelectedItemPosition();
 
@@ -91,7 +89,7 @@ public class AddTareaActivity extends AppCompatActivity {
             return;
         }
 
-        dbManager.insertar(titulo, descripcion, prioridadIndex, fecha, direccion);
+        dbManager.insertar(titulo, descripcion, prioridadIndex, fecha);
         Log.i(TAG, "Tarea guardada: " + titulo);
         Toast.makeText(this, "Tarea guardada", Toast.LENGTH_SHORT).show();
         
@@ -109,19 +107,15 @@ public class AddTareaActivity extends AppCompatActivity {
     }
 
     private void configurarSelectorFecha() {
-        etFecha.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Instanciar con el nuevo nombre de clase
-                ElegirFechaDialog dialogoFecha = ElegirFechaDialog.newInstance((view, year, month, dayOfMonth) -> {
-                    // Formatear fecha (Mes + 1 porque Enero es 0)
-                    String fechaSeleccionada = dayOfMonth + "/" + (month + 1) + "/" + year;
-                    etFecha.setText(fechaSeleccionada);
-                });
-
-                // Mostrar usando el FragmentManager
-                dialogoFecha.show(getSupportFragmentManager(), "ElegirFecha");
-            }
+        getSupportFragmentManager().setFragmentResultListener("fechaSeleccionada", this, (requestKey, bundle) -> {
+            int year = bundle.getInt("year");
+            int month = bundle.getInt("month");
+            int day = bundle.getInt("day");
+            String fecha = day + "/" + (month + 1) + "/" + year;
+            etFecha.setText(fecha);
         });
+
+        ElegirFechaDialog dialogoFecha = new ElegirFechaDialog();
+        dialogoFecha.show(getSupportFragmentManager(), "ElegirFecha");
     }
 }

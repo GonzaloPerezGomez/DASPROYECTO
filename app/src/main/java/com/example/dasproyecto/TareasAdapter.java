@@ -1,7 +1,5 @@
 package com.example.dasproyecto;
 
-import static androidx.core.content.ContextCompat.startActivity;
-
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -18,12 +16,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.widget.PopupMenu;
 import android.widget.Toast;
 
-import com.example.dasproyecto.Dialogs.EliminarTareaDialog;
+import com.example.dasproyecto.dialog.EliminarTareaDialog;
 import com.example.dasproyecto.db.DBmanager;
 
 public class TareasAdapter extends RecyclerView.Adapter<TareasAdapter.TareaViewHolder> {
@@ -68,23 +64,29 @@ public class TareasAdapter extends RecyclerView.Adapter<TareasAdapter.TareaViewH
 
         if (completada == 1) {
             holder.cardView.setCardBackgroundColor(Color.parseColor("#E0E0E0")); // Gris claro
-            holder.tvTitulo.setPaintFlags(holder.tvTitulo.getPaintFlags() | android.graphics.Paint.STRIKE_THRU_TEXT_FLAG); // Opcional: Tachado
+            holder.tvTitulo
+                    .setPaintFlags(holder.tvTitulo.getPaintFlags() | android.graphics.Paint.STRIKE_THRU_TEXT_FLAG);
         } else {
             holder.cardView.setCardBackgroundColor(Color.WHITE);
-            holder.tvTitulo.setPaintFlags(holder.tvTitulo.getPaintFlags() & (~android.graphics.Paint.STRIKE_THRU_TEXT_FLAG)); // Quitar tachado
+            holder.tvTitulo
+                    .setPaintFlags(holder.tvTitulo.getPaintFlags() & (~android.graphics.Paint.STRIKE_THRU_TEXT_FLAG));
         }
 
         holder.tvTitulo.setText(titulo);
         holder.tvDescripcion.setText(descripcion);
-        holder.tvFecha.setText("📅 " + fecha);
+        holder.tvFecha.setText(fecha);
 
-        // Optional: Change color based on priority
-        // Simple visual indicator: High priority (2) -> Red, Medium (1) -> Orange/Yellow, Low (0) -> Green/Default
         int color;
         switch (prioridad) {
-            case 2: color = Color.RED; break;
-            case 1: color = Color.rgb(255, 165, 0); break; // Orange
-            default: color = Color.GREEN; break; // Green
+            case 2:
+                color = Color.RED;
+                break;
+            case 1:
+                color = Color.rgb(255, 165, 0);
+                break;
+            default:
+                color = Color.GREEN;
+                break;
         }
         holder.tvTitulo.setTextColor(color);
 
@@ -94,41 +96,27 @@ public class TareasAdapter extends RecyclerView.Adapter<TareasAdapter.TareaViewH
             popup.setOnMenuItemClickListener(item -> {
                 int itemId = item.getItemId();
                 if (itemId == R.id.action_completar) {
-                    // Logic to complete task
-                    Toast.makeText(context, "Completar tarea: " + titulo, Toast.LENGTH_SHORT).show();
                     DBmanager dbManager = new DBmanager(context);
                     dbManager.open();
                     dbManager.actualizarEstado(id, 1);
+                    dbManager.close();
+                    Toast.makeText(context, "Tarea '" + titulo + "' completada", Toast.LENGTH_SHORT).show();
                     if (context instanceof MainActivity) {
-                        ((MainActivity) context).onResume(); // Quick way to refresh
+                        ((MainActivity) context).refreshTareas();
                     }
                     return true;
 
                 } else if (itemId == R.id.action_eliminar) {
-                    EliminarTareaDialog dialogo = EliminarTareaDialog.newInstance(id, titulo, new EliminarTareaDialog.ConfirmacionListener() {
-                        @Override
-                        public void onTareaEliminada() {
-                            // Mantenemos tu lógica de refresco original
-                            if (context instanceof MainActivity) {
-                                ((MainActivity) context).onResume();
-                            }
-                            Toast.makeText(context, "Tarea eliminada correctamente", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-
-                    // Mostramos el diálogo usando el FragmentManager de la Activity
+                    // El diálogo se encarga de la eliminación, el Toast y el refresco tras
+                    // confirmar
+                    EliminarTareaDialog dialogo = EliminarTareaDialog.newInstance(id, titulo);
                     dialogo.show(((AppCompatActivity) context).getSupportFragmentManager(), "EliminarTareaDialog");
-
                     return true;
+
                 } else if (itemId == R.id.action_editar) {
-                    // Logic to edite task
                     Intent intent = new Intent(context, EditTareaActivity.class);
-                    Log.i("EditTareaActivity", "Editando tarea con ID:" + id);
                     intent.putExtra(DBmanager.COL_ID, id);
                     context.startActivity(intent);
-                    if (context instanceof MainActivity) {
-                        ((MainActivity) context).onResume(); // Quick way to refresh
-                    }
                     return true;
                 }
 
@@ -145,7 +133,7 @@ public class TareasAdapter extends RecyclerView.Adapter<TareasAdapter.TareaViewH
 
     static class TareaViewHolder extends RecyclerView.ViewHolder {
         TextView tvTitulo, tvDescripcion, tvFecha;
-        ImageView btnMaps, btnMenu;
+        ImageView btnMenu;
         CardView cardView;
 
         public TareaViewHolder(@NonNull View itemView) {
@@ -153,7 +141,6 @@ public class TareasAdapter extends RecyclerView.Adapter<TareasAdapter.TareaViewH
             tvTitulo = itemView.findViewById(R.id.tvTitulo);
             tvDescripcion = itemView.findViewById(R.id.tvDescripcion);
             tvFecha = itemView.findViewById(R.id.tvFecha);
-            btnMaps = itemView.findViewById(R.id.btnMaps);
             btnMenu = itemView.findViewById(R.id.btnMenu);
             cardView = itemView.findViewById(R.id.cardViewTarea);
         }
