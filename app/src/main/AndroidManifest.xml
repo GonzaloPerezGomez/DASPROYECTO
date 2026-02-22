@@ -2,6 +2,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- Permiso para mostrar notificaciones (obligatorio en Android 13+) -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <!-- Permiso para re-programar la alarma tras reinicio del dispositivo -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -28,6 +34,34 @@
             android:name=".EditTareaActivity"
             android:label="@string/title_activity_edit_tarea"
             android:parentActivityName=".MainActivity" />
+        <activity
+            android:name=".ViewTareaActivity"
+            android:label="Ver Tarea"
+            android:parentActivityName=".MainActivity" />
+
+        <!--
+            NotificacionReceiver: se ejecuta cuando salta la alarma de AlarmManager.
+            No necesita intent-filter porque se invoca mediante PendingIntent
+            (Android ya sabe qué clase ejecutar por el Intent explícito).
+            exported="false" porque solo nuestra app lo usa.
+        -->
+        <receiver
+            android:name=".NotificacionReceiver"
+            android:exported="false" />
+
+        <!--
+            BootReceiver: se ejecuta automáticamente tras reiniciar el teléfono.
+            El intent-filter BOOT_COMPLETED le dice a Android que lo ejecute al arrancar.
+            exported="true" es obligatorio porque el evento viene del sistema (fuera de nuestra app).
+        -->
+        <receiver
+            android:name=".BootReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
     </application>
+
 
 </manifest>

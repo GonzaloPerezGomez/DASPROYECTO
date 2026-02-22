@@ -7,6 +7,12 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
+
 public class DBmanager {
     private static final String TAG = "DBmanager";
     public static final String TABLE_NAME = "tareas";
@@ -80,6 +86,54 @@ public class DBmanager {
         } else {
             Log.i(TAG, "Tarea actualizada: " + titulo);
         }
+    }
+
+    /**
+     * Cuenta las tareas NO completadas cuya fechaLimite es ANTERIOR a la fecha
+     * dada.
+     * Parsea cada fechaLimite (formato "d/M/yyyy") para compararla con 'fechaHoy'.
+     *
+     * @param fechaHoy la fecha de hoy en formato "d/M/yyyy"
+     * @return número de tareas atrasadas
+     */
+    public ArrayList<String> tareasPendientes(String fechaHoy) {
+        // 1. Crear el formateador de fechas con el mismo patrón usado al guardar
+        SimpleDateFormat sdf = new SimpleDateFormat("d/M/yyyy", Locale.getDefault());
+        ArrayList<String> tareasPendientes = new ArrayList<>();
+
+        // 2. Parsear la fecha de hoy a un objeto Date para poder comparar
+        Date hoy;
+        try {
+            hoy = sdf.parse(fechaHoy);
+        } catch (ParseException e) {
+            Log.e(TAG, "Error al parsear la fecha de hoy: " + fechaHoy, e);
+            return null; // Si no se puede parsear, devolvemos 0
+        }
+
+        // 3. Consultar todas las tareas NO completadas (completada = 0)
+        Cursor cursor = db.query(TABLE_NAME, columnas,
+                COL_COMPLETADA + " = 0", null, null, null, null);
+
+        // 4. Recorrer cada tarea y comparar su fecha
+        while (cursor.moveToNext()) {
+            String fechaTarea = cursor.getString(
+                    cursor.getColumnIndexOrThrow(COL_FECHALIMITE));
+            if (fechaTarea != null && !fechaTarea.isEmpty()) {
+                try {
+                    Date dateTarea = sdf.parse(fechaTarea);
+                    // before() devuelve true si dateTarea es anterior a hoy
+                    if (dateTarea != null && (dateTarea.before(hoy) || dateTarea.equals(hoy))) {
+                        String tituloTarea = cursor.getString(
+                                cursor.getColumnIndexOrThrow(COL_TITULO));
+                        tareasPendientes.add(tituloTarea);
+                    }
+                } catch (ParseException e) {
+                    Log.w(TAG, "Fecha no válida en tarea: " + fechaTarea, e);
+                }
+            }
+        }
+        cursor.close();
+        return tareasPendientes;
     }
 
     public Cursor getTarea(long id) {

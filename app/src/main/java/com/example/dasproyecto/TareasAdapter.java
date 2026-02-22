@@ -22,10 +22,13 @@ import android.widget.Toast;
 import com.example.dasproyecto.dialog.EliminarTareaDialog;
 import com.example.dasproyecto.db.DBmanager;
 
+import java.util.ArrayList;
+
 public class TareasAdapter extends RecyclerView.Adapter<TareasAdapter.TareaViewHolder> {
 
     private Context context;
     private Cursor cursor;
+
 
     public TareasAdapter(Context context, Cursor cursor) {
         this.context = context;
@@ -37,10 +40,9 @@ public class TareasAdapter extends RecyclerView.Adapter<TareasAdapter.TareaViewH
             cursor.close();
         }
         cursor = newCursor;
-        if (newCursor != null) {
-            notifyDataSetChanged();
-        }
+        notifyDataSetChanged();
     }
+
 
     @NonNull
     @Override
@@ -75,6 +77,7 @@ public class TareasAdapter extends RecyclerView.Adapter<TareasAdapter.TareaViewH
         holder.tvTitulo.setText(titulo);
         holder.tvDescripcion.setText(descripcion);
         holder.tvFecha.setText(fecha);
+        holder.id = id;
 
         int color;
         switch (prioridad) {
@@ -90,7 +93,7 @@ public class TareasAdapter extends RecyclerView.Adapter<TareasAdapter.TareaViewH
         }
         holder.tvTitulo.setTextColor(color);
 
-        holder.btnMenu.setOnClickListener(v -> {
+        /*holder.btnMenu.setOnClickListener(v -> {
             PopupMenu popup = new PopupMenu(context, holder.btnMenu);
             popup.inflate(R.menu.menu_item_tarea);
             popup.setOnMenuItemClickListener(item -> {
@@ -124,6 +127,8 @@ public class TareasAdapter extends RecyclerView.Adapter<TareasAdapter.TareaViewH
             });
             popup.show();
         });
+
+         */
     }
 
     @Override
@@ -135,14 +140,20 @@ public class TareasAdapter extends RecyclerView.Adapter<TareasAdapter.TareaViewH
         TextView tvTitulo, tvDescripcion, tvFecha;
         ImageView btnMenu;
         CardView cardView;
+        long id = -1;
 
         public TareaViewHolder(@NonNull View itemView) {
             super(itemView);
             tvTitulo = itemView.findViewById(R.id.tvTitulo);
             tvDescripcion = itemView.findViewById(R.id.tvDescripcion);
             tvFecha = itemView.findViewById(R.id.tvFecha);
-            btnMenu = itemView.findViewById(R.id.btnMenu);
             cardView = itemView.findViewById(R.id.cardViewTarea);
+            itemView.setOnClickListener(v -> {
+                Log.d("TareasAdapter", "Tarea seleccionada: " + getAdapterPosition());
+                Intent intent = new Intent(v.getContext(), ViewTareaActivity.class);
+                intent.putExtra(DBmanager.COL_ID, id);
+                v.getContext().startActivity(intent);
+            });
         }
     }
 }
