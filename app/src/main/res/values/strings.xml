@@ -1,35 +1,56 @@
 <resources>
+    <!-- App -->
     <string name="app_name">DAS PROYECTO</string>
-    <string name="navigation_drawer_open" />
-    <string name="navigation_drawer_close">Close navigation drawer</string>
-    <string name="title_activity_add_tarea">Nueva Tarea</string>
+
+    <!-- Navigation Drawer -->
+    <string name="navigation_drawer_open">Abrir menú de navegación</string>
+    <string name="navigation_drawer_close">Cerrar menú de navegación</string>
+    <string name="nav_header_title">Gestor de Tareas DAS</string>
+    <string name="nav_header_email">usuario@ingenieria.ehu.es</string>
+    <string name="nav_mis_tareas">Mis Tareas</string>
+    <string name="nav_ver_por_prioridad">Ver por Prioridad</string>
+    <string name="nav_exportar_txt">Exportar (.txt)</string>
+    <string name="nav_configuracion">Configuración</string>
+    <string name="nav_ajustes">Ajustes</string>
+
+    <!-- Formulario Add/Edit Tarea -->
+    <string name="titulo_nueva_tarea">Nueva Tarea</string>
+    <string name="titulo_editar_tarea">Editando Tarea\n</string>
     <string name="hint_titulo">Título</string>
     <string name="hint_descripcion">Descripción</string>
     <string name="hint_fecha">Fecha Límite (DD/MM/AAAA)</string>
-
     <string name="label_prioridad">Prioridad</string>
     <string name="btn_guardar">Guardar</string>
     <string name="btn_cancelar">Cancelar</string>
     <string name="error_titulo_requerido">El título es obligatorio</string>
-    <string name="_09_03_2026">📅 09/03/2026</string>
-    <string name="abrir_en_maps">Abrir en Maps</string>
-    <string name="descripci_n_breve">Descripción breve...</string>
-    <string name="titulo_de_la_tarea" />
-    <string name="editar">Editar</string>
-    <string name="completar">Completar</string>
-    <string name="eliminar">Eliminar</string>
-    <string name="opciones">Opciones</string>
-    <string name="add_task">Add Task</string>
-    <string name="gestor_de_tareas_das">Gestor de Tareas DAS</string>
-    <string name="usuario_ingenieria_ehu_es">usuario@ingenieria.ehu.es</string>
-    <string name="mis_tareas">Mis Tareas</string>
-    <string name="ver_por_prioridad">Ver por Prioridad</string>
-    <string name="exportar_txt">Exportar (.txt)</string>
-    <string name="configuraci_n">Configuración</string>
-    <string name="ajustes">Ajustes</string>
-    <string name="title_activity_edit_tarea">EditTareaActivity</string>
-    <string name="editar_tarea">Editar Tarea</string>
-    <string name="editar_tarea_titulo">Editando Tarea\n</string>
-    <string name="añadir_tarea_titulo">Nueva Tarea</string>
-    <string name="baja">Baja</string>
+    <string name="toast_tarea_guardada">Tarea guardada</string>
+    <string name="toast_tarea_actualizada">Tarea actualizada</string>
+
+    <!-- Prioridades -->
+    <string name="prioridad_baja">Baja</string>
+    <string name="prioridad_media">Media</string>
+    <string name="prioridad_alta">Alta</string>
+    <string name="prioridad_desconocida">Desconocida</string>
+
+    <!-- ViewTareaActivity -->
+    <string name="error_tarea_no_encontrada">Error: tarea no encontrada</string>
+    <string name="btn_completada">Completada</string>
+    <string name="btn_no_completada">No completada</string>
+
+    <!-- Diálogo Eliminar -->
+    <string name="dialog_eliminar_titulo">Eliminar tarea</string>
+    <string name="dialog_eliminar_mensaje">¿Estás seguro de que quieres eliminar la tarea \'%s\'?</string>
+    <string name="dialog_eliminar_confirmar">Sí</string>
+    <string name="dialog_eliminar_cancelar">No</string>
+    <string name="toast_tarea_eliminada">Tarea \'%s\' eliminada correctamente</string>
+
+    <!-- FAB / Accesibilidad -->
+    <string name="fab_add_task">Añadir tarea</string>
+
+    <!-- Placeholders item_tarea (solo visibles en el editor) -->
+    <string name="placeholder_titulo" />
+    <string name="placeholder_descripcion">Descripción breve…</string>
+    <string name="placeholder_fecha">📅 09/03/2026</string>
+    <string name="title_activity_add_tarea" />
+    <string name="title_activity_edit_tarea" />
 </resources>

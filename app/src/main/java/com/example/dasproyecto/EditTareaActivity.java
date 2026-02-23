@@ -4,7 +4,6 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -33,8 +32,7 @@ public class EditTareaActivity extends AppCompatActivity {
         setContentView(R.layout.activity_add_tarea);
 
         tituloActivity = findViewById(R.id.tituloActivity);
-        tituloActivity.setText(R.string.editar_tarea_titulo);
-
+        tituloActivity.setText(R.string.titulo_editar_tarea);
 
         // 1. Inicializar Vistas
 
@@ -46,7 +44,8 @@ public class EditTareaActivity extends AppCompatActivity {
         btnCancelar = findViewById(R.id.btnCancelar);
 
         // 2. Setup Spinner (Mantenemos tu lógica: Alta=2, Media=1, Baja=0)
-        String[] prioridades = {"Baja", "Media", "Alta"};
+        String[] prioridades = { getString(R.string.prioridad_baja), getString(R.string.prioridad_media),
+                getString(R.string.prioridad_alta) };
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, prioridades);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerPrioridad.setAdapter(adapter);
@@ -63,15 +62,11 @@ public class EditTareaActivity extends AppCompatActivity {
                 etDescripcion.setText(cursor.getString(cursor.getColumnIndexOrThrow(DBmanager.COL_DESCRIPCION)));
                 etFecha.setText(cursor.getString(cursor.getColumnIndexOrThrow(DBmanager.COL_FECHALIMITE)));
                 spinnerPrioridad.setSelection(cursor.getInt(cursor.getColumnIndexOrThrow(DBmanager.COL_PRIORIDAD)));
+                cursor.close();
             }
         }
 
-        etFecha.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                configurarSelectorFecha();
-            }
-        });
+        etFecha.setOnClickListener(v -> configurarSelectorFecha());
 
         // 5. ACTUALIZAR
         btnGuardar.setOnClickListener(v -> actualizarTarea());
@@ -85,7 +80,7 @@ public class EditTareaActivity extends AppCompatActivity {
         int prioridadIndex = spinnerPrioridad.getSelectedItemPosition();
 
         if (TextUtils.isEmpty(titulo)) {
-            etTitulo.setError("El título es obligatorio");
+            etTitulo.setError(getString(R.string.error_titulo_requerido));
             return;
         }
 
@@ -93,8 +88,7 @@ public class EditTareaActivity extends AppCompatActivity {
         // Usamos el ID recuperado para modificar la tarea existente
         dbManager.actualizarTareaCompleta(tareaId, titulo, descripcion, prioridadIndex, fecha);
 
-        Toast.makeText(this, "Tarea actualizada", Toast.LENGTH_SHORT).show();
-        setResult(RESULT_OK);
+        Toast.makeText(this, R.string.toast_tarea_actualizada, Toast.LENGTH_SHORT).show();
         finish();
     }
 
@@ -115,7 +109,21 @@ public class EditTareaActivity extends AppCompatActivity {
             etFecha.setText(fecha);
         });
 
-        ElegirFechaDialog dialogoFecha = new ElegirFechaDialog();
+        ElegirFechaDialog dialogoFecha;
+        String fechaActual = etFecha.getText().toString().trim();
+        if (!fechaActual.isEmpty()) {
+            try {
+                String[] partes = fechaActual.split("/");
+                int day = Integer.parseInt(partes[0]);
+                int month = Integer.parseInt(partes[1]) - 1; // Calendar months are 0-based
+                int year = Integer.parseInt(partes[2]);
+                dialogoFecha = ElegirFechaDialog.newInstance(day, month, year);
+            } catch (Exception e) {
+                dialogoFecha = new ElegirFechaDialog();
+            }
+        } else {
+            dialogoFecha = new ElegirFechaDialog();
+        }
         dialogoFecha.show(getSupportFragmentManager(), "ElegirFecha");
     }
 }

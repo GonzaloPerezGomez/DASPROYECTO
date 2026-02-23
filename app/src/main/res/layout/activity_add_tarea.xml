@@ -14,7 +14,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            android:text="@string/title_activity_add_tarea"
+            android:text="@string/titulo_nueva_tarea"
             android:textSize="24sp"
             android:textStyle="bold" />
 

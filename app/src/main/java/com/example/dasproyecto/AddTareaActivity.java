@@ -2,7 +2,6 @@ package com.example.dasproyecto;
 
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -32,7 +31,7 @@ public class AddTareaActivity extends AppCompatActivity {
         setContentView(R.layout.activity_add_tarea);
 
         tituloActivity = findViewById(R.id.tituloActivity);
-        tituloActivity.setText(R.string.añadir_tarea_titulo);
+        tituloActivity.setText(R.string.titulo_nueva_tarea);
 
         // Initialize Views
         etTitulo = findViewById(R.id.etTitulo);
@@ -43,7 +42,8 @@ public class AddTareaActivity extends AppCompatActivity {
         btnCancelar = findViewById(R.id.btnCancelar);
 
         // Setup Spinner
-        String[] prioridades = {getString(R.string.baja), "Media", "Alta"};
+        String[] prioridades = { getString(R.string.prioridad_baja), getString(R.string.prioridad_media),
+                getString(R.string.prioridad_alta) };
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, prioridades);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerPrioridad.setAdapter(adapter);
@@ -54,26 +54,13 @@ public class AddTareaActivity extends AppCompatActivity {
 
         // Listeners
 
-        etFecha.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                configurarSelectorFecha();
-            }
-        });
+        etFecha.setOnClickListener(v -> configurarSelectorFecha());
 
-        btnGuardar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                guardarTarea();
-            }
-        });
+        btnGuardar.setOnClickListener(v -> guardarTarea());
 
-        btnCancelar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d(TAG, "Cancelando creación de tarea");
-                finish();
-            }
+        btnCancelar.setOnClickListener(v -> {
+            Log.d(TAG, "Cancelando creación de tarea");
+            finish();
         });
     }
 
@@ -91,10 +78,7 @@ public class AddTareaActivity extends AppCompatActivity {
 
         dbManager.insertar(titulo, descripcion, prioridadIndex, fecha);
         Log.i(TAG, "Tarea guardada: " + titulo);
-        Toast.makeText(this, "Tarea guardada", Toast.LENGTH_SHORT).show();
-        
-        // Return OK result to MainActivity
-        setResult(RESULT_OK);
+        Toast.makeText(this, R.string.toast_tarea_guardada, Toast.LENGTH_SHORT).show();
         finish();
     }
 

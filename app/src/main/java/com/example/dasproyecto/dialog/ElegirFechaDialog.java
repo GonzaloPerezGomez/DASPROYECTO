@@ -11,15 +11,35 @@ import java.util.Calendar;
 
 public class ElegirFechaDialog extends DialogFragment implements DatePickerDialog.OnDateSetListener {
 
-    private int dia, mes, anio = 0;
+    private static final String ARG_DAY = "day";
+    private static final String ARG_MONTH = "month";
+    private static final String ARG_YEAR = "year";
+
+    /** Crea el diálogo con una fecha inicial concreta. */
+    public static ElegirFechaDialog newInstance(int day, int month, int year) {
+        ElegirFechaDialog frag = new ElegirFechaDialog();
+        Bundle args = new Bundle();
+        args.putInt(ARG_DAY, day);
+        args.putInt(ARG_MONTH, month);
+        args.putInt(ARG_YEAR, year);
+        frag.setArguments(args);
+        return frag;
+    }
 
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        final Calendar c = Calendar.getInstance();
-        int y = c.get(Calendar.YEAR);
-        int m = c.get(Calendar.MONTH);
-        int d = c.get(Calendar.DAY_OF_MONTH);
+        int y, m, d;
+        if (getArguments() != null && getArguments().containsKey(ARG_YEAR)) {
+            y = getArguments().getInt(ARG_YEAR);
+            m = getArguments().getInt(ARG_MONTH);
+            d = getArguments().getInt(ARG_DAY);
+        } else {
+            final Calendar c = Calendar.getInstance();
+            y = c.get(Calendar.YEAR);
+            m = c.get(Calendar.MONTH);
+            d = c.get(Calendar.DAY_OF_MONTH);
+        }
         return new DatePickerDialog(getActivity(), this, y, m, d);
     }
 

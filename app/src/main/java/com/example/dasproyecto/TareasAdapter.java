@@ -8,27 +8,19 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.widget.PopupMenu;
-import android.widget.Toast;
-
-import com.example.dasproyecto.dialog.EliminarTareaDialog;
 import com.example.dasproyecto.db.DBmanager;
-
-import java.util.ArrayList;
 
 public class TareasAdapter extends RecyclerView.Adapter<TareasAdapter.TareaViewHolder> {
 
     private Context context;
     private Cursor cursor;
-
 
     public TareasAdapter(Context context, Cursor cursor) {
         this.context = context;
@@ -42,7 +34,6 @@ public class TareasAdapter extends RecyclerView.Adapter<TareasAdapter.TareaViewH
         cursor = newCursor;
         notifyDataSetChanged();
     }
-
 
     @NonNull
     @Override
@@ -75,8 +66,25 @@ public class TareasAdapter extends RecyclerView.Adapter<TareasAdapter.TareaViewH
         }
 
         holder.tvTitulo.setText(titulo);
-        holder.tvDescripcion.setText(descripcion);
-        holder.tvFecha.setText(fecha);
+
+        // Descripción: ocultar si vacía
+        if (descripcion != null && !descripcion.trim().isEmpty()) {
+            holder.tvDescripcion.setText(descripcion);
+            holder.tvDescripcion.setVisibility(View.VISIBLE);
+        } else {
+            holder.tvDescripcion.setVisibility(View.GONE);
+        }
+
+        // Fecha + separador: ocultar si vacía
+        if (fecha != null && !fecha.trim().isEmpty()) {
+            holder.tvFecha.setText(fecha);
+            holder.divider.setVisibility(View.VISIBLE);
+            holder.layoutFecha.setVisibility(View.VISIBLE);
+        } else {
+            holder.divider.setVisibility(View.GONE);
+            holder.layoutFecha.setVisibility(View.GONE);
+        }
+
         holder.id = id;
 
         int color;
@@ -88,47 +96,12 @@ public class TareasAdapter extends RecyclerView.Adapter<TareasAdapter.TareaViewH
                 color = Color.rgb(255, 165, 0);
                 break;
             default:
-                color = Color.GREEN;
+                color = Color.BLACK;
                 break;
         }
+
         holder.tvTitulo.setTextColor(color);
 
-        /*holder.btnMenu.setOnClickListener(v -> {
-            PopupMenu popup = new PopupMenu(context, holder.btnMenu);
-            popup.inflate(R.menu.menu_item_tarea);
-            popup.setOnMenuItemClickListener(item -> {
-                int itemId = item.getItemId();
-                if (itemId == R.id.action_completar) {
-                    DBmanager dbManager = new DBmanager(context);
-                    dbManager.open();
-                    dbManager.actualizarEstado(id, 1);
-                    dbManager.close();
-                    Toast.makeText(context, "Tarea '" + titulo + "' completada", Toast.LENGTH_SHORT).show();
-                    if (context instanceof MainActivity) {
-                        ((MainActivity) context).refreshTareas();
-                    }
-                    return true;
-
-                } else if (itemId == R.id.action_eliminar) {
-                    // El diálogo se encarga de la eliminación, el Toast y el refresco tras
-                    // confirmar
-                    EliminarTareaDialog dialogo = EliminarTareaDialog.newInstance(id, titulo);
-                    dialogo.show(((AppCompatActivity) context).getSupportFragmentManager(), "EliminarTareaDialog");
-                    return true;
-
-                } else if (itemId == R.id.action_editar) {
-                    Intent intent = new Intent(context, EditTareaActivity.class);
-                    intent.putExtra(DBmanager.COL_ID, id);
-                    context.startActivity(intent);
-                    return true;
-                }
-
-                return false;
-            });
-            popup.show();
-        });
-
-         */
     }
 
     @Override
@@ -138,7 +111,8 @@ public class TareasAdapter extends RecyclerView.Adapter<TareasAdapter.TareaViewH
 
     static class TareaViewHolder extends RecyclerView.ViewHolder {
         TextView tvTitulo, tvDescripcion, tvFecha;
-        ImageView btnMenu;
+        View divider;
+        LinearLayout layoutFecha;
         CardView cardView;
         long id = -1;
 
@@ -147,6 +121,8 @@ public class TareasAdapter extends RecyclerView.Adapter<TareasAdapter.TareaViewH
             tvTitulo = itemView.findViewById(R.id.tvTitulo);
             tvDescripcion = itemView.findViewById(R.id.tvDescripcion);
             tvFecha = itemView.findViewById(R.id.tvFecha);
+            divider = itemView.findViewById(R.id.divider);
+            layoutFecha = itemView.findViewById(R.id.layoutFecha);
             cardView = itemView.findViewById(R.id.cardViewTarea);
             itemView.setOnClickListener(v -> {
                 Log.d("TareasAdapter", "Tarea seleccionada: " + getAdapterPosition());

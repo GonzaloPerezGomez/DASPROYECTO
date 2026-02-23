@@ -46,7 +46,7 @@
             exported="false" porque solo nuestra app lo usa.
         -->
         <receiver
-            android:name=".NotificacionReceiver"
+            android:name=".notification.NotificacionReceiver"
             android:exported="false" />
 
         <!--
@@ -55,7 +55,7 @@
             exported="true" es obligatorio porque el evento viene del sistema (fuera de nuestra app).
         -->
         <receiver
-            android:name=".BootReceiver"
+            android:name=".notification.BootReceiver"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />

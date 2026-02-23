@@ -1,4 +1,4 @@
-package com.example.dasproyecto;
+package com.example.dasproyecto.notification;
 
 import android.Manifest;
 import android.annotation.SuppressLint;

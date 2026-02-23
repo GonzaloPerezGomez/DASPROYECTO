@@ -1,9 +1,11 @@
-package com.example.dasproyecto;
+package com.example.dasproyecto.notification;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
+
+import com.example.dasproyecto.MainActivity;
 
 /**
  * BroadcastReceiver que se ejecuta automáticamente cuando el dispositivo se
