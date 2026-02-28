@@ -10,15 +10,14 @@
 - [x] **Gestión de la Pila (Backstack)**: Verificar que la navegación entre pantallas no cierre la app y mantenga el estado.
 - [x] **Añadir layout de ver detalles de tarea**
 - [x] **Poner botones para editar, completar y eliminar en nuevo layout**
-- [ ] **Divisor de tareas por fecha**
 - [x] **Cuando se elimina una tarea en landscape actualizar el detalle tarea**
-- [ ] **Listener para boton de completado de tarea**
-- [ ] **Cuando se pone en lanscape que detalle empiece mostrando la primera tarea (mirar como hacer cuando no hay ninguna tarea)**
+- [x] **Listener para boton de completado de tarea**
+- [x] **Cuando se pone en lanscape que detalle empiece mostrando la primera tarea (mirar como hacer cuando no hay ninguna tarea)**
 
 ## Requisitos Avanzados (Para alcanzar el Excelente)
-- [ ] **Panel de Navegación (Navigation Drawer)**: Crear menú lateral para filtrar por categorías (Trabajo, Personal, Ocio).
-- [ ] **ToolBar Personalizada**: Sustituir la ActionBar por defecto por una `Toolbar` con iconos de acción (buscar, filtrar).
-- [ ] **Uso de Fragments**: Implementar una vista de "Detalle" que se cargue dinámicamente (especialmente útil para modo horizontal).
+- [x] **Panel de Navegación (Navigation Drawer)**: Crear menú lateral para filtrar por categorías (Trabajo, Personal, Ocio).
+- [x] **ToolBar Personalizada**: Sustituir la ActionBar por defecto por una `Toolbar` con iconos de acción (buscar, filtrar).
+- [x] **Uso de Fragments**: Implementar una vista de "Detalle" que se cargue dinámicamente (especialmente útil para modo horizontal).
 - [ ] **Sistema de Preferencias (SharedPreferences)**: Opción para guardar ajustes de usuario (ej. orden de la lista, mostrar/ocultar completadas).
 - [ ] **Estilos y Temas Propios**: Definir colores, fuentes y formas de botones en `themes.xml` para alejar la app del diseño por defecto.
 - [ ] **Multiidioma**: Localizar todos los strings de la aplicación al Castellano, Euskera e Inglés.
@@ -29,3 +28,11 @@
 - [ ] **Manual de Usuario**: Crear guía con capturas de pantalla de la interfaz final.
 - [ ] **Generación de APK**: Compilar el fichero `.apk` final y verificar su funcionamiento en un emulador o dispositivo real.
 - [ ] **Subida a eGela**: Preparar el .zip con el APK, la Memoria y el enlace al repositorio Git antes del 9 de marzo.
+
+
+## Extras de aspecto
+- [ ] **Divisor de tareas por fecha**
+- [ ] **Arreglar aspecto de fragmets en landscape**
+- [ ] **Arreglar aspecto de fragmets en portrait**
+- [ ] **Elevacion en las card**
+- [ ] **Poner iconos en los botones**

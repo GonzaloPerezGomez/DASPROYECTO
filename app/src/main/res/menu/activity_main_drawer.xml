@@ -6,10 +6,6 @@
             android:icon="@android:drawable/ic_menu_agenda"
             android:title="@string/nav_mis_tareas" />
         <item
-            android:id="@+id/nav_prioridad"
-            android:icon="@android:drawable/ic_menu_sort_by_size"
-            android:title="@string/nav_ver_por_prioridad" />
-        <item
             android:id="@+id/nav_exportar"
             android:icon="@android:drawable/ic_menu_save"
             android:title="@string/nav_exportar_txt" /> </group>

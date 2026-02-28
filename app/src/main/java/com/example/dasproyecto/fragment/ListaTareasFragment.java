@@ -2,16 +2,22 @@ package com.example.dasproyecto.fragment;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -34,6 +40,7 @@ public class ListaTareasFragment extends Fragment {
     private RecyclerView recyclerView;
     private DBmanager dbManager;
     private TareasAdapter adapter;
+    private boolean primeraSeleccionRealizada = false;
 
     public interface OnTareaSeleccionadaListener {
         void onTareaSeleccionada(long id);
@@ -62,6 +69,7 @@ public class ListaTareasFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        setHasOptionsMenu(true);
 
         // Toolbar
         Toolbar toolbar = view.findViewById(R.id.toolbar);
@@ -96,13 +104,85 @@ public class ListaTareasFragment extends Fragment {
         cargarTareas();
     }
 
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_lista_tareas, menu);
+
+        // Obtener el SearchView del menú
+        MenuItem searchItem = menu.findItem(R.id.action_buscar);
+        SearchView searchView = (SearchView) searchItem.getActionView();
+        if (searchView != null) {
+            searchView.setQueryHint(getString(R.string.search_hint));
+            // Listener para obtener el texto escrito
+            searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                @Override
+                public boolean onQueryTextChange(String newText) {
+                    // Se llama en cada letra que escribe (búsqueda en tiempo real)
+                    Cursor cursor = dbManager.getTareasFiltradas(newText);
+                    adapter.updateCursor(cursor);
+                    return true;
+                }
+
+                @Override
+                public boolean onQueryTextSubmit(String query) {
+                    Cursor cursor = dbManager.getTareasFiltradas(query);
+                    adapter.updateCursor(cursor);
+                    return true;
+                }
+            });
+        }
+
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
     public void cargarTareas() {
-        Cursor cursor = dbManager.getTareas();
+        cargarTareas("fecha");
+    }
+
+    public void cargarTareas(String orden) {
+        Cursor cursor = null;
+        if (orden.equals("fecha")) {
+            cursor = dbManager.getTareas();
+        } else if (orden.equals("prioridad")) {
+            cursor = dbManager.getTareasByPrioridad();
+        }
+
         if (adapter == null) {
             adapter = new TareasAdapter(requireContext(), cursor, listener);
             recyclerView.setAdapter(adapter);
         } else {
             adapter.updateCursor(cursor);
+        }
+
+        // En landscape, seleccionar automáticamente la primera tarea al cargar
+        if (!primeraSeleccionRealizada && listener != null
+                && getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            if (cursor != null && cursor.moveToFirst()) {
+                long primeraTareaId = cursor.getLong(cursor.getColumnIndexOrThrow(DBmanager.COL_ID));
+                Log.d(TAG, "Auto-seleccionando primera tarea con ID: " + primeraTareaId);
+                listener.onTareaSeleccionada(primeraTareaId);
+            }
+            primeraSeleccionRealizada = true;
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.action_eliminar_completadas) {
+            dbManager.deleteCompleted();
+            cargarTareas();
+            Toast.makeText(requireContext(), R.string.toast_completadas_eliminadas, Toast.LENGTH_SHORT).show();
+            return true;
+        } else if (id == R.id.ordenar_fecha) {
+            cargarTareas();
+            return true;
+        } else if (id == R.id.ordenar_prioridad) {
+            cargarTareas("prioridad");
+            return true;
+        } else {
+            return super.onOptionsItemSelected(item);
         }
     }
 

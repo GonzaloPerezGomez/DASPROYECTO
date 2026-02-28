@@ -41,6 +41,7 @@ dependencies {
     implementation libs.recyclerview
     implementation libs.cardview
     implementation libs.drawerlayout
+    implementation libs.navigation.ui
     implementation libs.coordinatorlayout
     testImplementation libs.junit
     androidTestImplementation libs.ext.junit

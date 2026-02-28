@@ -14,12 +14,12 @@ import com.example.dasproyecto.fragment.DetalleTareaFragment;
 
 public class EliminarTareaDialog extends DialogFragment {
 
-    public static final String RESULT_KEY = "tareaEliminada";
     private static final String ARG_ID = "id_tarea";
     private static final String ARG_TITULO = "titulo_tarea";
     private DetalleTareaFragment.OnTareaEliminadaListener listener;
 
-    public static EliminarTareaDialog newInstance(long id, String titulo, DetalleTareaFragment.OnTareaEliminadaListener listener) {
+    public static EliminarTareaDialog newInstance(long id, String titulo,
+            DetalleTareaFragment.OnTareaEliminadaListener listener) {
         EliminarTareaDialog frag = new EliminarTareaDialog();
         Bundle args = new Bundle();
         args.putLong(ARG_ID, id);

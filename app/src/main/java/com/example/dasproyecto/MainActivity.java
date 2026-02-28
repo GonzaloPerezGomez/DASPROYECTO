@@ -12,6 +12,7 @@ import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -21,6 +22,7 @@ import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.GravityCompat;
 import androidx.core.view.ViewCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
@@ -30,8 +32,10 @@ import com.example.dasproyecto.fragment.ListaTareasFragment;
 import com.example.dasproyecto.notification.NotificacionReceiver;
 
 import android.util.Log;
+import android.view.MenuItem;
 
 import com.example.dasproyecto.db.DBmanager;
+import com.google.android.material.navigation.NavigationView;
 
 import java.util.Calendar;
 
@@ -48,6 +52,8 @@ public class MainActivity extends AppCompatActivity implements ListaTareasFragme
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
 
+        setupNavigationDrawer();
+
         // Cargar el ListaTareasFragment solo si es la primera vez (no en rotaciones)
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
@@ -63,6 +69,29 @@ public class MainActivity extends AppCompatActivity implements ListaTareasFragme
         }
     }
 
+    private void setupNavigationDrawer() {
+        DrawerLayout drawerLayout = findViewById(R.id.main_drawer);
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                int id = item.getItemId();
+                if (id == R.id.nav_tareas) {
+                    getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.fragment_lista_tarea, new ListaTareasFragment())
+                            .commit();
+                }else if (id == R.id.nav_exportar){
+                    //Exportar tareas y guardarlas en un archivo .txt
+                }else if (id == R.id.nav_ajustes){
+                    Intent intent = new Intent(MainActivity.this, AjustesActivity.class);
+                    startActivity(intent);
+                }
+                drawerLayout.closeDrawer(GravityCompat.START);
+                return false;
+            }
+        });
+    }
+
     /**
      * Configura el DrawerLayout con el Toolbar después de que el Fragment lo
      * establezca como ActionBar.
@@ -70,14 +99,26 @@ public class MainActivity extends AppCompatActivity implements ListaTareasFragme
      */
     public void setupDrawerToggle(Toolbar toolbar) {
         DrawerLayout drawerLayout = findViewById(R.id.main_drawer);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawerLayout, toolbar,
-                R.string.navigation_drawer_open,
-                R.string.navigation_drawer_close);
-        drawerLayout.addDrawerListener(toggle);
-        toggle.syncState();
+
+        getSupportActionBar().setHomeAsUpIndicator(R.drawable.hamburger_menu);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        toolbar.setNavigationOnClickListener(v -> drawerLayout.open());
 
         ViewCompat.setOnApplyWindowInsetsListener(drawerLayout, (v, insets) -> insets);
+
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                DrawerLayout elmenudesplegable = findViewById(R.id.main_drawer);
+                if (elmenudesplegable.isDrawerOpen(GravityCompat.START)) {
+                    elmenudesplegable.closeDrawer(GravityCompat.START);
+                }
+                else{
+                    finish();
+                }
+            }
+        });
     }
 
     @Override

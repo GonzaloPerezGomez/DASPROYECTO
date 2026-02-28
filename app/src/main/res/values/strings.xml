@@ -47,6 +47,16 @@
     <!-- FAB / Accesibilidad -->
     <string name="fab_add_task">Añadir tarea</string>
 
+    <!-- Menú lista de tareas -->
+    <string name="action_buscar">Buscar</string>
+    <string name="action_ordenar">Ordenar</string>
+    <string name="ordenar_fecha">Por fecha</string>
+    <string name="ordenar_prioridad">Por prioridad</string>
+    <string name="action_eliminar_completadas">Eliminar completadas</string>
+    <string name="toast_completadas_eliminadas">Tareas completadas eliminadas</string>
+    <string name="toast_no_completadas">No hay tareas completadas</string>
+    <string name="search_hint">Buscar tareas…</string>
+
     <!-- Placeholders item_tarea (solo visibles en el editor) -->
     <string name="placeholder_titulo" />
     <string name="placeholder_descripcion">Descripción breve…</string>

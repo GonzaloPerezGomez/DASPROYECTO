@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <!-- Buscar - visible como icono -->
+    <item
+        android:id="@+id/action_buscar"
+        android:icon="@drawable/ic_search"
+        android:title="@string/action_buscar"
+        app:actionViewClass="androidx.appcompat.widget.SearchView"
+        app:showAsAction="ifRoom|collapseActionView" />
+
+    <!-- Ordenar - submenú -->
+    <item
+        android:id="@+id/action_ordenar"
+        android:icon="@drawable/ic_sort"
+        android:title="@string/action_ordenar"
+        app:showAsAction="ifRoom">
+        <menu>
+            <item
+                android:id="@+id/ordenar_fecha"
+                android:title="@string/ordenar_fecha" />
+            <item
+                android:id="@+id/ordenar_prioridad"
+                android:title="@string/ordenar_prioridad" />
+        </menu>
+    </item>
+
+    <!-- Eliminar completadas -->
+    <item
+        android:id="@+id/action_eliminar_completadas"
+        android:title="@string/action_eliminar_completadas"
+        app:showAsAction="never" />
+
+</menu>

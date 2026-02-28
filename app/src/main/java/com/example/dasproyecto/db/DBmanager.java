@@ -51,7 +51,17 @@ public class DBmanager {
     }
 
     public Cursor getTareas() {
-            return db.query(TABLE_NAME, columnas, null, null, null, null, COL_FECHALIMITE + " ASC");
+        return db.query(TABLE_NAME, columnas, null, null, null, null, COL_FECHALIMITE + " ASC");
+    }
+
+    public Cursor getTareasByPrioridad() {
+        return db.query(TABLE_NAME, columnas, null, null, null, null, COL_PRIORIDAD + " DESC");
+    }
+
+    public Cursor getTareasFiltradas(String texto) {
+        String seleccion = COL_TITULO + " LIKE ? OR " + COL_DESCRIPCION + " LIKE ?";
+        String[] argumentos = { "%" + texto + "%", "%" + texto + "%" };
+        return db.query(TABLE_NAME, columnas, seleccion, argumentos, null, null, COL_FECHALIMITE + " ASC");
     }
 
     public void actualizarEstado(long id, int estado) {
@@ -72,6 +82,10 @@ public class DBmanager {
 
     public void eliminar(long id) {
         db.delete(TABLE_NAME, COL_ID + " = " + id, null);
+    }
+
+    public void deleteCompleted() {
+        db.delete(TABLE_NAME, COL_COMPLETADA + " = 1", null);
     }
 
     public void actualizarTareaCompleta(long tareaId, String titulo, String descripcion, int prioridad, String fecha) {
