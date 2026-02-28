@@ -10,20 +10,22 @@ import androidx.fragment.app.DialogFragment;
 
 import com.example.dasproyecto.R;
 import com.example.dasproyecto.db.DBmanager;
-import com.example.dasproyecto.MainActivity;
+import com.example.dasproyecto.fragment.DetalleTareaFragment;
 
 public class EliminarTareaDialog extends DialogFragment {
 
     public static final String RESULT_KEY = "tareaEliminada";
     private static final String ARG_ID = "id_tarea";
     private static final String ARG_TITULO = "titulo_tarea";
+    private DetalleTareaFragment.OnTareaEliminadaListener listener;
 
-    public static EliminarTareaDialog newInstance(long id, String titulo) {
+    public static EliminarTareaDialog newInstance(long id, String titulo, DetalleTareaFragment.OnTareaEliminadaListener listener) {
         EliminarTareaDialog frag = new EliminarTareaDialog();
         Bundle args = new Bundle();
         args.putLong(ARG_ID, id);
         args.putString(ARG_TITULO, titulo);
         frag.setArguments(args);
+        frag.listener = listener;
         return frag;
     }
 
@@ -41,17 +43,9 @@ public class EliminarTareaDialog extends DialogFragment {
             dbManager.open();
             dbManager.eliminar(idTarea);
             dbManager.close();
-
+            listener.onTareaEliminada();
             Toast.makeText(getActivity(), getString(R.string.toast_tarea_eliminada, tituloTarea), Toast.LENGTH_SHORT)
                     .show();
-
-            // Notificar a la actividad mediante FragmentResult
-            getParentFragmentManager().setFragmentResult(RESULT_KEY, new Bundle());
-
-            // Refrescar lista si estamos en MainActivity
-            if (getActivity() instanceof MainActivity) {
-                ((MainActivity) getActivity()).refreshTareas();
-            }
         });
         builder.setNegativeButton(getString(R.string.dialog_eliminar_cancelar), (dialog, i) -> dialog.dismiss());
         return builder.create();

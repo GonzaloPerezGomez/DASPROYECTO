@@ -10,6 +10,10 @@
 - [x] **Gestión de la Pila (Backstack)**: Verificar que la navegación entre pantallas no cierre la app y mantenga el estado.
 - [x] **Añadir layout de ver detalles de tarea**
 - [x] **Poner botones para editar, completar y eliminar en nuevo layout**
+- [ ] **Divisor de tareas por fecha**
+- [x] **Cuando se elimina una tarea en landscape actualizar el detalle tarea**
+- [ ] **Listener para boton de completado de tarea**
+- [ ] **Cuando se pone en lanscape que detalle empiece mostrando la primera tarea (mirar como hacer cuando no hay ninguna tarea)**
 
 ## Requisitos Avanzados (Para alcanzar el Excelente)
 - [ ] **Panel de Navegación (Navigation Drawer)**: Crear menú lateral para filtrar por categorías (Trabajo, Personal, Ocio).

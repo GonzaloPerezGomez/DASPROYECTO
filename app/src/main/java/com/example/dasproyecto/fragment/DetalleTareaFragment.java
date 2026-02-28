@@ -1,0 +1,183 @@
+package com.example.dasproyecto.fragment;
+
+import android.content.Context;
+import android.content.Intent;
+import android.database.Cursor;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.Fragment;
+
+import com.example.dasproyecto.EditTareaActivity;
+import com.example.dasproyecto.R;
+import com.example.dasproyecto.db.DBmanager;
+import com.example.dasproyecto.dialog.EliminarTareaDialog;
+
+public class DetalleTareaFragment extends Fragment {
+
+    private static final String TAG = "DetalleTareaFragment";
+    private static final String ARG_TAREA_ID = "tarea_id";
+
+    private TextView tvTitulo, tvDescripcion, tvFecha, tvPrioridad;
+    private Button btnCompletar;
+    private DBmanager dbManager;
+    private long tareaId = -1;
+    private int estadoCompletada = 0;
+
+    private String[] prioridades;
+
+    public interface OnTareaEliminadaListener {
+        void onTareaEliminada();
+    }
+
+    private DetalleTareaFragment.OnTareaEliminadaListener listenerEliminada;
+
+    public interface OnTareaCompletadaListener {
+        void onTareaCompletada(long tareaId);
+    }
+
+    private DetalleTareaFragment.OnTareaCompletadaListener listenerCompletada;
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        if (context instanceof DetalleTareaFragment.OnTareaEliminadaListener) {
+            listenerEliminada = (DetalleTareaFragment.OnTareaEliminadaListener) context;
+        } else {
+            throw new ClassCastException(
+                    "La clase " + context.toString() + " debe implementar OnTareaEliminadaListener");
+        }
+        if (context instanceof DetalleTareaFragment.OnTareaCompletadaListener) {
+            listenerCompletada = (DetalleTareaFragment.OnTareaCompletadaListener) context;
+        } else {
+            throw new ClassCastException(
+                    "La clase " + context.toString() + " debe implementar OnTareaCompletadaListener");
+        }
+    }
+
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+            @Nullable Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_detalle_tarea, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        // Toolbar
+        Toolbar toolbar = view.findViewById(R.id.toolbar);
+        toolbar.setNavigationOnClickListener(v -> requireActivity().onBackPressed());
+        toolbar.setOnMenuItemClickListener(this::onMenuItemClick);
+
+        // Cargar prioridades desde recursos
+        prioridades = new String[] {
+                getString(R.string.prioridad_baja),
+                getString(R.string.prioridad_media),
+                getString(R.string.prioridad_alta)
+        };
+
+        // Inicializar Vistas
+        tvTitulo = view.findViewById(R.id.tvTitulo);
+        tvDescripcion = view.findViewById(R.id.tvDescripcion);
+        tvFecha = view.findViewById(R.id.tvFecha);
+        tvPrioridad = view.findViewById(R.id.tvPrioridad);
+        btnCompletar = view.findViewById(R.id.btnCompletar);
+
+        // Recuperar tarea ID desde los argumentos del Fragment
+        if (getArguments() != null) {
+            tareaId = getArguments().getLong(ARG_TAREA_ID, -1);
+        }
+
+        if (tareaId == -1) {
+            Toast.makeText(requireContext(), R.string.error_tarea_no_encontrada, Toast.LENGTH_SHORT).show();
+            requireActivity().onBackPressed();
+            return;
+        }
+
+        dbManager = new DBmanager(requireContext());
+        dbManager.open();
+
+        cargarDatos();
+
+        // Botón Completar/No completar
+        btnCompletar.setOnClickListener(v -> {
+            estadoCompletada = (estadoCompletada == 0) ? 1 : 0;
+            dbManager.actualizarEstado(tareaId, estadoCompletada);
+            listenerCompletada.onTareaCompletada(tareaId);
+            actualizarBotonCompletar();
+        });
+    }
+
+    private void actualizarBotonCompletar() {
+        btnCompletar.setText(estadoCompletada == 0
+                ? R.string.btn_completada
+                : R.string.btn_no_completada);
+    }
+
+    private void cargarDatos() {
+        Cursor cursor = dbManager.getTarea(tareaId);
+        if (cursor != null && cursor.moveToFirst()) {
+            Log.d(TAG, "Tarea encontrada: " + cursor.getString(cursor.getColumnIndexOrThrow(DBmanager.COL_TITULO)));
+            tvTitulo.setText(cursor.getString(cursor.getColumnIndexOrThrow(DBmanager.COL_TITULO)));
+            tvDescripcion.setText(cursor.getString(cursor.getColumnIndexOrThrow(DBmanager.COL_DESCRIPCION)));
+            tvFecha.setText(cursor.getString(cursor.getColumnIndexOrThrow(DBmanager.COL_FECHALIMITE)));
+
+            estadoCompletada = cursor.getInt(cursor.getColumnIndexOrThrow(DBmanager.COL_COMPLETADA));
+
+            int prioridad = cursor.getInt(cursor.getColumnIndexOrThrow(DBmanager.COL_PRIORIDAD));
+            tvPrioridad.setText(prioridad >= 0 && prioridad < prioridades.length
+                    ? prioridades[prioridad]
+                    : getString(R.string.prioridad_desconocida));
+
+            cursor.close();
+        }
+        actualizarBotonCompletar();
+    }
+
+    private boolean onMenuItemClick(MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.action_editar) {
+            Intent intent = new Intent(requireContext(), EditTareaActivity.class);
+            intent.putExtra(DBmanager.COL_ID, tareaId);
+            startActivity(intent);
+            return true;
+
+        } else if (id == R.id.action_eliminar) {
+            String titulo = tvTitulo.getText().toString();
+            EliminarTareaDialog dialogo = EliminarTareaDialog.newInstance(tareaId, titulo, listenerEliminada);
+            dialogo.show(getParentFragmentManager(), "EliminarTareaDialog");
+            return true;
+        }
+
+        return false;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (dbManager != null && tareaId != -1) {
+            cargarDatos();
+        }
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (dbManager != null) {
+            dbManager.close();
+        }
+    }
+}

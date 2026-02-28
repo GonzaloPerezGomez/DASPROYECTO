@@ -75,6 +75,10 @@ public class AddTareaActivity extends AppCompatActivity {
             etTitulo.setError(getString(R.string.error_titulo_requerido));
             return;
         }
+        if (TextUtils.isEmpty(fecha)) {
+            etFecha.setError(getString(R.string.error_fecha_requerida));
+            return;
+        }
 
         dbManager.insertar(titulo, descripcion, prioridadIndex, fecha);
         Log.i(TAG, "Tarea guardada: " + titulo);

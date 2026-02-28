@@ -51,7 +51,7 @@ public class DBmanager {
     }
 
     public Cursor getTareas() {
-        return db.query(TABLE_NAME, columnas, null, null, null, null, COL_PRIORIDAD + " DESC");
+            return db.query(TABLE_NAME, columnas, null, null, null, null, COL_FECHALIMITE + " ASC");
     }
 
     public void actualizarEstado(long id, int estado) {

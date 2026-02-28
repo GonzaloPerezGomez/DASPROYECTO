@@ -1,7 +1,6 @@
 package com.example.dasproyecto;
 
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.util.Log;
@@ -16,15 +15,18 @@ import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.dasproyecto.db.DBmanager;
+import com.example.dasproyecto.fragment.ListaTareasFragment;
 
 public class TareasAdapter extends RecyclerView.Adapter<TareasAdapter.TareaViewHolder> {
 
     private Context context;
     private Cursor cursor;
+    private ListaTareasFragment.OnTareaSeleccionadaListener listener;
 
-    public TareasAdapter(Context context, Cursor cursor) {
+    public TareasAdapter(Context context, Cursor cursor, ListaTareasFragment.OnTareaSeleccionadaListener listener) {
         this.context = context;
         this.cursor = cursor;
+        this.listener = listener;
     }
 
     public void updateCursor(Cursor newCursor) {
@@ -102,6 +104,13 @@ public class TareasAdapter extends RecyclerView.Adapter<TareasAdapter.TareaViewH
 
         holder.tvTitulo.setTextColor(color);
 
+        // Click listener usando el callback
+        holder.itemView.setOnClickListener(v -> {
+            Log.d("TareasAdapter", "Tarea seleccionada: " + holder.getAdapterPosition());
+            if (listener != null) {
+                listener.onTareaSeleccionada(holder.id);
+            }
+        });
     }
 
     @Override
@@ -124,12 +133,6 @@ public class TareasAdapter extends RecyclerView.Adapter<TareasAdapter.TareaViewH
             divider = itemView.findViewById(R.id.divider);
             layoutFecha = itemView.findViewById(R.id.layoutFecha);
             cardView = itemView.findViewById(R.id.cardViewTarea);
-            itemView.setOnClickListener(v -> {
-                Log.d("TareasAdapter", "Tarea seleccionada: " + getAdapterPosition());
-                Intent intent = new Intent(v.getContext(), ViewTareaActivity.class);
-                intent.putExtra(DBmanager.COL_ID, id);
-                v.getContext().startActivity(intent);
-            });
         }
     }
 }
