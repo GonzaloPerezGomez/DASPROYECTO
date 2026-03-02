@@ -1,0 +1,117 @@
+<resources>
+    <!-- App -->
+    <string name="app_name">DAS PROYECTO</string>
+
+    <!-- Navigation Drawer -->
+    <string name="nav_header_title">DAS Zereginen Kudeatzailea</string>
+    <string name="nav_mis_tareas">Nire Zereginak</string>
+    <string name="nav_exportar_txt">Esportatu (.txt)</string>
+    <string name="nav_configuracion">Ezarpenak</string>
+    <string name="nav_ajustes">Ezarpenak</string>
+
+    <!-- Formulario Add/Edit Tarea -->
+    <string name="titulo_nueva_tarea">Zeregin Berria</string>
+    <string name="titulo_editar_tarea">Zeregina Editatzen\n</string>
+    <string name="hint_titulo">Izenburua</string>
+    <string name="hint_descripcion">Deskribapena</string>
+    <string name="hint_fecha">Muga-data (DD/MM/UUUU)</string>
+    <string name="label_prioridad">Lehentasuna</string>
+    <string name="btn_guardar">Gorde</string>
+    <string name="btn_cancelar">Utzi</string>
+    <string name="error_titulo_requerido">Izenburua derrigorrezkoa da</string>
+    <string name="toast_tarea_guardada">Zeregina gordeta</string>
+    <string name="toast_tarea_actualizada">Zeregina eguneratuta</string>
+
+    <!-- Prioridades -->
+    <string-array name="prioridades_array">
+        <item>Baxua</item>
+        <item>Ertaina</item>
+        <item>Altua</item>
+    </string-array>
+
+    <!-- ViewTareaActivity -->
+    <string name="error_tarea_no_encontrada">Errorea: zeregina ez da aurkitu</string>
+    <string name="btn_completada">Osatuta</string>
+    <string name="btn_no_completada">Osatu gabe</string>
+
+    <!-- Diálogo Eliminar -->
+    <string name="dialog_eliminar_titulo">Zeregina ezabatu</string>
+    <string name="dialog_eliminar_mensaje">Ziur zaude \'%s\' zeregina ezabatu nahi duzula?</string>
+    <string name="dialog_eliminar_confirmar">Bai</string>
+    <string name="dialog_eliminar_cancelar">Ez</string>
+    <string name="toast_tarea_eliminada">\'%s\' zeregina ondo ezabatuta</string>
+
+    <!-- FAB / Accesibilidad -->
+    <string name="fab_add_task">Zeregina gehitu</string>
+
+    <!-- Menú lista de tareas -->
+    <string name="action_buscar">Bilatu</string>
+    <string name="action_ordenar">Ordenatu</string>
+    <string name="ordenar_fecha">Dataren arabera</string>
+    <string name="ordenar_prioridad">Lehentasunaren arabera</string>
+    <string name="action_eliminar_completadas">Osatutakoak ezabatu</string>
+    <string name="toast_completadas_eliminadas">Osatutako zereginak ezabatuta</string>
+    <string name="toast_no_completadas">Ez dago osatutako zereginik</string>
+    <string name="search_hint">Zereginak bilatu…</string>
+
+    <!-- Placeholders item_tarea -->
+    <string name="placeholder_titulo" />
+    <string name="placeholder_descripcion">Deskribapen laburra…</string>
+    <string name="placeholder_fecha">📅 09/03/2026</string>
+    <string name="error_fecha_requerida">Data derrigorrezkoa da</string>
+
+    <!-- Configuración -->
+    <string name="config_titulo">Ezarpenak</string>
+    <string name="config_seccion_idioma">Hizkuntza</string>
+    <string name="config_idioma_label">Aplikazioaren hizkuntza</string>
+    <string name="config_seccion_visualizacion">Bistaratzeko aukerak</string>
+    <string name="config_ocultar_completadas">Osatutako zereginak ezkutatu</string>
+    <string name="config_orden_defecto">Lehenetsitako ordena</string>
+    <string name="config_seccion_notificaciones">Jakinarazpenak</string>
+    <string name="config_notificaciones">Jakinarazpenak aktibatu</string>
+    <string name="config_notificaciones_summary">Jakinarazpen bat jasoko duzu zeregin baten muga-data hurbiltzen denean.</string>
+    <string name="config_seccion_datos">Datuak</string>
+    <string name="config_confirmar_eliminar">Ezabatu aurretik berretsi</string>
+    <string name="editar">Editatu</string>
+    <string name="eliminar">Ezabatu</string>
+
+    <!-- Summaries de Ajustes -->
+    <string name="config_idioma_summary">Hautatu aplikazioaren hizkuntza</string>
+    <string name="config_ocultar_completadas_summary">Ez erakutsi osatutako zereginak</string>
+    <string name="config_orden_defecto_summary">Aplikazioa irekitzean ordenatzeko irizpidea</string>
+    <string name="config_confirmar_eliminar_summary">Baieztapen-elkarrizketa erakutsi zeregina ezabatu aurretik</string>
+
+    <!-- Notificaciones -->
+    <string name="notif_canal_nombre">Zereginak</string>
+    <string name="notif_titulo">Zeregin pendienteak</string>
+    <string name="notif_mensaje">%d zeregin pendiente dituzu</string>
+
+    <!-- Labels -->
+    <string name="label_ver_tarea">Zeregina Ikusi</string>
+    <string name="dialog_eliminar_completadas_titulo">Bukatutakoak Ezabatu</string>
+    <string name="dialog_eliminar_completadas_mensaje">Ziur zaude bukatutako zeregin guztiak ezabatu nahi dituzula? Ekintza hau ezin da desegin.</string>
+    <string name="toast_tareas_completadas_eliminadas">Bukatutako zereginak ezabatuta</string>
+
+    <string-array name="idiomas_array">
+        <item>Español</item>
+        <item>English</item>
+        <item>Euskera</item>
+    </string-array>
+
+    <string-array name="orden_defecto_array">
+        <item>Dataren arabera</item>
+        <item>Lehentasunaren arabera</item>
+    </string-array>
+
+    <!-- Valores internos para ListPreference (no se traducen) -->
+    <string-array name="idiomas_values">
+        <item>es</item>
+        <item>en</item>
+        <item>eu</item>
+    </string-array>
+
+    <string-array name="orden_defecto_values">
+        <item>fecha</item>
+        <item>prioridad</item>
+    </string-array>
+</resources>

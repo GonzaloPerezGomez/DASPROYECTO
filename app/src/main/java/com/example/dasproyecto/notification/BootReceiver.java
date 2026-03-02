@@ -3,7 +3,10 @@ package com.example.dasproyecto.notification;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.util.Log;
+
+import androidx.preference.PreferenceManager;
 
 import com.example.dasproyecto.MainActivity;
 
@@ -31,11 +34,15 @@ public class BootReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         // Verificar que el evento es realmente un BOOT_COMPLETED
         if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
-            Log.d(TAG, "Dispositivo reiniciado — reprogramando alarma de notificaciones");
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+            boolean notificacionesActivadas = prefs.getBoolean("notificaciones", true);
 
-            // Llamar al método estático de MainActivity que programa la alarma.
-            // Así reutilizamos la misma lógica sin duplicar código.
-            MainActivity.programarAlarmaDiaria(context);
+            if (notificacionesActivadas) {
+                Log.d(TAG, "Dispositivo reiniciado — reprogramando alarma de notificaciones");
+                MainActivity.programarAlarmaDiaria(context);
+            } else {
+                Log.d(TAG, "Dispositivo reiniciado — notificaciones desactivadas, ignorando reprogramación");
+            }
         }
     }
 }

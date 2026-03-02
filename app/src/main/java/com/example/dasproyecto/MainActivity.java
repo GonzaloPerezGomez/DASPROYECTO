@@ -18,7 +18,6 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.widget.Toolbar;
 
 import androidx.activity.EdgeToEdge;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
@@ -38,10 +37,9 @@ import com.google.android.material.navigation.NavigationView;
 
 import java.util.Calendar;
 
-public class MainActivity extends AppCompatActivity implements ListaTareasFragment.OnTareaSeleccionadaListener,
+public class MainActivity extends BaseActivity implements ListaTareasFragment.OnTareaSeleccionadaListener,
         DetalleTareaFragment.OnTareaEliminadaListener, DetalleTareaFragment.OnTareaCompletadaListener {
 
-    private static final int NOTIFICACION_CODE = 0;
     private static final String TAG = "MainActivity";
 
     @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
@@ -61,11 +59,7 @@ public class MainActivity extends AppCompatActivity implements ListaTareasFragme
         }
 
         // Permisos de notificación
-        if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this,
-                    new String[] { Manifest.permission.POST_NOTIFICATIONS }, NOTIFICACION_CODE);
-        }
+        solicitarPermisosNotificaciones();
     }
 
     private void setupNavigationDrawer() {
@@ -79,6 +73,7 @@ public class MainActivity extends AppCompatActivity implements ListaTareasFragme
                     getSupportFragmentManager().beginTransaction()
                             .replace(R.id.fragment_lista_tarea, new ListaTareasFragment())
                             .commit();
+                    drawerLayout.closeDrawer(GravityCompat.START);
                     return true;
                 } else if (id == R.id.nav_exportar) {
                     // Exportar tareas y guardarlas en un archivo .txt
@@ -86,9 +81,9 @@ public class MainActivity extends AppCompatActivity implements ListaTareasFragme
                 } else if (id == R.id.nav_ajustes) {
                     Intent intent = new Intent(MainActivity.this, AjustesActivity.class);
                     startActivity(intent);
+                    drawerLayout.closeDrawer(GravityCompat.START);
                     return true;
                 }
-                drawerLayout.closeDrawer(GravityCompat.START);
                 return false;
             }
         });
@@ -210,28 +205,5 @@ public class MainActivity extends AppCompatActivity implements ListaTareasFragme
                 pendingIntent);
 
         Log.d(TAG, "Alarma diaria programada para las 8:00 AM → próxima: " + calendario.getTime());
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-            @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode) {
-            case NOTIFICACION_CODE: {
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Log.d(TAG, "Permiso concedido");
-
-                    NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        NotificationChannel channel = new NotificationChannel(
-                                "tareas_channel",
-                                "Tareas",
-                                NotificationManager.IMPORTANCE_DEFAULT);
-                        manager.createNotificationChannel(channel);
-                    }
-                    programarAlarmaDiaria(this);
-                }
-            }
-        }
     }
 }

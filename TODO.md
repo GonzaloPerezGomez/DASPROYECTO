@@ -20,10 +20,13 @@ _____________________________________________
 - [x] **Panel de Navegación (Navigation Drawer)**: Crear menú lateral para filtrar por categorías (Trabajo, Personal, Ocio).
 - [x] **ToolBar Personalizada**: Sustituir la ActionBar por defecto por una `Toolbar` con iconos de acción (buscar, filtrar).
 - [x] **Uso de Fragments**: Implementar una vista de "Detalle" que se cargue dinámicamente (especialmente útil para modo horizontal).
-- [ ] **Sistema de Preferencias (SharedPreferences)**: Opción para guardar ajustes de usuario (ej. orden de la lista, mostrar/ocultar completadas).
+- [x] **Sistema de Preferencias (SharedPreferences)**: Opción para guardar ajustes de usuario (ej. orden de la lista, mostrar/ocultar completadas).
 - [ ] **Estilos y Temas Propios**: Definir colores, fuentes y formas de botones en `themes.xml` para alejar la app del diseño por defecto.
-- [ ] **Multiidioma**: Localizar todos los strings de la aplicación al Castellano, Euskera e Inglés.
+  - [ ] Selector de color para las prioridades
+  - [ ] Sets de colores primerios y secundarios (Toolbar, botones y fondo)
+- [x] **Multiidioma**: Localizar todos los strings de la aplicación al Castellano, Euskera e Inglés.
 - [ ] **Ficheros de Texto**: Implementar función para "Exportar Notas" de una tarea específica a un archivo `.txt` en el almacenamiento interno.
+- [ ] **Intents implicitos** Ajustes y explorador de archivos (?)
 
 _____________________________________________
 
@@ -35,6 +38,8 @@ _____________________________________________
 
 
 ## Extras de aspecto
+- [ ] **Ajustar alto de las actividades para que no se vea por debajo de la barra de notificaciones**
+- [ ] **Añadir toolbar con flecha de atras a Ajustes**
 - [ ] **Divisor de tareas por fecha**
 - [ ] **Arreglar aspecto de fragmets en landscape**
 - [ ] **Arreglar aspecto de fragmets en portrait**

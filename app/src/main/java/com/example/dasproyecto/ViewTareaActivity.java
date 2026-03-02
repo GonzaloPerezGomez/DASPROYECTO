@@ -2,12 +2,10 @@ package com.example.dasproyecto;
 
 import android.os.Bundle;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import com.example.dasproyecto.db.DBmanager;
 import com.example.dasproyecto.fragment.DetalleTareaFragment;
 
-public class ViewTareaActivity extends AppCompatActivity implements DetalleTareaFragment.OnTareaEliminadaListener,
+public class ViewTareaActivity extends BaseActivity implements DetalleTareaFragment.OnTareaEliminadaListener,
         DetalleTareaFragment.OnTareaCompletadaListener {
 
     @Override
@@ -35,5 +33,6 @@ public class ViewTareaActivity extends AppCompatActivity implements DetalleTarea
     }
 
     @Override
-    public void onTareaCompletada(long tareaId) {}
+    public void onTareaCompletada(long tareaId) {
+    }
 }

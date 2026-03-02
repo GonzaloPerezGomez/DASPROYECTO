@@ -32,9 +32,6 @@ public class DBmanager {
             "completada INTEGER DEFAULT 0" +
             ")";
 
-    private static final String[] columnas = { COL_ID, COL_TITULO, COL_DESCRIPCION, COL_PRIORIDAD, COL_FECHALIMITE,
-            COL_COMPLETADA };
-
     private final DBconexion conexion;
     private SQLiteDatabase db;
 
@@ -50,16 +47,24 @@ public class DBmanager {
         conexion.close();
     }
 
-    public Cursor getTareas() {
-        return db.query(TABLE_NAME, columnas, null, null, null, null, COL_FECHALIMITE + " ASC");
+    private static final String[] columnas = { COL_ID, COL_TITULO, COL_DESCRIPCION, COL_PRIORIDAD, COL_FECHALIMITE,
+            COL_COMPLETADA };
+
+    public Cursor getTareas(boolean ocultarCompletadas) {
+        String seleccion = ocultarCompletadas ? COL_COMPLETADA + " = 0" : null;
+        return db.query(TABLE_NAME, columnas, seleccion, null, null, null, COL_FECHALIMITE + " ASC");
     }
 
-    public Cursor getTareasByPrioridad() {
-        return db.query(TABLE_NAME, columnas, null, null, null, null, COL_PRIORIDAD + " DESC");
+    public Cursor getTareasByPrioridad(boolean ocultarCompletadas) {
+        String seleccion = ocultarCompletadas ? COL_COMPLETADA + " = 0" : null;
+        return db.query(TABLE_NAME, columnas, seleccion, null, null, null, COL_PRIORIDAD + " DESC");
     }
 
-    public Cursor getTareasFiltradas(String texto) {
-        String seleccion = COL_TITULO + " LIKE ? OR " + COL_DESCRIPCION + " LIKE ?";
+    public Cursor getTareasFiltradas(String texto, boolean ocultarCompletadas) {
+        String seleccion = "(" + COL_TITULO + " LIKE ? OR " + COL_DESCRIPCION + " LIKE ?)";
+        if (ocultarCompletadas) {
+            seleccion += " AND " + COL_COMPLETADA + " = 0";
+        }
         String[] argumentos = { "%" + texto + "%", "%" + texto + "%" };
         return db.query(TABLE_NAME, columnas, seleccion, argumentos, null, null, COL_FECHALIMITE + " ASC");
     }
@@ -84,7 +89,7 @@ public class DBmanager {
         db.delete(TABLE_NAME, COL_ID + " = " + id, null);
     }
 
-    public void deleteCompleted() {
+    public void eliminarCompletadas() {
         db.delete(TABLE_NAME, COL_COMPLETADA + " = 1", null);
     }
 

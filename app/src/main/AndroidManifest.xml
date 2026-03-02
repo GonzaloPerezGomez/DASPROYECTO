@@ -9,6 +9,7 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
+        android:name=".Idioma"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -28,15 +29,13 @@
         </activity>
         <activity
             android:name=".AddTareaActivity"
-            android:label="@string/title_activity_add_tarea"
             android:parentActivityName=".MainActivity" />
         <activity
             android:name=".EditTareaActivity"
-            android:label="@string/title_activity_edit_tarea"
             android:parentActivityName=".MainActivity" />
         <activity
             android:name=".ViewTareaActivity"
-            android:label="Ver Tarea"
+            android:label="@string/label_ver_tarea"
             android:parentActivityName=".MainActivity" />
         <activity
             android:name=".AjustesActivity"

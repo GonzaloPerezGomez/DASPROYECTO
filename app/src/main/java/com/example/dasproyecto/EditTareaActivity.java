@@ -11,12 +11,10 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import com.example.dasproyecto.dialog.ElegirFechaDialog;
 import com.example.dasproyecto.db.DBmanager;
 
-public class EditTareaActivity extends AppCompatActivity {
+public class EditTareaActivity extends BaseActivity {
 
     private static final String TAG = "EditTareaActivity";
     private EditText etTitulo, etDescripcion, etFecha;

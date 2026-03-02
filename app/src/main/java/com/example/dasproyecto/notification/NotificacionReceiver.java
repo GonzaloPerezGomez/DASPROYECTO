@@ -7,13 +7,16 @@ import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.util.Log;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
+import androidx.preference.PreferenceManager;
 
+import com.example.dasproyecto.R;
 import com.example.dasproyecto.db.DBmanager;
 
 import java.text.SimpleDateFormat;
@@ -60,7 +63,16 @@ public class NotificacionReceiver extends BroadcastReceiver {
      */
     @Override
     public void onReceive(Context context, Intent intent) {
-        Log.d(TAG, "Alarma recibida — comprobando tareas pendientes");
+        Log.d(TAG, "onReceive ejecutado - Comprobando tareas pendientes...");
+
+        // Comprobar preferencias: Si el usuario desactivó las notificaciones,
+        // abortamos.
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        boolean notificacionesActivadas = prefs.getBoolean("notificaciones", true);
+        if (!notificacionesActivadas) {
+            Log.d(TAG, "Notificaciones desactivadas en Ajustes. Abortando.");
+            return;
+        }
 
         // --- Paso 1: Asegurar que el canal de notificaciones existe ---
         // Esto es necesario porque el BroadcastReceiver puede ejecutarse sin que
@@ -93,8 +105,7 @@ public class NotificacionReceiver extends BroadcastReceiver {
         // --- Paso 6: Si hay tareas pendientes, enviar notificación ---
         if (!tareas.isEmpty()) {
             // Construir el mensaje con la lista de tareas
-            StringBuilder mensaje = new StringBuilder("Tienes ");
-            mensaje.append(tareas.size()).append(" tarea(s) pendiente(s)");
+            StringBuilder mensaje = new StringBuilder(context.getString(R.string.notif_mensaje, tareas.size()));
             for (String tarea : tareas) {
                 mensaje.append("\n• ").append(tarea);
             }
@@ -102,7 +113,7 @@ public class NotificacionReceiver extends BroadcastReceiver {
             // Construir la notificación
             NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID)
                     .setSmallIcon(android.R.drawable.ic_dialog_info)
-                    .setContentTitle("Tareas pendientes")
+                    .setContentTitle(context.getString(R.string.notif_titulo))
                     .setContentText(mensaje.toString())
                     // BigTextStyle permite expandir el texto para ver todas las tareas
                     .setStyle(new NotificationCompat.BigTextStyle().bigText(mensaje.toString()))
@@ -135,7 +146,7 @@ public class NotificacionReceiver extends BroadcastReceiver {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel(
                     CHANNEL_ID,
-                    "Tareas",
+                    context.getString(R.string.notif_canal_nombre),
                     NotificationManager.IMPORTANCE_DEFAULT);
             NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
             manager.createNotificationChannel(channel);

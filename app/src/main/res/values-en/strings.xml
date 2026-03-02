@@ -1,0 +1,117 @@
+<resources>
+    <!-- App -->
+    <string name="app_name">DAS PROYECTO</string>
+
+    <!-- Navigation Drawer -->
+    <string name="nav_header_title">DAS Task Manager</string>
+    <string name="nav_mis_tareas">My Tasks</string>
+    <string name="nav_exportar_txt">Export (.txt)</string>
+    <string name="nav_configuracion">Settings</string>
+    <string name="nav_ajustes">Settings</string>
+
+    <!-- Formulario Add/Edit Tarea -->
+    <string name="titulo_nueva_tarea">New Task</string>
+    <string name="titulo_editar_tarea">Editing Task\n</string>
+    <string name="hint_titulo">Title</string>
+    <string name="hint_descripcion">Description</string>
+    <string name="hint_fecha">Due Date (DD/MM/YYYY)</string>
+    <string name="label_prioridad">Priority</string>
+    <string name="btn_guardar">Save</string>
+    <string name="btn_cancelar">Cancel</string>
+    <string name="error_titulo_requerido">Title is required</string>
+    <string name="toast_tarea_guardada">Task saved</string>
+    <string name="toast_tarea_actualizada">Task updated</string>
+    <string name="eliminar">Delete</string>
+
+    <!-- Prioridades -->
+    <string-array name="prioridades_array">
+        <item>Low</item>
+        <item>Medium</item>
+        <item>High</item>
+    </string-array>
+
+    <!-- ViewTareaActivity -->
+    <string name="error_tarea_no_encontrada">Error: task not found</string>
+    <string name="btn_completada">Completed</string>
+    <string name="btn_no_completada">Not completed</string>
+
+    <!-- Diálogo Eliminar -->
+    <string name="dialog_eliminar_titulo">Delete task</string>
+    <string name="dialog_eliminar_mensaje">Are you sure you want to delete the task \'%s\'?</string>
+    <string name="dialog_eliminar_confirmar">Yes</string>
+    <string name="dialog_eliminar_cancelar">No</string>
+    <string name="toast_tarea_eliminada">Task \'%s\' deleted successfully</string>
+
+    <!-- FAB / Accesibilidad -->
+    <string name="fab_add_task">Add task</string>
+
+    <!-- Menú lista de tareas -->
+    <string name="action_buscar">Search</string>
+    <string name="action_ordenar">Sort</string>
+    <string name="ordenar_fecha">By date</string>
+    <string name="ordenar_prioridad">By priority</string>
+    <string name="action_eliminar_completadas">Delete completed</string>
+    <string name="toast_completadas_eliminadas">Completed tasks deleted</string>
+    <string name="toast_no_completadas">No completed tasks</string>
+    <string name="search_hint">Search tasks…</string>
+
+    <!-- Placeholders item_tarea -->
+    <string name="placeholder_titulo" />
+    <string name="placeholder_descripcion">Short description…</string>
+    <string name="placeholder_fecha">📅 09/03/2026</string>
+    <string name="error_fecha_requerida">Date is required</string>
+
+    <!-- Configuración -->
+    <string name="config_titulo">Settings</string>
+    <string name="config_seccion_idioma">Language</string>
+    <string name="config_idioma_label">App language</string>
+    <string name="config_seccion_visualizacion">Display options</string>
+    <string name="config_ocultar_completadas">Hide completed tasks</string>
+    <string name="config_orden_defecto">Default sort order</string>
+    <string name="config_seccion_notificaciones">Notifications</string>
+    <string name="config_notificaciones">Enable notifications</string>
+    <string name="config_notificaciones_summary">Get notified when a task is approaching its due date.</string>
+    <string name="config_seccion_datos">Data</string>
+    <string name="config_confirmar_eliminar">Confirm before deleting</string>
+    <string name="editar">Edit</string>
+
+    <!-- Summaries de Ajustes -->
+    <string name="config_idioma_summary">Select the app language</string>
+    <string name="config_ocultar_completadas_summary">Do not show tasks marked as completed</string>
+    <string name="config_orden_defecto_summary">Sort criteria when opening the app</string>
+    <string name="config_confirmar_eliminar_summary">Show confirmation dialog before deleting a task</string>
+
+    <!-- Notificaciones -->
+    <string name="notif_canal_nombre">Tasks</string>
+    <string name="notif_titulo">Pending tasks</string>
+    <string name="notif_mensaje">You have %d pending task(s)</string>
+
+    <!-- Labels -->
+    <string name="label_ver_tarea">View Task</string>
+    <string name="dialog_eliminar_completadas_titulo">Delete Completed</string>
+    <string name="dialog_eliminar_completadas_mensaje">Are you sure you want to delete all completed tasks? This action cannot be undone.</string>
+    <string name="toast_tareas_completadas_eliminadas">Completed tasks deleted</string>
+
+    <string-array name="idiomas_array">
+        <item>Español</item>
+        <item>English</item>
+        <item>Euskera</item>
+    </string-array>
+
+    <string-array name="orden_defecto_array">
+        <item>By date</item>
+        <item>By priority</item>
+    </string-array>
+
+    <!-- Valores internos para ListPreference (no se traducen) -->
+    <string-array name="idiomas_values">
+        <item>es</item>
+        <item>en</item>
+        <item>eu</item>
+    </string-array>
+
+    <string-array name="orden_defecto_values">
+        <item>fecha</item>
+        <item>prioridad</item>
+    </string-array>
+</resources>

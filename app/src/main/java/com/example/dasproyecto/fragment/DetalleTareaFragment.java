@@ -2,6 +2,7 @@ package com.example.dasproyecto.fragment;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
@@ -17,6 +18,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
+import androidx.preference.PreferenceManager;
 
 import com.example.dasproyecto.EditTareaActivity;
 import com.example.dasproyecto.R;
@@ -151,9 +153,18 @@ public class DetalleTareaFragment extends Fragment {
 
         } else if (id == R.id.action_eliminar) {
             String titulo = tvTitulo.getText().toString();
-            EliminarTareaDialog dialogo = EliminarTareaDialog.newInstance(tareaId, titulo, listenerEliminada);
-            dialogo.show(getParentFragmentManager(), "EliminarTareaDialog");
-            return true;
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(requireContext());
+            boolean confirmarEliminar = prefs.getBoolean("confirmar_eliminar", true);
+            if (confirmarEliminar) {
+                EliminarTareaDialog dialogo = EliminarTareaDialog.newInstance(tareaId, titulo, listenerEliminada);
+                dialogo.show(getParentFragmentManager(), "EliminarTareaDialog");
+                return true;
+            }else{
+                dbManager.eliminar(tareaId);
+                listenerEliminada.onTareaEliminada();
+                Toast.makeText(getActivity(), getString(R.string.toast_tarea_eliminada, titulo), Toast.LENGTH_SHORT)
+                        .show();
+            }
         }
 
         return false;

@@ -8,7 +8,7 @@
         <ListPreference
             app:key="idioma"
             app:title="@string/config_idioma_label"
-            app:summary="Selecciona el idioma de la aplicación"
+            app:summary="@string/config_idioma_summary"
             app:entries="@array/idiomas_array"
             app:entryValues="@array/idiomas_values"
             app:defaultValue="es" />
@@ -21,13 +21,13 @@
         <CheckBoxPreference
             app:key="ocultar_completadas"
             app:title="@string/config_ocultar_completadas"
-            app:summary="No mostrar las tareas marcadas como completadas"
+            app:summary="@string/config_ocultar_completadas_summary"
             app:defaultValue="false" />
 
         <ListPreference
             app:key="orden_defecto"
             app:title="@string/config_orden_defecto"
-            app:summary="Criterio de ordenación al abrir la aplicación"
+            app:summary="@string/config_orden_defecto_summary"
             app:entries="@array/orden_defecto_array"
             app:entryValues="@array/orden_defecto_values"
             app:defaultValue="fecha" />
@@ -37,21 +37,21 @@
     <!-- ═══ Notificaciones ═══ -->
     <PreferenceCategory app:title="@string/config_seccion_notificaciones">
 
-        <SwitchPreference
+        <androidx.preference.SwitchPreferenceCompat
             app:key="notificaciones"
             app:title="@string/config_notificaciones"
-            app:summary="@string/config_notificaciones_hint"
-            app:defaultValue="true" />
+            app:summary="@string/config_notificaciones_summary"
+            app:defaultValue="false" />
 
     </PreferenceCategory>
 
     <!-- ═══ Datos ═══ -->
     <PreferenceCategory app:title="@string/config_seccion_datos">
 
-        <SwitchPreference
+        <androidx.preference.SwitchPreferenceCompat
             app:key="confirmar_eliminar"
             app:title="@string/config_confirmar_eliminar"
-            app:summary="Mostrar diálogo de confirmación antes de eliminar una tarea"
+            app:summary="@string/config_confirmar_eliminar_summary"
             app:defaultValue="true" />
 
     </PreferenceCategory>

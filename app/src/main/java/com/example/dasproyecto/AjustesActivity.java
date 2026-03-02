@@ -2,9 +2,9 @@ package com.example.dasproyecto;
 
 import android.os.Bundle;
 
-import androidx.appcompat.app.AppCompatActivity;
+import com.example.dasproyecto.fragment.AjustesFragment;
 
-public class AjustesActivity extends AppCompatActivity {
+public class AjustesActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
