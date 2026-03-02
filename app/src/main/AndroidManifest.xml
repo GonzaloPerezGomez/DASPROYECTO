@@ -38,6 +38,10 @@
             android:name=".ViewTareaActivity"
             android:label="Ver Tarea"
             android:parentActivityName=".MainActivity" />
+        <activity
+            android:name=".AjustesActivity"
+            android:label="@string/config_titulo"
+            android:parentActivityName=".MainActivity" />
 
         <!--
             NotificacionReceiver: se ejecuta cuando salta la alarma de AlarmManager.

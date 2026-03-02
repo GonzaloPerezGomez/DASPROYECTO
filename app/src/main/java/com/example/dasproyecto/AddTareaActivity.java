@@ -42,8 +42,7 @@ public class AddTareaActivity extends AppCompatActivity {
         btnCancelar = findViewById(R.id.btnCancelar);
 
         // Setup Spinner
-        String[] prioridades = { getString(R.string.prioridad_baja), getString(R.string.prioridad_media),
-                getString(R.string.prioridad_alta) };
+        String[] prioridades = getResources().getStringArray(R.array.prioridades_array);
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, prioridades);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerPrioridad.setAdapter(adapter);

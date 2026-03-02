@@ -44,8 +44,7 @@ public class EditTareaActivity extends AppCompatActivity {
         btnCancelar = findViewById(R.id.btnCancelar);
 
         // 2. Setup Spinner (Mantenemos tu lógica: Alta=2, Media=1, Baja=0)
-        String[] prioridades = { getString(R.string.prioridad_baja), getString(R.string.prioridad_media),
-                getString(R.string.prioridad_alta) };
+        String[] prioridades = getResources().getStringArray(R.array.prioridades_array);
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, prioridades);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerPrioridad.setAdapter(adapter);

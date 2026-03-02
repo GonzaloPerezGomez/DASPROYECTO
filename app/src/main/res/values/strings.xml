@@ -27,10 +27,11 @@
     <string name="toast_tarea_actualizada">Tarea actualizada</string>
 
     <!-- Prioridades -->
-    <string name="prioridad_baja">Baja</string>
-    <string name="prioridad_media">Media</string>
-    <string name="prioridad_alta">Alta</string>
-    <string name="prioridad_desconocida">Desconocida</string>
+    <string-array name="prioridades_array">
+        <item>Baja</item>
+        <item>Media</item>
+        <item>Alta</item>
+    </string-array>
 
     <!-- ViewTareaActivity -->
     <string name="error_tarea_no_encontrada">Error: tarea no encontrada</string>
@@ -64,4 +65,41 @@
     <string name="title_activity_add_tarea" />
     <string name="title_activity_edit_tarea" />
     <string name="error_fecha_requerida">La fecha es obligatoria</string>
+
+    <!-- Configuración -->
+    <string name="config_titulo">Configuración</string>
+    <string name="config_seccion_idioma">Idioma</string>
+    <string name="config_idioma_label">Idioma de la aplicación</string>
+    <string name="config_seccion_visualizacion">Opciones de visualización</string>
+    <string name="config_ocultar_completadas">Ocultar tareas completadas</string>
+    <string name="config_mostrar_fecha">Mostrar fecha en la lista</string>
+    <string name="config_orden_defecto">Orden por defecto</string>
+    <string name="config_seccion_notificaciones">Notificaciones</string>
+    <string name="config_notificaciones">Activar notificaciones</string>
+    <string name="config_notificaciones_hint">Recibe un aviso cuando una tarea esté próxima a su fecha límite.</string>
+    <string name="config_seccion_datos">Datos</string>
+    <string name="config_confirmar_eliminar">Confirmar antes de eliminar</string>
+
+    <string-array name="idiomas_array">
+        <item>Español</item>
+        <item>English</item>
+        <item>Euskera</item>
+    </string-array>
+
+    <string-array name="orden_defecto_array">
+        <item>Por fecha</item>
+        <item>Por prioridad</item>
+    </string-array>
+
+    <!-- Valores internos para ListPreference -->
+    <string-array name="idiomas_values">
+        <item>es</item>
+        <item>en</item>
+        <item>eu</item>
+    </string-array>
+
+    <string-array name="orden_defecto_values">
+        <item>fecha</item>
+        <item>prioridad</item>
+    </string-array>
 </resources>

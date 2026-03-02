@@ -82,11 +82,7 @@ public class DetalleTareaFragment extends Fragment {
         toolbar.setOnMenuItemClickListener(this::onMenuItemClick);
 
         // Cargar prioridades desde recursos
-        prioridades = new String[] {
-                getString(R.string.prioridad_baja),
-                getString(R.string.prioridad_media),
-                getString(R.string.prioridad_alta)
-        };
+        prioridades = getResources().getStringArray(R.array.prioridades_array);
 
         // Inicializar Vistas
         tvTitulo = view.findViewById(R.id.tvTitulo);
@@ -137,9 +133,7 @@ public class DetalleTareaFragment extends Fragment {
             estadoCompletada = cursor.getInt(cursor.getColumnIndexOrThrow(DBmanager.COL_COMPLETADA));
 
             int prioridad = cursor.getInt(cursor.getColumnIndexOrThrow(DBmanager.COL_PRIORIDAD));
-            tvPrioridad.setText(prioridad >= 0 && prioridad < prioridades.length
-                    ? prioridades[prioridad]
-                    : getString(R.string.prioridad_desconocida));
+            tvPrioridad.setText(prioridades[prioridad]);
 
             cursor.close();
         }

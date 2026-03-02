@@ -14,6 +14,8 @@
 - [x] **Listener para boton de completado de tarea**
 - [x] **Cuando se pone en lanscape que detalle empiece mostrando la primera tarea (mirar como hacer cuando no hay ninguna tarea)**
 
+_____________________________________________
+
 ## Requisitos Avanzados (Para alcanzar el Excelente)
 - [x] **Panel de Navegación (Navigation Drawer)**: Crear menú lateral para filtrar por categorías (Trabajo, Personal, Ocio).
 - [x] **ToolBar Personalizada**: Sustituir la ActionBar por defecto por una `Toolbar` con iconos de acción (buscar, filtrar).
@@ -22,6 +24,8 @@
 - [ ] **Estilos y Temas Propios**: Definir colores, fuentes y formas de botones en `themes.xml` para alejar la app del diseño por defecto.
 - [ ] **Multiidioma**: Localizar todos los strings de la aplicación al Castellano, Euskera e Inglés.
 - [ ] **Ficheros de Texto**: Implementar función para "Exportar Notas" de una tarea específica a un archivo `.txt` en el almacenamiento interno.
+
+_____________________________________________
 
 ## Documentación y Entrega (30% de la nota)
 - [ ] **Memoria Técnica**: Redactar máximo 20 páginas incluyendo diagramas de clases y de la base de datos.
@@ -36,3 +40,4 @@
 - [ ] **Arreglar aspecto de fragmets en portrait**
 - [ ] **Elevacion en las card**
 - [ ] **Poner iconos en los botones**
+- [ ] **Cambiar elementos por material components**

@@ -15,7 +15,6 @@ import android.os.Bundle;
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.widget.Toolbar;
 
 import androidx.activity.EdgeToEdge;
@@ -80,11 +79,14 @@ public class MainActivity extends AppCompatActivity implements ListaTareasFragme
                     getSupportFragmentManager().beginTransaction()
                             .replace(R.id.fragment_lista_tarea, new ListaTareasFragment())
                             .commit();
-                }else if (id == R.id.nav_exportar){
-                    //Exportar tareas y guardarlas en un archivo .txt
-                }else if (id == R.id.nav_ajustes){
+                    return true;
+                } else if (id == R.id.nav_exportar) {
+                    // Exportar tareas y guardarlas en un archivo .txt
+                    return true;
+                } else if (id == R.id.nav_ajustes) {
                     Intent intent = new Intent(MainActivity.this, AjustesActivity.class);
                     startActivity(intent);
+                    return true;
                 }
                 drawerLayout.closeDrawer(GravityCompat.START);
                 return false;
@@ -113,8 +115,7 @@ public class MainActivity extends AppCompatActivity implements ListaTareasFragme
                 DrawerLayout elmenudesplegable = findViewById(R.id.main_drawer);
                 if (elmenudesplegable.isDrawerOpen(GravityCompat.START)) {
                     elmenudesplegable.closeDrawer(GravityCompat.START);
-                }
-                else{
+                } else {
                     finish();
                 }
             }

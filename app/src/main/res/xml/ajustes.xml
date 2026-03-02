@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <!-- ═══ Idioma ═══ -->
+    <PreferenceCategory app:title="@string/config_seccion_idioma">
+
+        <ListPreference
+            app:key="idioma"
+            app:title="@string/config_idioma_label"
+            app:summary="Selecciona el idioma de la aplicación"
+            app:entries="@array/idiomas_array"
+            app:entryValues="@array/idiomas_values"
+            app:defaultValue="es" />
+
+    </PreferenceCategory>
+
+    <!-- ═══ Opciones de visualización ═══ -->
+    <PreferenceCategory app:title="@string/config_seccion_visualizacion">
+
+        <CheckBoxPreference
+            app:key="ocultar_completadas"
+            app:title="@string/config_ocultar_completadas"
+            app:summary="No mostrar las tareas marcadas como completadas"
+            app:defaultValue="false" />
+
+        <ListPreference
+            app:key="orden_defecto"
+            app:title="@string/config_orden_defecto"
+            app:summary="Criterio de ordenación al abrir la aplicación"
+            app:entries="@array/orden_defecto_array"
+            app:entryValues="@array/orden_defecto_values"
+            app:defaultValue="fecha" />
+
+    </PreferenceCategory>
+
+    <!-- ═══ Notificaciones ═══ -->
+    <PreferenceCategory app:title="@string/config_seccion_notificaciones">
+
+        <SwitchPreference
+            app:key="notificaciones"
+            app:title="@string/config_notificaciones"
+            app:summary="@string/config_notificaciones_hint"
+            app:defaultValue="true" />
+
+    </PreferenceCategory>
+
+    <!-- ═══ Datos ═══ -->
+    <PreferenceCategory app:title="@string/config_seccion_datos">
+
+        <SwitchPreference
+            app:key="confirmar_eliminar"
+            app:title="@string/config_confirmar_eliminar"
+            app:summary="Mostrar diálogo de confirmación antes de eliminar una tarea"
+            app:defaultValue="true" />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>
