@@ -82,7 +82,6 @@ public class ListaTareasFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         setHasOptionsMenu(true);
 
-        // Toolbar
         Toolbar toolbar = view.findViewById(R.id.toolbar);
         ((AppCompatActivity) requireActivity()).setSupportActionBar(toolbar);
 
@@ -97,7 +96,6 @@ public class ListaTareasFragment extends Fragment {
             return insets;
         });
 
-        // FAB
         FloatingActionButton fab = view.findViewById(R.id.fabAddTarea);
         fab.setOnClickListener(v -> {
             Log.d(TAG, "Botón flotante presionado - Abriendo AddTareaActivity");
@@ -105,7 +103,6 @@ public class ListaTareasFragment extends Fragment {
             startActivity(intent);
         });
 
-        // Ajustar margen inferior del FAB para respetar la barra de navegación
         ViewCompat.setOnApplyWindowInsetsListener(fab, (v, insets) -> {
             Insets navBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
@@ -114,7 +111,6 @@ public class ListaTareasFragment extends Fragment {
             return insets;
         });
 
-        // RecyclerView
         recyclerView = view.findViewById(R.id.recyclerViewTareas);
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
 
@@ -129,7 +125,6 @@ public class ListaTareasFragment extends Fragment {
         menu.clear();
         inflater.inflate(R.menu.menu_lista_tareas, menu);
 
-        // Configurar SearchView
         MenuItem searchItem = menu.findItem(R.id.action_buscar);
         SearchView searchView = (SearchView) searchItem.getActionView();
         if (searchView != null) {
@@ -188,20 +183,12 @@ public class ListaTareasFragment extends Fragment {
         return super.onOptionsItemSelected(item);
     }
 
-    /**
-     * Carga las tareas usando el orden por defecto definido en las preferencias.
-     */
     public void cargarTareas() {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(requireContext());
         String ordenDefecto = prefs.getString("orden_defecto", "fecha");
         cargarTareas(ordenDefecto);
     }
 
-    /**
-     * Carga las tareas con el orden especificado.
-     *
-     * @param orden "fecha" o "prioridad"
-     */
     public void cargarTareas(String orden) {
         if (dbManager == null || recyclerView == null) {
             Log.w(TAG, "cargarTareas: dbManager o recyclerView no inicializados");
@@ -235,7 +222,6 @@ public class ListaTareasFragment extends Fragment {
             adapter.updateCursor(cursor);
         }
 
-        // En landscape, seleccionar automáticamente la primera tarea al cargar
         if (!primeraSeleccionRealizada && listener != null
                 && getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
             if (cursor.moveToFirst()) {

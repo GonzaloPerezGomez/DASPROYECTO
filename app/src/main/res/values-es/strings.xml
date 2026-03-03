@@ -84,6 +84,12 @@
     <string name="config_orden_defecto_summary">Criterio de ordenación al abrir la aplicación</string>
     <string name="config_confirmar_eliminar_summary">Mostrar diálogo de confirmación antes de eliminar una tarea</string>
 
+    <!-- Diálogo Permisos -->
+    <string name="dialog_permiso_titulo">Permiso Requerido</string>
+    <string name="dialog_permiso_mensaje">Las notificaciones están desactivadas en el sistema. Para recibir avisos de tus tareas, por favor habilítalas en los ajustes de la aplicación.</string>
+    <string name="dialog_permiso_ajustes">Ir a Ajustes</string>
+    <string name="dialog_permiso_cancelar">Ahora no</string>
+
     <!-- Notificaciones -->
     <string name="notif_canal_nombre">Tareas</string>
     <string name="notif_titulo">Tareas pendientes</string>

@@ -36,6 +36,7 @@
         android:layout_gravity="bottom|end"
         android:layout_margin="36dp"
         app:backgroundTint="?attr/colorSecondary"
+        app:tint="@android:color/white"
         android:contentDescription="@string/fab_add_task"
         app:srcCompat="@android:drawable/ic_input_add" />
 

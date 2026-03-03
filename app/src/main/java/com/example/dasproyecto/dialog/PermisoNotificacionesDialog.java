@@ -27,11 +27,9 @@ public class PermisoNotificacionesDialog extends DialogFragment {
         builder.setTitle(R.string.dialog_permiso_titulo)
                 .setMessage(R.string.dialog_permiso_mensaje)
                 .setPositiveButton(R.string.dialog_permiso_ajustes, (dialog, id) -> {
-                    // Abrir los ajustes de la aplicación
                     abrirAjustesApp();
                 })
                 .setNegativeButton(R.string.dialog_permiso_cancelar, (dialog, id) -> {
-                    // Si el usuario cancela, nos aseguramos de que el switch esté en false
                     desactivarSwitchPrefs();
                 });
         return builder.create();

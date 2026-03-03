@@ -85,6 +85,12 @@
     <string name="config_orden_defecto_summary">Sort criteria when opening the app</string>
     <string name="config_confirmar_eliminar_summary">Show confirmation dialog before deleting a task</string>
 
+    <!-- Diálogo Permisos -->
+    <string name="dialog_permiso_titulo">Permission Required</string>
+    <string name="dialog_permiso_mensaje">Notifications are disabled in the system. To receive task reminders, please enable them in the app settings.</string>
+    <string name="dialog_permiso_ajustes">Go to Settings</string>
+    <string name="dialog_permiso_cancelar">Not now</string>
+
     <!-- Notificaciones -->
     <string name="notif_canal_nombre">Tasks</string>
     <string name="notif_titulo">Pending tasks</string>

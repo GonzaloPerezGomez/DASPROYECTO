@@ -31,7 +31,6 @@ public class AddTareaActivity extends BaseActivity {
         tituloActivity = findViewById(R.id.tituloActivity);
         tituloActivity.setText(R.string.titulo_nueva_tarea);
 
-        // Initialize Views
         etTitulo = findViewById(R.id.etTitulo);
         etDescripcion = findViewById(R.id.etDescripcion);
         etFecha = findViewById(R.id.etFecha);
@@ -39,17 +38,13 @@ public class AddTareaActivity extends BaseActivity {
         btnGuardar = findViewById(R.id.btnGuardar);
         btnCancelar = findViewById(R.id.btnCancelar);
 
-        // Setup Spinner
         String[] prioridades = getResources().getStringArray(R.array.prioridades_array);
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, prioridades);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerPrioridad.setAdapter(adapter);
 
-        // Initialize DB
         dbManager = new DBmanager(this);
         dbManager.open();
-
-        // Listeners
 
         etFecha.setOnClickListener(v -> configurarSelectorFecha());
 
@@ -64,7 +59,8 @@ public class AddTareaActivity extends BaseActivity {
     private void guardarTarea() {
         String titulo = etTitulo.getText().toString().trim();
         String descripcion = etDescripcion.getText().toString().trim();
-        String fecha = etFecha.getText().toString().trim();
+        String fechaUI = etFecha.getText().toString().trim();
+        String fechaDB = DBmanager.formatFechaToDB(fechaUI);
 
         int prioridadIndex = spinnerPrioridad.getSelectedItemPosition();
 
@@ -72,12 +68,12 @@ public class AddTareaActivity extends BaseActivity {
             etTitulo.setError(getString(R.string.error_titulo_requerido));
             return;
         }
-        if (TextUtils.isEmpty(fecha)) {
+        if (TextUtils.isEmpty(fechaUI)) {
             etFecha.setError(getString(R.string.error_fecha_requerida));
             return;
         }
 
-        dbManager.insertar(titulo, descripcion, prioridadIndex, fecha);
+        dbManager.insertar(titulo, descripcion, prioridadIndex, fechaDB);
         Log.i(TAG, "Tarea guardada: " + titulo);
         Toast.makeText(this, R.string.toast_tarea_guardada, Toast.LENGTH_SHORT).show();
         finish();
@@ -96,7 +92,7 @@ public class AddTareaActivity extends BaseActivity {
             int year = bundle.getInt("year");
             int month = bundle.getInt("month");
             int day = bundle.getInt("day");
-            String fecha = day + "/" + (month + 1) + "/" + year;
+            String fecha = String.format(java.util.Locale.getDefault(), "%02d/%02d/%04d", day, month + 1, year);
             etFecha.setText(fecha);
         });
 

@@ -36,11 +36,20 @@ import com.example.dasproyecto.db.DBmanager;
 import com.google.android.material.navigation.NavigationView;
 
 import java.util.Calendar;
+import android.net.Uri;
+import android.database.Cursor;
+import android.widget.Toast;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import java.io.OutputStream;
+import java.io.BufferedWriter;
+import java.io.OutputStreamWriter;
 
 public class MainActivity extends BaseActivity implements ListaTareasFragment.OnTareaSeleccionadaListener,
         DetalleTareaFragment.OnTareaEliminadaListener, DetalleTareaFragment.OnTareaCompletadaListener {
 
     private static final String TAG = "MainActivity";
+    private ActivityResultLauncher<Intent> exportTxtLauncher;
 
     @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
     @Override
@@ -49,16 +58,25 @@ public class MainActivity extends BaseActivity implements ListaTareasFragment.On
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
 
+        exportTxtLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                        Uri uri = result.getData().getData();
+                        if (uri != null) {
+                            exportTareasToFile(uri);
+                        }
+                    }
+                });
+
         setupNavigationDrawer();
 
-        // Cargar el ListaTareasFragment solo si es la primera vez (no en rotaciones)
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragment_lista_tarea, new ListaTareasFragment())
                     .commit();
         }
 
-        // Permisos de notificación
         solicitarPermisosNotificaciones();
     }
 
@@ -76,7 +94,8 @@ public class MainActivity extends BaseActivity implements ListaTareasFragment.On
                     drawerLayout.closeDrawer(GravityCompat.START);
                     return true;
                 } else if (id == R.id.nav_exportar) {
-                    // Exportar tareas y guardarlas en un archivo .txt
+                    exportarTareasTxt();
+                    drawerLayout.closeDrawer(GravityCompat.START);
                     return true;
                 } else if (id == R.id.nav_ajustes) {
                     Intent intent = new Intent(MainActivity.this, AjustesActivity.class);
@@ -88,11 +107,64 @@ public class MainActivity extends BaseActivity implements ListaTareasFragment.On
         });
     }
 
-    /**
-     * Configura el DrawerLayout con el Toolbar después de que el Fragment lo
-     * establezca como ActionBar.
-     * Se llama desde el Fragment después de setSupportActionBar().
-     */
+    private void exportarTareasTxt() {
+        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("text/plain");
+        intent.putExtra(Intent.EXTRA_TITLE, "tareas.txt");
+        exportTxtLauncher.launch(intent);
+    }
+
+    private void exportTareasToFile(Uri uri) {
+        new Thread(() -> {
+            DBmanager dbManager = new DBmanager(this);
+            dbManager.open();
+            Cursor cursor = dbManager.getTareas(false);
+            StringBuilder sb = new StringBuilder();
+            sb.append("MIS TAREAS\n");
+            sb.append("====================\n\n");
+
+            if (cursor != null && cursor.moveToFirst()) {
+                do {
+                    String titulo = cursor.getString(cursor.getColumnIndexOrThrow(DBmanager.COL_TITULO));
+                    String desc = cursor.getString(cursor.getColumnIndexOrThrow(DBmanager.COL_DESCRIPCION));
+                    String fechaBD = cursor.getString(cursor.getColumnIndexOrThrow(DBmanager.COL_FECHALIMITE));
+                    String fechaUI = DBmanager.formatFechaToUI(fechaBD);
+                    int prioridad = cursor.getInt(cursor.getColumnIndexOrThrow(DBmanager.COL_PRIORIDAD));
+                    int completada = cursor.getInt(cursor.getColumnIndexOrThrow(DBmanager.COL_COMPLETADA));
+
+                    String strPrioridad = "Baja";
+                    if (prioridad == 1)
+                        strPrioridad = "Media";
+                    else if (prioridad == 2)
+                        strPrioridad = "Alta";
+
+                    String strEstado = (completada == 1) ? "Completada" : "Pendiente";
+                    fechaUI = (fechaUI != null && !fechaUI.isEmpty()) ? fechaUI : "Sin fecha";
+
+                    sb.append(String.format("- [%s] %s (Prioridad: %s, Límite: %s)\n", strEstado, titulo, strPrioridad,
+                            fechaUI));
+                    if (desc != null && !desc.trim().isEmpty()) {
+                        sb.append("  ").append(desc.replace("\n", "\n  ")).append("\n");
+                    }
+                    sb.append("\n");
+                } while (cursor.moveToNext());
+            }
+            if (cursor != null)
+                cursor.close();
+            dbManager.close();
+
+            try (OutputStream os = getContentResolver().openOutputStream(uri);
+                    BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os))) {
+                writer.write(sb.toString());
+                runOnUiThread(() -> Toast.makeText(this, "Tareas exportadas correctamente", Toast.LENGTH_SHORT).show());
+            } catch (Exception e) {
+                e.printStackTrace();
+                runOnUiThread(() -> Toast.makeText(this, "Error al exportar tareas", Toast.LENGTH_SHORT).show());
+            }
+        }).start();
+    }
+
     public void setupDrawerToggle(Toolbar toolbar) {
         DrawerLayout drawerLayout = findViewById(R.id.main_drawer);
 
@@ -121,7 +193,6 @@ public class MainActivity extends BaseActivity implements ListaTareasFragment.On
         int orientacion = getResources().getConfiguration().orientation;
 
         if (orientacion == Configuration.ORIENTATION_LANDSCAPE) {
-            // Landscape: crear nueva instancia y mostrar en el panel derecho
             DetalleTareaFragment fragment = new DetalleTareaFragment();
             Bundle args = new Bundle();
             args.putLong("tarea_id", tareaId);
@@ -131,7 +202,6 @@ public class MainActivity extends BaseActivity implements ListaTareasFragment.On
                     .replace(R.id.fragment_detalle, fragment)
                     .commit();
         } else {
-            // Portrait: abrir ViewTareaActivity
             Intent intent = new Intent(this, ViewTareaActivity.class);
             intent.putExtra(DBmanager.COL_ID, tareaId);
             startActivity(intent);
@@ -140,13 +210,12 @@ public class MainActivity extends BaseActivity implements ListaTareasFragment.On
 
     @Override
     public void onTareaEliminada() {
-        // Refrescar la lista
         ListaTareasFragment listaFragment = (ListaTareasFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.fragment_lista_tarea);
         if (listaFragment != null) {
             listaFragment.cargarTareas();
         }
-        // Quitar el detalle del panel derecho
+
         Fragment detalleFragment = getSupportFragmentManager().findFragmentById(R.id.fragment_detalle);
         if (detalleFragment != null) {
             getSupportFragmentManager().beginTransaction()
@@ -162,7 +231,7 @@ public class MainActivity extends BaseActivity implements ListaTareasFragment.On
         if (listaFragment != null) {
             listaFragment.cargarTareas();
         }
-        // Quitar el detalle del panel derecho
+
         Fragment detalleFragment = getSupportFragmentManager().findFragmentById(R.id.fragment_detalle);
         if (detalleFragment != null) {
             DetalleTareaFragment fragment = new DetalleTareaFragment();
@@ -187,7 +256,7 @@ public class MainActivity extends BaseActivity implements ListaTareasFragment.On
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
         Calendar calendario = Calendar.getInstance();
-        calendario.set(Calendar.HOUR_OF_DAY, 8); // 8 de la mañana
+        calendario.set(Calendar.HOUR_OF_DAY, 8);
         calendario.set(Calendar.MINUTE, 0);
         calendario.set(Calendar.SECOND, 0);
         calendario.set(Calendar.MILLISECOND, 0);

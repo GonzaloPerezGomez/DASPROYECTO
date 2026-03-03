@@ -52,7 +52,8 @@ public class TareasAdapter extends RecyclerView.Adapter<TareasAdapter.TareaViewH
 
         String titulo = cursor.getString(cursor.getColumnIndexOrThrow(DBmanager.COL_TITULO));
         String descripcion = cursor.getString(cursor.getColumnIndexOrThrow(DBmanager.COL_DESCRIPCION));
-        String fecha = cursor.getString(cursor.getColumnIndexOrThrow(DBmanager.COL_FECHALIMITE));
+        String fechaBD = cursor.getString(cursor.getColumnIndexOrThrow(DBmanager.COL_FECHALIMITE));
+        String fechaUI = DBmanager.formatFechaToUI(fechaBD);
         int prioridad = cursor.getInt(cursor.getColumnIndexOrThrow(DBmanager.COL_PRIORIDAD));
         long id = cursor.getLong(cursor.getColumnIndexOrThrow(DBmanager.COL_ID));
         int completada = cursor.getInt(cursor.getColumnIndexOrThrow(DBmanager.COL_COMPLETADA));
@@ -69,7 +70,6 @@ public class TareasAdapter extends RecyclerView.Adapter<TareasAdapter.TareaViewH
 
         holder.tvTitulo.setText(titulo);
 
-        // Descripción: ocultar si vacía
         if (descripcion != null && !descripcion.trim().isEmpty()) {
             holder.tvDescripcion.setText(descripcion);
             holder.tvDescripcion.setVisibility(View.VISIBLE);
@@ -77,9 +77,8 @@ public class TareasAdapter extends RecyclerView.Adapter<TareasAdapter.TareaViewH
             holder.tvDescripcion.setVisibility(View.GONE);
         }
 
-        // Fecha + separador: ocultar si vacía
-        if (fecha != null && !fecha.trim().isEmpty()) {
-            holder.tvFecha.setText(fecha);
+        if (fechaUI != null && !fechaUI.trim().isEmpty()) {
+            holder.tvFecha.setText(fechaUI);
             holder.divider.setVisibility(View.VISIBLE);
             holder.layoutFecha.setVisibility(View.VISIBLE);
         } else {
@@ -104,7 +103,6 @@ public class TareasAdapter extends RecyclerView.Adapter<TareasAdapter.TareaViewH
 
         holder.tvTitulo.setTextColor(color);
 
-        // Click listener usando el callback
         holder.itemView.setOnClickListener(v -> {
             Log.d("TareasAdapter", "Tarea seleccionada: " + holder.getAdapterPosition());
             if (listener != null) {

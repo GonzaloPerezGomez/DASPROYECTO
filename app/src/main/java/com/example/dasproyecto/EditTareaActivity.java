@@ -22,7 +22,7 @@ public class EditTareaActivity extends BaseActivity {
     private Button btnGuardar, btnCancelar;
     private DBmanager dbManager;
     private TextView tituloActivity;
-    private long tareaId = -1; // Almacenamos el ID para saber qué tarea editar
+    private long tareaId = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,8 +32,6 @@ public class EditTareaActivity extends BaseActivity {
         tituloActivity = findViewById(R.id.tituloActivity);
         tituloActivity.setText(R.string.titulo_editar_tarea);
 
-        // 1. Inicializar Vistas
-
         etTitulo = findViewById(R.id.etTitulo);
         etDescripcion = findViewById(R.id.etDescripcion);
         etFecha = findViewById(R.id.etFecha);
@@ -41,31 +39,31 @@ public class EditTareaActivity extends BaseActivity {
         btnGuardar = findViewById(R.id.btnGuardar);
         btnCancelar = findViewById(R.id.btnCancelar);
 
-        // 2. Setup Spinner (Mantenemos tu lógica: Alta=2, Media=1, Baja=0)
         String[] prioridades = getResources().getStringArray(R.array.prioridades_array);
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, prioridades);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerPrioridad.setAdapter(adapter);
 
-        // 3. RECUPERAR DATOS DEL INTENT
         if (getIntent().hasExtra(DBmanager.COL_ID)) {
             dbManager = new DBmanager(this);
             dbManager.open();
             Log.d(TAG, "Recuperando tarea con ID: " + getIntent().getLongExtra(DBmanager.COL_ID, -1));
             tareaId = getIntent().getLongExtra(DBmanager.COL_ID, -1);
             Cursor cursor = dbManager.getTarea(tareaId);
-            if (cursor != null && cursor.moveToFirst()) {
-                etTitulo.setText(cursor.getString(cursor.getColumnIndexOrThrow(DBmanager.COL_TITULO)));
-                etDescripcion.setText(cursor.getString(cursor.getColumnIndexOrThrow(DBmanager.COL_DESCRIPCION)));
-                etFecha.setText(cursor.getString(cursor.getColumnIndexOrThrow(DBmanager.COL_FECHALIMITE)));
-                spinnerPrioridad.setSelection(cursor.getInt(cursor.getColumnIndexOrThrow(DBmanager.COL_PRIORIDAD)));
+            if (cursor != null) {
+                if (cursor.moveToFirst()) {
+                    etTitulo.setText(cursor.getString(cursor.getColumnIndexOrThrow(DBmanager.COL_TITULO)));
+                    etDescripcion.setText(cursor.getString(cursor.getColumnIndexOrThrow(DBmanager.COL_DESCRIPCION)));
+                    String fechaBD = cursor.getString(cursor.getColumnIndexOrThrow(DBmanager.COL_FECHALIMITE));
+                    etFecha.setText(DBmanager.formatFechaToUI(fechaBD));
+                    spinnerPrioridad.setSelection(cursor.getInt(cursor.getColumnIndexOrThrow(DBmanager.COL_PRIORIDAD)));
+                }
                 cursor.close();
             }
         }
 
         etFecha.setOnClickListener(v -> configurarSelectorFecha());
 
-        // 5. ACTUALIZAR
         btnGuardar.setOnClickListener(v -> actualizarTarea());
         btnCancelar.setOnClickListener(v -> finish());
     }
@@ -73,7 +71,8 @@ public class EditTareaActivity extends BaseActivity {
     private void actualizarTarea() {
         String titulo = etTitulo.getText().toString().trim();
         String descripcion = etDescripcion.getText().toString().trim();
-        String fecha = etFecha.getText().toString().trim();
+        String fechaUI = etFecha.getText().toString().trim();
+        String fechaDB = DBmanager.formatFechaToDB(fechaUI);
         int prioridadIndex = spinnerPrioridad.getSelectedItemPosition();
 
         if (TextUtils.isEmpty(titulo)) {
@@ -81,9 +80,7 @@ public class EditTareaActivity extends BaseActivity {
             return;
         }
 
-        // 4. ACTUALIZAR EN LUGAR DE INSERTAR
-        // Usamos el ID recuperado para modificar la tarea existente
-        dbManager.actualizarTareaCompleta(tareaId, titulo, descripcion, prioridadIndex, fecha);
+        dbManager.actualizarTareaCompleta(tareaId, titulo, descripcion, prioridadIndex, fechaDB);
 
         Toast.makeText(this, R.string.toast_tarea_actualizada, Toast.LENGTH_SHORT).show();
         finish();
@@ -102,7 +99,7 @@ public class EditTareaActivity extends BaseActivity {
             int year = bundle.getInt("year");
             int month = bundle.getInt("month");
             int day = bundle.getInt("day");
-            String fecha = day + "/" + (month + 1) + "/" + year;
+            String fecha = String.format(java.util.Locale.getDefault(), "%02d/%02d/%04d", day, month + 1, year);
             etFecha.setText(fecha);
         });
 
@@ -112,7 +109,7 @@ public class EditTareaActivity extends BaseActivity {
             try {
                 String[] partes = fechaActual.split("/");
                 int day = Integer.parseInt(partes[0]);
-                int month = Integer.parseInt(partes[1]) - 1; // Calendar months are 0-based
+                int month = Integer.parseInt(partes[1]) - 1;
                 int year = Integer.parseInt(partes[2]);
                 dialogoFecha = ElegirFechaDialog.newInstance(day, month, year);
             } catch (Exception e) {

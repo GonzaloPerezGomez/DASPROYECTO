@@ -107,44 +107,29 @@ public class DBmanager {
         }
     }
 
-    /**
-     * Cuenta las tareas NO completadas cuya fechaLimite es ANTERIOR a la fecha
-     * dada.
-     * Parsea cada fechaLimite (formato "d/M/yyyy") para compararla con 'fechaHoy'.
-     *
-     * @param fechaHoy la fecha de hoy en formato "d/M/yyyy"
-     * @return número de tareas atrasadas
-     */
-    public ArrayList<String> tareasPendientes(String fechaHoy) {
-        // 1. Crear el formateador de fechas con el mismo patrón usado al guardar
-        SimpleDateFormat sdf = new SimpleDateFormat("d/M/yyyy", Locale.getDefault());
+    public ArrayList<String> tareasPendientes(String fechaHoyDB) {
         ArrayList<String> tareasPendientes = new ArrayList<>();
 
-        // 2. Parsear la fecha de hoy a un objeto Date para poder comparar
-        Date hoy;
-        try {
-            hoy = sdf.parse(fechaHoy);
-        } catch (ParseException e) {
-            Log.e(TAG, "Error al parsear la fecha de hoy: " + fechaHoy, e);
-            return null; // Si no se puede parsear, devolvemos 0
-        }
-
-        // 3. Consultar todas las tareas NO completadas (completada = 0)
         Cursor cursor = db.query(TABLE_NAME, columnas,
                 COL_COMPLETADA + " = 0", null, null, null, null);
 
-        // 4. Recorrer cada tarea y comparar su fecha
+        SimpleDateFormat sdfDB = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+
+        Date hoy = null;
+        try {
+            hoy = sdfDB.parse(fechaHoyDB);
+        } catch (ParseException e) {
+            Log.e(TAG, "Error al parsear la fecha de hoy: " + fechaHoyDB, e);
+            return null;
+        }
+
         while (cursor.moveToNext()) {
-            String fechaTarea = cursor.getString(
-                    cursor.getColumnIndexOrThrow(COL_FECHALIMITE));
-            if (fechaTarea != null && !fechaTarea.isEmpty()) {
+            String fechaTarea = cursor.getString(cursor.getColumnIndexOrThrow(COL_FECHALIMITE));
+            if (fechaTarea != null && !fechaTarea.trim().isEmpty()) {
                 try {
-                    Date dateTarea = sdf.parse(fechaTarea);
-                    // before() devuelve true si dateTarea es anterior a hoy
+                    Date dateTarea = sdfDB.parse(fechaTarea);
                     if (dateTarea != null && (dateTarea.before(hoy) || dateTarea.equals(hoy))) {
-                        String tituloTarea = cursor.getString(
-                                cursor.getColumnIndexOrThrow(COL_TITULO));
-                        tareasPendientes.add(tituloTarea);
+                        tareasPendientes.add(cursor.getString(cursor.getColumnIndexOrThrow(COL_TITULO)));
                     }
                 } catch (ParseException e) {
                     Log.w(TAG, "Fecha no válida en tarea: " + fechaTarea, e);
@@ -153,6 +138,46 @@ public class DBmanager {
         }
         cursor.close();
         return tareasPendientes;
+    }
+
+    public static String formatFechaToDB(String fechaUI) {
+        if (fechaUI == null || fechaUI.trim().isEmpty())
+            return "";
+        try {
+            if (fechaUI.contains("/")) {
+                String[] p = fechaUI.split("/");
+                if (p.length == 3) {
+                    return String.format(Locale.getDefault(), "%04d-%02d-%02d",
+                            Integer.parseInt(p[2]), Integer.parseInt(p[1]), Integer.parseInt(p[0]));
+                }
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error formateando fecha para DB: " + fechaUI, e);
+        }
+        return fechaUI;
+    }
+
+    public static String formatFechaToUI(String fechaDB) {
+        if (fechaDB == null || fechaDB.trim().isEmpty())
+            return "";
+        try {
+            if (fechaDB.contains("-")) {
+                String[] p = fechaDB.split("-");
+                if (p.length == 3) {
+                    return String.format(Locale.getDefault(), "%02d/%02d/%04d",
+                            Integer.parseInt(p[2]), Integer.parseInt(p[1]), Integer.parseInt(p[0]));
+                }
+            } else if (fechaDB.contains("/")) {
+                String[] p = fechaDB.split("/");
+                if (p.length == 3) {
+                    return String.format(Locale.getDefault(), "%02d/%02d/%04d",
+                            Integer.parseInt(p[0]), Integer.parseInt(p[1]), Integer.parseInt(p[2]));
+                }
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error formateando fecha para UI: " + fechaDB, e);
+        }
+        return fechaDB;
     }
 
     public Cursor getTarea(long id) {

@@ -15,7 +15,6 @@ public class ElegirFechaDialog extends DialogFragment implements DatePickerDialo
     private static final String ARG_MONTH = "month";
     private static final String ARG_YEAR = "year";
 
-    /** Crea el diálogo con una fecha inicial concreta. */
     public static ElegirFechaDialog newInstance(int day, int month, int year) {
         ElegirFechaDialog frag = new ElegirFechaDialog();
         Bundle args = new Bundle();

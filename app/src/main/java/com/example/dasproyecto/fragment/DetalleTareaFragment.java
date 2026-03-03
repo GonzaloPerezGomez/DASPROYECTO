@@ -78,22 +78,18 @@ public class DetalleTareaFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Toolbar
         Toolbar toolbar = view.findViewById(R.id.toolbar);
         toolbar.setNavigationOnClickListener(v -> requireActivity().onBackPressed());
         toolbar.setOnMenuItemClickListener(this::onMenuItemClick);
 
-        // Cargar prioridades desde recursos
         prioridades = getResources().getStringArray(R.array.prioridades_array);
 
-        // Inicializar Vistas
         tvTitulo = view.findViewById(R.id.tvTitulo);
         tvDescripcion = view.findViewById(R.id.tvDescripcion);
         tvFecha = view.findViewById(R.id.tvFecha);
         tvPrioridad = view.findViewById(R.id.tvPrioridad);
         btnCompletar = view.findViewById(R.id.btnCompletar);
 
-        // Recuperar tarea ID desde los argumentos del Fragment
         if (getArguments() != null) {
             tareaId = getArguments().getLong(ARG_TAREA_ID, -1);
         }
@@ -109,7 +105,6 @@ public class DetalleTareaFragment extends Fragment {
 
         cargarDatos();
 
-        // Botón Completar/No completar
         btnCompletar.setOnClickListener(v -> {
             estadoCompletada = (estadoCompletada == 0) ? 1 : 0;
             dbManager.actualizarEstado(tareaId, estadoCompletada);
@@ -126,17 +121,19 @@ public class DetalleTareaFragment extends Fragment {
 
     private void cargarDatos() {
         Cursor cursor = dbManager.getTarea(tareaId);
-        if (cursor != null && cursor.moveToFirst()) {
-            Log.d(TAG, "Tarea encontrada: " + cursor.getString(cursor.getColumnIndexOrThrow(DBmanager.COL_TITULO)));
-            tvTitulo.setText(cursor.getString(cursor.getColumnIndexOrThrow(DBmanager.COL_TITULO)));
-            tvDescripcion.setText(cursor.getString(cursor.getColumnIndexOrThrow(DBmanager.COL_DESCRIPCION)));
-            tvFecha.setText(cursor.getString(cursor.getColumnIndexOrThrow(DBmanager.COL_FECHALIMITE)));
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                Log.d(TAG, "Tarea encontrada: " + cursor.getString(cursor.getColumnIndexOrThrow(DBmanager.COL_TITULO)));
+                tvTitulo.setText(cursor.getString(cursor.getColumnIndexOrThrow(DBmanager.COL_TITULO)));
+                tvDescripcion.setText(cursor.getString(cursor.getColumnIndexOrThrow(DBmanager.COL_DESCRIPCION)));
+                String fechaBD = cursor.getString(cursor.getColumnIndexOrThrow(DBmanager.COL_FECHALIMITE));
+                tvFecha.setText(DBmanager.formatFechaToUI(fechaBD));
 
-            estadoCompletada = cursor.getInt(cursor.getColumnIndexOrThrow(DBmanager.COL_COMPLETADA));
+                estadoCompletada = cursor.getInt(cursor.getColumnIndexOrThrow(DBmanager.COL_COMPLETADA));
 
-            int prioridad = cursor.getInt(cursor.getColumnIndexOrThrow(DBmanager.COL_PRIORIDAD));
-            tvPrioridad.setText(prioridades[prioridad]);
-
+                int prioridad = cursor.getInt(cursor.getColumnIndexOrThrow(DBmanager.COL_PRIORIDAD));
+                tvPrioridad.setText(prioridades[prioridad]);
+            }
             cursor.close();
         }
         actualizarBotonCompletar();
@@ -159,7 +156,7 @@ public class DetalleTareaFragment extends Fragment {
                 EliminarTareaDialog dialogo = EliminarTareaDialog.newInstance(tareaId, titulo, listenerEliminada);
                 dialogo.show(getParentFragmentManager(), "EliminarTareaDialog");
                 return true;
-            }else{
+            } else {
                 dbManager.eliminar(tareaId);
                 listenerEliminada.onTareaEliminada();
                 Toast.makeText(getActivity(), getString(R.string.toast_tarea_eliminada, titulo), Toast.LENGTH_SHORT)

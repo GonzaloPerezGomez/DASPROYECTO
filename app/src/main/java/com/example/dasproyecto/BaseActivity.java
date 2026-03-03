@@ -19,13 +19,6 @@ import androidx.preference.PreferenceManager;
 
 import com.example.dasproyecto.dialog.PermisoNotificacionesDialog;
 
-/**
- * Activity base que aplica el locale de las preferencias.
- * Todas las Activities de la app deben extender esta clase.
- *
- * - attachBaseContext: aplica el locale al crear la Activity.
- * - onResume: si el usuario cambió el idioma en Ajustes, recrea la Activity.
- */
 public class BaseActivity extends AppCompatActivity {
 
     private String idiomaActual;
@@ -36,7 +29,6 @@ public class BaseActivity extends AppCompatActivity {
     @Override
     protected void attachBaseContext(Context newBase) {
         super.attachBaseContext(Idioma.wrap(newBase));
-        // Guardar el idioma con el que se creó esta Activity
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(newBase);
         idiomaActual = prefs.getString("idioma", "es");
     }
@@ -44,16 +36,16 @@ public class BaseActivity extends AppCompatActivity {
     @Override
     protected void onCreate(android.os.Bundle savedInstanceState) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        
-        // Aplicar Modo Oscuro/Claro
+
         temaActual = prefs.getString("tema", "claro");
         if ("oscuro".equals(temaActual)) {
-            androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES);
+            androidx.appcompat.app.AppCompatDelegate
+                    .setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES);
         } else {
-            androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO);
+            androidx.appcompat.app.AppCompatDelegate
+                    .setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO);
         }
 
-        // Aplicar Color Secundario
         colorActual = prefs.getString("color_secundario", "azul");
         switch (colorActual) {
             case "rojo":
@@ -80,12 +72,11 @@ public class BaseActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        // Si el idioma, color o tema cambió mientras estábamos en segundo plano, recrear
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         String idiomaPrefs = prefs.getString("idioma", "es");
         String colorPrefs = prefs.getString("color_secundario", "azul");
         String temaPrefs = prefs.getString("tema", "claro");
-        
+
         boolean needsRecreate = false;
         if (!idiomaPrefs.equals(idiomaActual)) {
             idiomaActual = idiomaPrefs;
@@ -140,8 +131,6 @@ public class BaseActivity extends AppCompatActivity {
                     SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
                     prefs.edit().putBoolean("notificaciones", false).apply();
 
-                    // Si el usuario deniega y ya no se le debe mostrar el diálogo nativo (porque lo
-                    // rechazó previamente)
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
                             !shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS)) {
                         Log.d(TAG, "Permiso bloqueado permanentemente. Mostrando diálogo.");

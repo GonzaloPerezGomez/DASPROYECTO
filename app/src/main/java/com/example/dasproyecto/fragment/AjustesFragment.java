@@ -37,17 +37,14 @@ public class AjustesFragment extends PreferenceFragmentCompat
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, @Nullable String key) {
         if ("idioma".equals(key) || "tema".equals(key) || "color_secundario".equals(key)) {
-            // recreate() hace que attachBaseContext re-aplique configuraciones
             requireActivity().recreate();
         } else if ("notificaciones".equals(key)) {
             boolean estado = sharedPreferences.getBoolean(key, true);
             if (estado) {
-                // habilitar notificaciones
                 if (requireActivity() instanceof BaseActivity) {
                     ((BaseActivity) requireActivity()).solicitarPermisosNotificaciones();
                 }
             } else {
-                // deshabilitar notificaciones: cancelar alarma existente
                 cancelarAlarma();
             }
         }

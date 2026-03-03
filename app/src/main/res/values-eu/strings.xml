@@ -85,6 +85,12 @@
     <string name="config_orden_defecto_summary">Aplikazioa irekitzean ordenatzeko irizpidea</string>
     <string name="config_confirmar_eliminar_summary">Baieztapen-elkarrizketa erakutsi zeregina ezabatu aurretik</string>
 
+    <!-- Diálogo Permisos -->
+    <string name="dialog_permiso_titulo">Baimena Beharrezkoa</string>
+    <string name="dialog_permiso_mensaje">Jakinarazpenak desgaituta daude sisteman. Zereginen abisuak jasotzeko, mesedez gaitu itzazu aplikazioaren ezarpenetan.</string>
+    <string name="dialog_permiso_ajustes">Ezarpenetara joan</string>
+    <string name="dialog_permiso_cancelar">Orain ez</string>
+
     <!-- Notificaciones -->
     <string name="notif_canal_nombre">Zereginak</string>
     <string name="notif_titulo">Zeregin pendienteak</string>

@@ -27,8 +27,8 @@
   - [x] Selector de color para las prioridades
   - [x] Sets de colores primerios y secundarios (Toolbar, botones y fondo)
 - [x] **Multiidioma**: Localizar todos los strings de la aplicación al Castellano, Euskera e Inglés.
-- [ ] **Ficheros de Texto**: Implementar función para "Exportar Notas" de una tarea específica a un archivo `.txt` en el almacenamiento interno.
-- [ ] **Intents implicitos** Ajustes y explorador de archivos (?)
+- [x] **Ficheros de Texto**: Implementar función para "Exportar Notas" de una tarea específica a un archivo `.txt` en el almacenamiento interno.
+- [x] **Intents implicitos** Ajustes y explorador de archivos (?)
 
 ---
 
@@ -41,11 +41,10 @@
 
 ## Extras de aspecto
 
-- [ ] **Ajustar alto de las actividades para que no se vea por debajo de la barra de notificaciones**
+- [x] **Ajustar alto de las actividades para que no se vea por debajo de la barra de notificaciones**
 - [x] **Añadir toolbar con flecha de atras a Ajustes**
 - [ ] **Divisor de tareas por fecha**
 - [ ] **Arreglar aspecto de fragmets en landscape**
-- [ ] **Arreglar aspecto de fragmets en portrait**
+- [x] **Arreglar aspecto de fragmets en portrait**
 - [x] **Elevacion en las card**
 - [x] **Poner iconos en los botones**
-- [ ] **Cambiar elementos por material components**
