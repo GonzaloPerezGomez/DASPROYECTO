@@ -65,6 +65,8 @@
     <string name="config_seccion_idioma">Hizkuntza</string>
     <string name="config_idioma_label">Aplikazioaren hizkuntza</string>
     <string name="config_seccion_visualizacion">Bistaratzeko aukerak</string>
+    <string name="config_tema">Gaia</string>
+    <string name="config_color_secundario">Bigarren kolorea</string>
     <string name="config_ocultar_completadas">Osatutako zereginak ezkutatu</string>
     <string name="config_orden_defecto">Lehenetsitako ordena</string>
     <string name="config_seccion_notificaciones">Jakinarazpenak</string>
@@ -77,6 +79,8 @@
 
     <!-- Summaries de Ajustes -->
     <string name="config_idioma_summary">Hautatu aplikazioaren hizkuntza</string>
+    <string name="config_tema_summary">Aukeratu modu argia eta modu iluna artean</string>
+    <string name="config_color_secundario_summary">Botoien, nabigazio-barraren eta tresna-barraren kolorea</string>
     <string name="config_ocultar_completadas_summary">Ez erakutsi osatutako zereginak</string>
     <string name="config_orden_defecto_summary">Aplikazioa irekitzean ordenatzeko irizpidea</string>
     <string name="config_confirmar_eliminar_summary">Baieztapen-elkarrizketa erakutsi zeregina ezabatu aurretik</string>
@@ -114,4 +118,16 @@
         <item>fecha</item>
         <item>prioridad</item>
     </string-array>
+
+    <string-array name="tema_array">
+        <item>Argia</item>
+        <item>Iluna</item>
+    </string-array>
+
+    <string-array name="tema_values">
+        <item>claro</item>
+        <item>oscuro</item>
+    </string-array>
+
+
 </resources>

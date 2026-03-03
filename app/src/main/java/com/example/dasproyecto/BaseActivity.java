@@ -29,6 +29,8 @@ import com.example.dasproyecto.dialog.PermisoNotificacionesDialog;
 public class BaseActivity extends AppCompatActivity {
 
     private String idiomaActual;
+    private String colorActual;
+    private String temaActual;
     private static final int NOTIFICACION_CODE = 0;
 
     @Override
@@ -40,13 +42,65 @@ public class BaseActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onCreate(android.os.Bundle savedInstanceState) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        
+        // Aplicar Modo Oscuro/Claro
+        temaActual = prefs.getString("tema", "claro");
+        if ("oscuro".equals(temaActual)) {
+            androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES);
+        } else {
+            androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO);
+        }
+
+        // Aplicar Color Secundario
+        colorActual = prefs.getString("color_secundario", "azul");
+        switch (colorActual) {
+            case "rojo":
+                setTheme(R.style.Theme_DASPROYECTO_Rojo);
+                break;
+            case "verde":
+                setTheme(R.style.Theme_DASPROYECTO_Verde);
+                break;
+            case "naranja":
+                setTheme(R.style.Theme_DASPROYECTO_Naranja);
+                break;
+            case "morado":
+                setTheme(R.style.Theme_DASPROYECTO_Morado);
+                break;
+            case "azul":
+            default:
+                setTheme(R.style.Theme_DASPROYECTO);
+                break;
+        }
+
+        super.onCreate(savedInstanceState);
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
-        // Si el idioma cambió mientras estábamos en segundo plano, recrear
+        // Si el idioma, color o tema cambió mientras estábamos en segundo plano, recrear
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         String idiomaPrefs = prefs.getString("idioma", "es");
+        String colorPrefs = prefs.getString("color_secundario", "azul");
+        String temaPrefs = prefs.getString("tema", "claro");
+        
+        boolean needsRecreate = false;
         if (!idiomaPrefs.equals(idiomaActual)) {
             idiomaActual = idiomaPrefs;
+            needsRecreate = true;
+        }
+        if (!colorPrefs.equals(colorActual)) {
+            colorActual = colorPrefs;
+            needsRecreate = true;
+        }
+        if (!temaPrefs.equals(temaActual)) {
+            temaActual = temaPrefs;
+            needsRecreate = true;
+        }
+
+        if (needsRecreate) {
             recreate();
         }
     }

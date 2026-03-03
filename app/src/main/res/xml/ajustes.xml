@@ -18,6 +18,20 @@
     <!-- ═══ Opciones de visualización ═══ -->
     <PreferenceCategory app:title="@string/config_seccion_visualizacion">
 
+        <ListPreference
+            app:key="tema"
+            app:title="@string/config_tema"
+            app:summary="@string/config_tema_summary"
+            app:entries="@array/tema_array"
+            app:entryValues="@array/tema_values"
+            app:defaultValue="claro" />
+
+        <com.example.dasproyecto.ColorSelectorPreference
+            app:key="color_secundario"
+            app:title="@string/config_color_secundario"
+            app:summary="@string/config_color_secundario_summary"
+            app:defaultValue="azul" />
+
         <CheckBoxPreference
             app:key="ocultar_completadas"
             app:title="@string/config_ocultar_completadas"

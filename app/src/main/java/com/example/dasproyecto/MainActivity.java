@@ -81,7 +81,6 @@ public class MainActivity extends BaseActivity implements ListaTareasFragment.On
                 } else if (id == R.id.nav_ajustes) {
                     Intent intent = new Intent(MainActivity.this, AjustesActivity.class);
                     startActivity(intent);
-                    drawerLayout.closeDrawer(GravityCompat.START);
                     return true;
                 }
                 return false;

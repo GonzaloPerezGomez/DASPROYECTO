@@ -66,6 +66,8 @@
     <string name="config_seccion_idioma">Idioma</string>
     <string name="config_idioma_label">Idioma de la aplicación</string>
     <string name="config_seccion_visualizacion">Opciones de visualización</string>
+    <string name="config_tema">Tema</string>
+    <string name="config_color_secundario">Color secundario</string>
     <string name="config_ocultar_completadas">Ocultar tareas completadas</string>
     <string name="config_orden_defecto">Orden por defecto</string>
     <string name="config_seccion_notificaciones">Notificaciones</string>
@@ -76,6 +78,8 @@
 
     <!-- Summaries de Ajustes -->
     <string name="config_idioma_summary">Selecciona el idioma de la aplicación</string>
+    <string name="config_tema_summary">Elige entre modo claro y modo oscuro</string>
+    <string name="config_color_secundario_summary">Color de botones, barra de navegación y toolbar</string>
     <string name="config_ocultar_completadas_summary">No mostrar las tareas marcadas como completadas</string>
     <string name="config_orden_defecto_summary">Criterio de ordenación al abrir la aplicación</string>
     <string name="config_confirmar_eliminar_summary">Mostrar diálogo de confirmación antes de eliminar una tarea</string>
@@ -121,4 +125,16 @@
         <item>fecha</item>
         <item>prioridad</item>
     </string-array>
+
+    <string-array name="tema_array">
+        <item>Claro</item>
+        <item>Oscuro</item>
+    </string-array>
+
+    <string-array name="tema_values">
+        <item>claro</item>
+        <item>oscuro</item>
+    </string-array>
+
+
 </resources>

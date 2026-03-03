@@ -1,6 +1,7 @@
 # Plan de Desarrollo: App de Tareas Dinámica y Personalizable
 
 ## Requisitos Mínimos (Obligatorios para aprobar)
+
 - [x] **Configuración del Proyecto**: Crear proyecto en Android Studio (Java, API 29+) y configurar el repositorio Git.
 - [x] **Base de Datos Local (SQLite/Room)**: Diseñar e implementar la tabla `Tareas` (id, titulo, descripcion, prioridad, fechaLimite, completada).
 - [x] **Interfaz Principal (RecyclerView)**: Implementar el listado de tareas usando `CardView` para un diseño atractivo.
@@ -14,35 +15,37 @@
 - [x] **Listener para boton de completado de tarea**
 - [x] **Cuando se pone en lanscape que detalle empiece mostrando la primera tarea (mirar como hacer cuando no hay ninguna tarea)**
 
-_____________________________________________
+---
 
 ## Requisitos Avanzados (Para alcanzar el Excelente)
+
 - [x] **Panel de Navegación (Navigation Drawer)**: Crear menú lateral para filtrar por categorías (Trabajo, Personal, Ocio).
 - [x] **ToolBar Personalizada**: Sustituir la ActionBar por defecto por una `Toolbar` con iconos de acción (buscar, filtrar).
 - [x] **Uso de Fragments**: Implementar una vista de "Detalle" que se cargue dinámicamente (especialmente útil para modo horizontal).
 - [x] **Sistema de Preferencias (SharedPreferences)**: Opción para guardar ajustes de usuario (ej. orden de la lista, mostrar/ocultar completadas).
-- [ ] **Estilos y Temas Propios**: Definir colores, fuentes y formas de botones en `themes.xml` para alejar la app del diseño por defecto.
-  - [ ] Selector de color para las prioridades
-  - [ ] Sets de colores primerios y secundarios (Toolbar, botones y fondo)
+- [x] **Estilos y Temas Propios**: Definir colores, fuentes y formas de botones en `themes.xml` para alejar la app del diseño por defecto.
+  - [x] Selector de color para las prioridades
+  - [x] Sets de colores primerios y secundarios (Toolbar, botones y fondo)
 - [x] **Multiidioma**: Localizar todos los strings de la aplicación al Castellano, Euskera e Inglés.
 - [ ] **Ficheros de Texto**: Implementar función para "Exportar Notas" de una tarea específica a un archivo `.txt` en el almacenamiento interno.
 - [ ] **Intents implicitos** Ajustes y explorador de archivos (?)
 
-_____________________________________________
+---
 
 ## Documentación y Entrega (30% de la nota)
+
 - [ ] **Memoria Técnica**: Redactar máximo 20 páginas incluyendo diagramas de clases y de la base de datos.
 - [ ] **Manual de Usuario**: Crear guía con capturas de pantalla de la interfaz final.
 - [ ] **Generación de APK**: Compilar el fichero `.apk` final y verificar su funcionamiento en un emulador o dispositivo real.
 - [ ] **Subida a eGela**: Preparar el .zip con el APK, la Memoria y el enlace al repositorio Git antes del 9 de marzo.
 
-
 ## Extras de aspecto
+
 - [ ] **Ajustar alto de las actividades para que no se vea por debajo de la barra de notificaciones**
-- [ ] **Añadir toolbar con flecha de atras a Ajustes**
+- [x] **Añadir toolbar con flecha de atras a Ajustes**
 - [ ] **Divisor de tareas por fecha**
 - [ ] **Arreglar aspecto de fragmets en landscape**
 - [ ] **Arreglar aspecto de fragmets en portrait**
-- [ ] **Elevacion en las card**
-- [ ] **Poner iconos en los botones**
+- [x] **Elevacion en las card**
+- [x] **Poner iconos en los botones**
 - [ ] **Cambiar elementos por material components**

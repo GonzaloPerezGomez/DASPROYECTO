@@ -66,6 +66,8 @@
     <string name="config_seccion_idioma">Language</string>
     <string name="config_idioma_label">App language</string>
     <string name="config_seccion_visualizacion">Display options</string>
+    <string name="config_tema">Theme</string>
+    <string name="config_color_secundario">Secondary color</string>
     <string name="config_ocultar_completadas">Hide completed tasks</string>
     <string name="config_orden_defecto">Default sort order</string>
     <string name="config_seccion_notificaciones">Notifications</string>
@@ -77,6 +79,8 @@
 
     <!-- Summaries de Ajustes -->
     <string name="config_idioma_summary">Select the app language</string>
+    <string name="config_tema_summary">Choose between light mode and dark mode</string>
+    <string name="config_color_secundario_summary">Color for buttons, navigation bar, and toolbar</string>
     <string name="config_ocultar_completadas_summary">Do not show tasks marked as completed</string>
     <string name="config_orden_defecto_summary">Sort criteria when opening the app</string>
     <string name="config_confirmar_eliminar_summary">Show confirmation dialog before deleting a task</string>
@@ -114,4 +118,16 @@
         <item>fecha</item>
         <item>prioridad</item>
     </string-array>
+
+    <string-array name="tema_array">
+        <item>Light</item>
+        <item>Dark</item>
+    </string-array>
+
+    <string-array name="tema_values">
+        <item>claro</item>
+        <item>oscuro</item>
+    </string-array>
+
+
 </resources>
