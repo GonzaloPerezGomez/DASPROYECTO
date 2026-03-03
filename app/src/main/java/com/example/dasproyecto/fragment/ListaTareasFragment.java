@@ -105,6 +105,15 @@ public class ListaTareasFragment extends Fragment {
             startActivity(intent);
         });
 
+        // Ajustar margen inferior del FAB para respetar la barra de navegación
+        ViewCompat.setOnApplyWindowInsetsListener(fab, (v, insets) -> {
+            Insets navBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
+            params.bottomMargin = navBars.bottom + (int) (36 * getResources().getDisplayMetrics().density);
+            v.setLayoutParams(params);
+            return insets;
+        });
+
         // RecyclerView
         recyclerView = view.findViewById(R.id.recyclerViewTareas);
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
@@ -117,14 +126,14 @@ public class ListaTareasFragment extends Fragment {
 
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        menu.clear();
         inflater.inflate(R.menu.menu_lista_tareas, menu);
 
-        // Obtener el SearchView del menú
+        // Configurar SearchView
         MenuItem searchItem = menu.findItem(R.id.action_buscar);
         SearchView searchView = (SearchView) searchItem.getActionView();
         if (searchView != null) {
             searchView.setQueryHint(getString(R.string.search_hint));
-            // Listener para obtener el texto escrito
             searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                 @Override
                 public boolean onQueryTextChange(String newText) {
@@ -149,8 +158,34 @@ public class ListaTareasFragment extends Fragment {
                 }
             });
         }
+    }
 
-        super.onCreateOptionsMenu(menu, inflater);
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.action_eliminar_completadas) {
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(requireContext());
+            boolean confirmarEliminar = prefs.getBoolean("confirmar_eliminar", true);
+            if (confirmarEliminar) {
+                EliminarTareasCompletadasDialog dialogo = EliminarTareasCompletadasDialog
+                        .newInstance(listenerEliminada);
+                dialogo.show(getParentFragmentManager(), "EliminarCompletadas");
+            } else {
+                listenerEliminada.onTareaEliminada();
+                dbManager.eliminarCompletadas();
+                cargarTareas();
+                Toast.makeText(requireContext(), R.string.toast_completadas_eliminadas, Toast.LENGTH_SHORT).show();
+            }
+            return true;
+        } else if (id == R.id.ordenar_fecha) {
+            cargarTareas("fecha");
+            return true;
+        } else if (id == R.id.ordenar_prioridad) {
+            cargarTareas("prioridad");
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     /**
@@ -164,7 +199,7 @@ public class ListaTareasFragment extends Fragment {
 
     /**
      * Carga las tareas con el orden especificado.
-     * 
+     *
      * @param orden "fecha" o "prioridad"
      */
     public void cargarTareas(String orden) {
@@ -181,7 +216,6 @@ public class ListaTareasFragment extends Fragment {
             if ("prioridad".equals(orden)) {
                 cursor = dbManager.getTareasByPrioridad(ocultar);
             } else {
-                // "fecha" o cualquier valor desconocido → orden por fecha (fallback seguro)
                 cursor = dbManager.getTareas(ocultar);
             }
         } catch (Exception e) {
@@ -210,36 +244,6 @@ public class ListaTareasFragment extends Fragment {
                 listener.onTareaSeleccionada(primeraTareaId);
             }
             primeraSeleccionRealizada = true;
-        }
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        int id = item.getItemId();
-
-        if (id == R.id.action_eliminar_completadas) {
-            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(requireContext());
-            boolean confirmarEliminar = prefs.getBoolean("confirmar_eliminar", true);
-
-            if (confirmarEliminar) {
-                EliminarTareasCompletadasDialog dialogo = EliminarTareasCompletadasDialog
-                        .newInstance(listenerEliminada);
-                dialogo.show(getParentFragmentManager(), "EliminarCompletadas");
-            } else {
-                listenerEliminada.onTareaEliminada();
-                dbManager.eliminarCompletadas();
-                cargarTareas();
-                Toast.makeText(requireContext(), R.string.toast_completadas_eliminadas, Toast.LENGTH_SHORT).show();
-            }
-            return true;
-        } else if (id == R.id.ordenar_fecha) {
-            cargarTareas();
-            return true;
-        } else if (id == R.id.ordenar_prioridad) {
-            cargarTareas("prioridad");
-            return true;
-        } else {
-            return super.onOptionsItemSelected(item);
         }
     }
 

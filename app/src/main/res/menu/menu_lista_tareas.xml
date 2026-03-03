@@ -15,7 +15,7 @@
         android:id="@+id/action_ordenar"
         android:icon="@drawable/ic_sort"
         android:title="@string/action_ordenar"
-        app:showAsAction="ifRoom">
+        app:showAsAction="always">
         <menu>
             <item
                 android:id="@+id/ordenar_fecha"
