@@ -28,11 +28,11 @@ public class ColorSelectorPreference extends Preference {
     };
 
     private static final int[] COLOR_VALUES = {
-            Color.parseColor("#1976D2"),  // azul
-            Color.parseColor("#D32F2F"),  // rojo
-            Color.parseColor("#388E3C"),  // verde
-            Color.parseColor("#F57C00"),  // naranja
-            Color.parseColor("#7B1FA2"),  // morado
+            Color.parseColor("#1976D2"), // azul
+            Color.parseColor("#D32F2F"), // rojo
+            Color.parseColor("#388E3C"), // verde
+            Color.parseColor("#F57C00"), // naranja
+            Color.parseColor("#7B1FA2"), // morado
     };
 
     private static final int CIRCLE_SIZE_DP = 40;
@@ -45,13 +45,13 @@ public class ColorSelectorPreference extends Preference {
     private String selectedColor;
 
     public ColorSelectorPreference(@NonNull Context context, @Nullable AttributeSet attrs,
-                                   int defStyleAttr, int defStyleRes) {
+            int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         setLayoutResource(R.layout.preference_color_selector);
     }
 
     public ColorSelectorPreference(@NonNull Context context, @Nullable AttributeSet attrs,
-                                   int defStyleAttr) {
+            int defStyleAttr) {
         this(context, attrs, defStyleAttr, 0);
     }
 
@@ -81,7 +81,8 @@ public class ColorSelectorPreference extends Preference {
         holder.itemView.setClickable(false);
 
         LinearLayout container = (LinearLayout) holder.findViewById(R.id.color_buttons_container);
-        if (container == null) return;
+        if (container == null)
+            return;
 
         container.removeAllViews();
 
@@ -117,7 +118,7 @@ public class ColorSelectorPreference extends Preference {
 
             // Icono de check para el seleccionado
             if (colorKey.equals(selectedColor)) {
-                circle.setImageResource(android.R.drawable.checkbox_on_background);
+                circle.setImageResource(R.drawable.ic_check);
                 circle.setColorFilter(Color.WHITE);
                 circle.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
                 circle.setPadding(dpToPx(8), dpToPx(8), dpToPx(8), dpToPx(8));
