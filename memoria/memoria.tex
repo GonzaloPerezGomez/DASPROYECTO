@@ -1,0 +1,121 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{url}
+\usepackage[T1]{fontenc}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{float}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{amssymb}
+
+\lstset{
+  basicstyle=\ttfamily\footnotesize, 
+  numbers=left,                     
+  numberstyle=\tiny\color{gray},
+  keywordstyle=\color{blue},        
+  commentstyle=\color{green!50!black},
+  stringstyle=\color{orange},        
+  frame=single,                     
+  breaklines=true,                   
+  tabsize=2,
+  showstringspaces=false,
+  columns=flexible,
+  frame=single,
+  backgroundcolor=\color{gray!5}
+}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    urlcolor=blue,
+    citecolor=blue
+}
+
+\begin{document}
+
+\begin{titlepage}
+    \centering
+    \vspace*{2cm}
+    
+    % Título principal
+    {\Huge \bfseries Primera Entrega\par}
+    \vspace{1.5cm}
+    
+    % Autores
+    {\Large Gonzalo Pérez\par}
+    \vspace{1cm}
+    
+    % Curso / asignatura
+    {\large Ingeniería Informática\\
+    Universidad del País Vasco (EHU) \\
+    Desarrollo Avanzado de Software\par}
+    \vspace{2cm}
+    
+    % Fecha
+    {\large Marzo 2026\par}
+    
+    \vfill
+\end{titlepage}
+
+
+\tableofcontents
+\newpage
+
+
+\section{Introducción}
+
+Como objetivo principal de esta primera entrega, se ha propuesto el desarrollo de una aplicación para el sistema operativo Android, utilizando para ello el entorno de desarrollo Android Studio\footnote{\url{https://developer.android.com/studio?hl=es-419}} y el lenguaje de programación Java\footnote{\url{https://www.java.com/es/}}. Los requisitos del proyecto establecen una serie de características obligatorias a implementar:
+
+\begin{itemize}
+    \item Uso de \textbf{ListView} o \textbf{RecyclerView} junto con \textbf{CardView} para mostrar conjuntos de elementos.
+    \item Gestión de una base de datos local para listar, añadir y modificar elementos.
+    \item Implementación de ventanas de diálogo.
+    \item Generación de notificaciones locales.
+    \item Gestión del ciclo de vida y control de la pila de actividades (\textit{Activities}).
+\end{itemize}
+
+Adicionalmente, se ha proporcionado una lista de características opcionales para enriquecer la aplicación:
+
+\begin{itemize}
+    \item Uso de \textbf{Fragments} para adaptar la interfaz visual según la orientación del dispositivo.
+    \item Soporte multiidioma y opción para alternar entre diferentes idiomas.
+    \item Lectura y escritura en ficheros de texto.
+    \item Uso de preferencias (\textit{SharedPreferences}) para guardar de forma persistente ajustes del usuario.
+    \item Definición de estilos y temas de personalización propios.
+    \item Uso de \textbf{Intents} para interactuar con otras aplicaciones.
+    \item Implementación de \textbf{Toolbar} y \textbf{Navigation Drawer} personalizados.
+\end{itemize}
+
+Para integrar todas estas funcionalidades y dar cumplimiento a los requisitos, se ha optado por diseñar y desarrollar una aplicación de gestión de tareas. Esta herramienta permite al usuario visualizar sus tareas, así como añadir nuevas, modificarlas, marcarlas como completadas o eliminarlas según sea necesario.
+
+\section{Funcionalidades implementadas}
+
+En este apartado se presentarán los elementos empleados y la función que cumplen dentro del proyecto.
+
+\subsection{RecyclerView y CardView}
+
+
+\newpage
+
+\section{Clases y Base de datos}
+
+\newpage
+
+\section{Manual de Usuario}
+
+\newpage
+
+\section{Dificultades}
+
+\newpage
+
+\section{Fuentes utilizadas}
+
+\newpage
+
+\section{Repositorio de código}
+
+\end{document}
