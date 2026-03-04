@@ -39,24 +39,24 @@
 \begin{titlepage}
     \centering
     \vspace*{2cm}
-    
+
     % Título principal
     {\Huge \bfseries Primera Entrega\par}
     \vspace{1.5cm}
-    
+
     % Autores
     {\Large Gonzalo Pérez\par}
     \vspace{1cm}
-    
+
     % Curso / asignatura
     {\large Ingeniería Informática\\
-    Universidad del País Vasco (EHU) \\
-    Desarrollo Avanzado de Software\par}
+        Universidad del País Vasco (EHU) \\
+        Desarrollo Avanzado de Software\par}
     \vspace{2cm}
-    
+
     % Fecha
     {\large Marzo 2026\par}
-    
+
     \vfill
 \end{titlepage}
 
@@ -95,10 +95,47 @@ Para integrar todas estas funcionalidades y dar cumplimiento a los requisitos, s
 
 En este apartado se presentarán los elementos empleados y la función que cumplen dentro del proyecto.
 
-\subsection{RecyclerView y CardView}
+\subsection{Elementos obligatorios}
 
+\subsubsection{RecyclerView y CardView}
+
+Se usa RecyclerView y CardView para mostrar los elementos de la aplicación. Para ello tambien se ha implementado un adaptador personalizado llamado \texttt{TareasAdapter}. Este adaptador se encarga de mostrar los elementos de la lista de tareas usando el layout \texttt{item\_tarea.xml}.
+
+\subsubsection{Base de datos}
+
+Se ha usando una base de datos local para almacenar las tareas. Para ello se ha utilziado SQLite. La base de datos se compone de una tabla llamada \texttt{tareas}, que tiene los siguientes campos:
+
+\begin{itemize}
+    \item id: identificador unico de la tarea
+    \item titulo: titulo de la tarea
+    \item descripcion: descripcion de la tarea
+    \item fecha: fecha de la tarea
+    \item prioridad: prioridad de la tarea donde: 0 = baja, 1 = media, 2 = alta
+    \item completada: indica si la tarea esta completada donde 0 = no completada, 1 = completada
+\end{itemize}
+
+Este elemento es imprescindible ya que permite almacenar los datos de la aplicacion de forma persistente.
+
+\subsubsection{Dialogos}
+
+En la aplicación se utilizan tres tipos de dialogos:
+
+\begin{itemize}
+    \item Selector de fecha: Se utiliza para seleccionar la fecha de la tarea.
+    \item Eliminar tareas: Para este proposito se han usado dos dialogos diferentes pero que cumplen la misma funcion. Uno para eliminar una tarea individual y otro para eliminar todas las tareas marcadas como completadas.
+    \item Permiso de notificaciones: Este dialogo se utiliza cuando el usuario rechaza el permiso de notificaciones pero posteriormente intenta activarlas desde el menú de ajustes de la aplicación. En este caso se muestra un mensaje indicando que el permiso ha sido denegado y que debe ser activado desde los ajustes del sistema.
+\end{itemize}
+
+\subsubsection{Notificaciones}
+
+En esta aplicacion las notificaiones cumplen la funcion de avisar al usuario de que tiene una tarea pendiente. Si los permisos de notificación están activados, se mostrará una notificación en la barra de notificaciones del dispositivo todos los dias a las 8 de la mañana con una lista de todas las tareas que tengan fecha de hoy o anterior. Si los permisos de notificación están desactivados, no se mostrará ninguna notificación.
+
+\subsubsection{Control de la pila de actividades}
+
+Este elemento es fundamental para el correcto funcionamiento de la aplicación, ya que permite gestionar el ciclo de vida de las actividades y controlar la pila de actividades. Para ello se ha asegurado de que la actividad principal sea la única actividad en la pila de actividades y que las actividades secundarias se muestren encima de la actividad principal, cerrandolas al volver a la actividad principal.
 
 \newpage
+
 
 \section{Clases y Base de datos}
 

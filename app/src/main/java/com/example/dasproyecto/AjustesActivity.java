@@ -1,7 +1,6 @@
 package com.example.dasproyecto;
 
 import android.os.Bundle;
-import android.view.MenuItem;
 import androidx.appcompat.widget.Toolbar;
 import androidx.annotation.NonNull;
 
@@ -28,14 +27,5 @@ public class AjustesActivity extends BaseActivity {
                     .replace(R.id.fragment_ajustes, new AjustesFragment())
                     .commit();
         }
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            getOnBackPressedDispatcher().onBackPressed();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
     }
 }

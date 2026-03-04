@@ -4,6 +4,7 @@ import android.os.Bundle;
 
 import com.example.dasproyecto.db.DBmanager;
 import com.example.dasproyecto.fragment.DetalleTareaFragment;
+import androidx.annotation.NonNull;
 
 public class ViewTareaActivity extends BaseActivity implements DetalleTareaFragment.OnTareaEliminadaListener,
         DetalleTareaFragment.OnTareaCompletadaListener {
