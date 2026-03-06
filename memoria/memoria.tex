@@ -99,60 +99,350 @@ En este apartado se presentarán los elementos empleados y la función que cumpl
 
 \subsubsection{RecyclerView y CardView}
 
-Se usa RecyclerView y CardView para mostrar los elementos de la aplicación. Para ello tambien se ha implementado un adaptador personalizado llamado \texttt{TareasAdapter}. Este adaptador se encarga de mostrar los elementos de la lista de tareas usando el layout \texttt{item\_tarea.xml}.
+Se utilizan \texttt{RecyclerView} y \texttt{CardView} para mostrar los elementos de la aplicación. Para ello también se ha implementado un adaptador personalizado llamado \texttt{TareasAdapter}. Este adaptador se encarga de mostrar los elementos de la lista de tareas usando el layout \texttt{item\_tarea.xml}.
 
 \subsubsection{Base de datos}
 
-Se ha usando una base de datos local para almacenar las tareas. Para ello se ha utilziado SQLite. La base de datos se compone de una tabla llamada \texttt{tareas}, que tiene los siguientes campos:
+Se ha utilizado una base de datos local para almacenar las tareas. Para ello se ha usado SQLite. La base de datos se compone de una tabla llamada \texttt{tareas}, que tiene los siguientes campos:
 
 \begin{itemize}
-    \item id: identificador unico de la tarea
-    \item titulo: titulo de la tarea
-    \item descripcion: descripcion de la tarea
-    \item fecha: fecha de la tarea
-    \item prioridad: prioridad de la tarea donde: 0 = baja, 1 = media, 2 = alta
-    \item completada: indica si la tarea esta completada donde 0 = no completada, 1 = completada
+    \item id: identificador único de la tarea.
+    \item titulo: título de la tarea.
+    \item descripcion: descripción de la tarea.
+    \item fecha: fecha de la tarea.
+    \item prioridad: prioridad de la tarea, donde 0 = baja, 1 = media, 2 = alta.
+    \item completada: indica si la tarea está completada, donde 0 = no completada, 1 = completada.
 \end{itemize}
 
-Este elemento es imprescindible ya que permite almacenar los datos de la aplicacion de forma persistente.
+Este elemento es imprescindible, ya que permite almacenar los datos de la aplicación de forma persistente.
 
-\subsubsection{Dialogos}
+\subsubsection{Diálogos}
 
-En la aplicación se utilizan tres tipos de dialogos:
+En la aplicación se utilizan tres tipos de diálogos:
 
 \begin{itemize}
     \item Selector de fecha: Se utiliza para seleccionar la fecha de la tarea.
-    \item Eliminar tareas: Para este proposito se han usado dos dialogos diferentes pero que cumplen la misma funcion. Uno para eliminar una tarea individual y otro para eliminar todas las tareas marcadas como completadas.
-    \item Permiso de notificaciones: Este dialogo se utiliza cuando el usuario rechaza el permiso de notificaciones pero posteriormente intenta activarlas desde el menú de ajustes de la aplicación. En este caso se muestra un mensaje indicando que el permiso ha sido denegado y que debe ser activado desde los ajustes del sistema.
+    \item Eliminar tareas: Para este propósito se han usado dos diálogos diferentes pero que cumplen la misma función. Uno para eliminar una tarea individual y otro para eliminar todas las tareas marcadas como completadas.
+    \item Permiso de notificaciones: Este diálogo se utiliza cuando el usuario rechaza el permiso de notificaciones pero posteriormente intenta activarlas desde el menú de ajustes de la aplicación. En este caso se muestra un mensaje indicando que el permiso ha sido denegado y que debe ser activado desde los ajustes del sistema.
 \end{itemize}
 
 \subsubsection{Notificaciones}
 
-En esta aplicacion las notificaiones cumplen la funcion de avisar al usuario de que tiene una tarea pendiente. Si los permisos de notificación están activados, se mostrará una notificación en la barra de notificaciones del dispositivo todos los dias a las 8 de la mañana con una lista de todas las tareas que tengan fecha de hoy o anterior. Si los permisos de notificación están desactivados, no se mostrará ninguna notificación.
+En esta aplicación las notificaciones cumplen la función de avisar al usuario de que tiene una tarea pendiente. Si los permisos de notificación están activados, se mostrará una notificación en la barra de notificaciones del dispositivo todos los días a las 8 de la mañana con una lista de todas las tareas que tengan fecha de hoy o anterior. Si los permisos de notificación están desactivados, no se mostrará ninguna notificación.
 
 \subsubsection{Control de la pila de actividades}
 
-Este elemento es fundamental para el correcto funcionamiento de la aplicación, ya que permite gestionar el ciclo de vida de las actividades y controlar la pila de actividades. Para ello se ha asegurado de que la actividad principal sea la única actividad en la pila de actividades y que las actividades secundarias se muestren encima de la actividad principal, cerrandolas al volver a la actividad principal.
+Este elemento es fundamental para el correcto funcionamiento de la aplicación, ya que permite gestionar el ciclo de vida de las actividades y controlar la pila de actividades. Para ello se ha establecido la actividad principal como \texttt{SingleTop} y las actividades secundarias como \texttt{Standard}. De esta forma, al volver a la actividad principal, se cierra la actividad secundaria y se asegura de que solo exista una actividad principal en la pila.
+
+\subsection{Elementos opcionales}
+
+\subsubsection{Fragments}
+
+En esta aplicación se han utilizado \texttt{Fragments} para mostrar la lista de tareas mediante la clase \texttt{ListaTareasFragment} y los detalles de una tarea mediante la clase \texttt{DetalleTareaFragment}. Se ha optado por esta implementación para poder adaptar la interfaz visual de la aplicación según la orientación del dispositivo. De esta forma, en orientación horizontal se muestran ambos \texttt{Fragments} en la misma pantalla, permitiendo una mejor visualización de la información. Por otro lado, en orientación vertical se muestran en pantallas separadas, permitiendo una mejor interacción con la aplicación.
+
+\subsubsection{Soporte multiidioma}
+
+Se ha traducido la aplicación a tres idiomas: español, inglés y euskera. También se ha añadido la opción de cambiar el idioma de la aplicación desde el menú de ajustes.
+
+\subsubsection{Uso de ficheros de texto}
+
+Se ha implementado la funcionalidad de exportar las tareas en un fichero de texto, permitiendo al usuario guardarlas en el almacenamiento y leerlas posteriormente. Esto resulta útil ya que, al ser una aplicación sin conexión a internet, es la única forma de hacer una copia de seguridad de los datos.
+
+\subsubsection{Creación de estilos y temas personalizados}
+
+Se ha implementado en el menú de ajustes la opción de cambiar el tema de la aplicación. De esta forma, el usuario puede elegir entre el tema claro y el tema oscuro. Adicionalmente, también se permite elegir el color secundario de la aplicación, el cual se utiliza para dar color a los botones, \texttt{Toolbars} y otros elementos de la interfaz visual.
+
+\subsubsection{Preferencias}
+
+Se ha implementado la funcionalidad de guardar las preferencias del usuario mediante la clase \texttt{SharedPreferences}. Las preferencias que se guardan son:
+
+\begin{itemize}
+    \item Idioma: El idioma de la aplicación.
+    \item Tema: El tema de la aplicación.
+    \item Color secundario: El color secundario de la aplicación.
+    \item Permiso de notificaciones: Permitiendo al usuario activar o desactivar las notificaciones.
+    \item Tareas completadas: Si quiere mostrar o no las tareas completadas en la lista de tareas.
+    \item Confirmación de borrado: Si quiere confirmación mediante un diálogo antes de eliminar tareas.
+    \item Ordenación: El criterio de ordenación por defecto de la lista de tareas, pudiendo elegir entre ordenación por fecha o por prioridad.
+\end{itemize}
+
+\subsubsection{Intents}
+
+Se han implementado dos \texttt{Intents} en la aplicación. El primero redirige al usuario a la aplicación de configuración del sistema para que pueda activar las notificaciones. El segundo abre el explorador de archivos del sistema para que el usuario pueda seleccionar la ubicación donde quiere guardar el documento de texto con las tareas.
+
+\subsubsection{Toolbar y Navigation Drawer}
+
+Se han implementado una \texttt{Toolbar} personalizada y un \texttt{Navigation Drawer} para mejorar la experiencia del usuario. La \texttt{Toolbar} se ha incluido en la actividad principal y permite al usuario ordenar las tareas por fecha o por prioridad, eliminar todas las tareas completadas o usar un buscador para filtrar las tareas. El \texttt{Navigation Drawer} permite al usuario acceder a diferentes secciones de la aplicación, como la lista de tareas, los ajustes y la opción de exportar las tareas en un fichero de texto.
+
 
 \newpage
 
 
 \section{Clases y Base de datos}
 
-\newpage
+La aplicación ha sido diseñada siguiendo un enfoque modular, separando las responsabilidades en distintos paquetes lógicos. Esta estructura facilita el mantenimiento del código fuente y la escalabilidad del proyecto.
+
+\subsection{Arquitectura y Organización de Paquetes}
+
+El código fuente de la aplicación (\texttt{com.example.dasproyecto}) se divide en los siguientes paquetes principales:
+\begin{itemize}
+    \item \textbf{Paquete principal:} Contiene las actividades principales y las clases que configuran el entorno base, como \texttt{MainActivity}, \texttt{BaseActivity} e \texttt{Idioma}.
+    \item \textbf{Paquete \texttt{db}:} Agrupa todas las clases relacionadas con la gestión y el acceso a la base de datos local (SQLite).
+    \item \textbf{Paquete \texttt{fragment}:} Contiene los fragmentos de la interfaz de usuario que permiten la adaptabilidad visual a diferentes pantallas y orientaciones.
+    \item \textbf{Paquete \texttt{dialog}:} Centraliza los cuadros de diálogo personalizados utilizados a lo largo de la aplicación.
+    \item \textbf{Paquete \texttt{notification}:} Engloba los \textit{BroadcastReceivers} encargados de gestionar las alarmas y notificaciones del sistema.
+\end{itemize}
+
+\subsection{Base de Datos Local}
+
+El acceso a datos se ha implementado aislando las consultas a la base de datos del resto de componentes de la interfaz de usuario, empleando dos clases fundamentales en el paquete \texttt{db}:
+
+\begin{itemize}
+    \item \textbf{\texttt{DBconexion}:} Esta clase hereda de \texttt{SQLiteOpenHelper}. Es la responsable directa de crear la base de datos física (\texttt{tareas.db}), definir la estructura de la tabla \texttt{tareas} mediante sentencias SQL en el método \texttt{onCreate}, y gestionar posibles actualizaciones de esquema.
+    \item \textbf{\texttt{DBmanager}:} Actúa como el repositorio central de datos. Contiene todos los métodos CRUD (\textit{Create, Read, Update, Delete}). Las actividades y \textit{fragments} no realizan consultas SQL directas, sino que interactúan con métodos limpios y encapsulados como \texttt{insertar()}, \texttt{getTareasFiltradas()} o \texttt{actualizarEstado()}.
+\end{itemize}
+
+\subsection{Actividades y Ciclo de vida}
+
+Las actividades que controlan el flujo principal de la aplicación:
+
+\begin{itemize}
+    \item \textbf{\texttt{MainActivity}:} Es el núcleo de la interfaz. Configurada en el manifest con \texttt{launchMode="singleTop"}, gestiona la \texttt{Toolbar}, el \texttt{Navigation Drawer} y orquesta la carga de \texttt{Fragments} dependiendo de la orientación del dispositivo.
+    \item \textbf{\texttt{BaseActivity}:} Funciona como la clase padre de todas las actividades secundarias. Centraliza código duplicado y gestiona transiciones, temas, colores dinámicos elegidos por el usuario, control del idioma y el comportamiento de retroceso.
+    \item \textbf{\texttt{AddTareaActivity} y \texttt{EditTareaActivity}:} Pantallas dedicadas a los formularios de creación y edición, conectando las entradas del usuario con el \texttt{DBmanager}.
+    \item \textbf{\texttt{ViewTareaActivity}:} Contenedor exclusivo utilizado en teléfonos móviles (orientación vertical) para alojar el detalle de una tarea.
+\end{itemize}
+
+\subsection{Fragmentos y Adaptabilidad}
+
+Para cumplir con el diseño adaptativo horizontal/vertical, se implementaron los siguientes controladores dentro del paquete \texttt{fragment}:
+
+\begin{itemize}
+    \item \textbf{\texttt{ListaTareasFragment}:} Responsable de instanciar el \texttt{RecyclerView}, consultar las tareas a la base de datos e inyectarlas a través del adaptador.
+    \item \textbf{\texttt{DetalleTareaFragment}:} Muestra estáticamente los datos concretos de una tarea seleccionada usando \textit{Intents} y \textit{Bundles} para transferir los datos entre vistas.
+    \item \textbf{\texttt{AjustesFragment}:} Extiende \texttt{Preference\allowbreak Fragment\allowbreak Compat} para renderizar dinámicamente el XML de opciones y reaccionar automáticamente a los cambios que haga el usuario sobre el tema, aspecto o idioma.
+\end{itemize}
+
+\subsection{Componentes Auxiliares}
+
+Finalmente, la aplicación se apoya en otras clases clave para el correcto funcionamiento en segundo plano y la representación de datos:
+
+\begin{itemize}
+    \item \textbf{\texttt{TareasAdapter}:} Es el puente entre el \texttt{RecyclerView} y el cursor de base de datos. Se encarga de instanciar e inflar cada \texttt{CardView} (`item\_tarea.xml`), aplicar colores según la prioridad de la tarea y marcar visualmente las tareas completadas.
+    \item \textbf{\texttt{NotificacionReceiver} y \texttt{BootReceiver}:} Clases que extienden \texttt{Broadcast\allowbreak Receiver}. La primera es la responsable de construir y lanzar la notificación diaria. La segunda asegura que el temporizador (AlarmaManager) se vuelva a configurar independientemente si el usuario reinicia el dispositivo, persignando así la alarma en el sistema operativo.
+\end{itemize}
 
 \section{Manual de Usuario}
+
+A continuación, se detalla el funcionamiento de las pantallas y opciones principales.
+
+\subsection{Pantalla Principal y Navegación}
+
+Al iniciar la aplicación, el usuario accederá a la pantalla principal, donde se muestra un listado completo de las tareas pendientes y completadas. Desde esta pantalla, se pueden realizar las siguientes acciones:
+
+\begin{itemize}
+    \item \textbf{Ver tareas:} El usuario puede navegar por la lista haciendo \textit{scroll}. Cada tarea se representa mediante una tarjeta (\textit{CardView}) que muestra su título, fecha y prioridad (con un indicador de color rojo, naranja o negro).
+    \item \textbf{Navegación lateral:} Desplegando el menú lateral (\textit{Navigation Drawer}) deslizando desde la izquierda o pulsando el icono superior izquierdo, el usuario puede acceder rápidamente a las diferentes secciones de la aplicación: Lista de Tareas, Ajustes, y la opción de Exportar datos.
+\end{itemize}
+
+\begin{figure}[H]
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=0.8\textwidth]{img/nav_drawer.jpeg}
+        \caption{Menú de navegación lateral (Navigation Drawer).}
+    \end{minipage}\hfill
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=0.8\textwidth]{img/orden_por_fecha.jpeg}
+        \caption{Ordenación por fecha.}
+    \end{minipage}
+\end{figure}
+
+\subsection{Gestión de Tareas}
+
+La aplicación permite un control total sobre las tareas creadas mediante una serie de ventanas y cuadros de diálogo.
+
+\subsubsection{Añadir y Editar Tareas}
+Para añadir una nueva tarea, el usuario debe pulsar el botón flotante situado en la esquina inferior derecha de la pantalla principal. Para editar una tarea existente, basta con pulsar sobre ella y utilizar el botón de edición en la pantalla de detalles.
+
+Ambas acciones abren un formulario donde se requieren los siguientes datos:
+\begin{itemize}
+    \item \textbf{Título y Descripción:} Campos de texto para detallar la actividad.
+    \item \textbf{Fecha:} Se despliega un diálogo gráfico para elegir la fecha.
+    \item \textbf{Prioridad:} Un desplegable permite clasificar la tarea en prioridad Baja, Media o Alta.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=0.8\textwidth]{img/añadir_tarea.jpeg}
+        \caption{Pantalla de creación de una nueva tarea.}
+    \end{minipage}\hfill
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=0.8\textwidth]{img/dialogo_fecha.jpeg}
+        \caption{Diálogo para la selección de fecha.}
+    \end{minipage}
+\end{figure}
+
+\subsubsection{Detalles y Eliminación}
+Pulsando sobre una tarea, se accede a la vista de detalles, la cual muestra la información completa. Desde aquí, también se puede marcar la tarea como completada, editarla o eliminarla definitivamente utilizando la acción de eliminar en la parte superior derecha.
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=0.8\textwidth]{img/detalles_tarea.jpeg}
+        \caption{Vista de los detalles de una tarea.}
+    \end{minipage}\hfill
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=0.8\textwidth]{img/accion_eliminar_tarea.jpeg}
+        \caption{Confirmación al eliminar una tarea individual.}
+    \end{minipage}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=0.8\textwidth]{img/editar_tarea.jpeg}
+        \caption{Vista de los detalles de una tarea.}
+    \end{minipage}\hfill
+\end{figure}
+
+\subsection{Filtrado y Ordenación}
+En la parte superior de la pantalla principal, se ofrecen herramientas útiles para gestionar la lista de tareas:
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}[t]{0.45\textwidth}
+        \centering
+        \includegraphics[width=0.9\textwidth]{img/filtrar_por_busqueda.jpeg}
+        \caption{Filtrado por texto.}
+    \end{minipage}\hfill
+    \begin{minipage}[t]{0.45\textwidth}
+        \centering
+        \includegraphics[width=0.9\textwidth]{img/selector_orden.jpeg}
+        \caption{Menú de ordenación.}
+    \end{minipage}
+\end{figure}
+
+\begin{itemize}
+    \item \textbf{Buscador:} Permite filtrar el listado en tiempo real introduciendo palabras clave.
+    \item \textbf{Ordenación:} Mediante el selector superior, el usuario puede ordenar las tareas por fecha o por prioridad.
+    \item \textbf{Limpieza rápida:} Un botón dedicado abre un diálogo de confirmación para eliminar de una sola vez todas las tareas que ya han sido marcadas como completadas.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}[t]{0.45\textwidth}
+        \centering
+        \includegraphics[width=0.9\textwidth]{img/orden_por_prioridad.jpeg}
+        \caption{Ordenación por prioridad.}
+    \end{minipage}\hfill
+    \begin{minipage}[t]{0.45\textwidth}
+        \centering
+        \includegraphics[width=0.9\textwidth]{img/dialogo_eliminar_completadas.jpeg}
+        \caption{Eliminación de tareas completadas.}
+    \end{minipage}
+\end{figure}
+
+\subsection{Ajustes y Personalización}
+La pantalla de Ajustes ofrece diversas opciones para adaptar el aspecto visual y comportamiento de la aplicación.
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=0.8\textwidth]{img/ajustes_1.jpeg}
+        \caption{Pantalla principal de ajustes.}
+    \end{minipage}\hfill
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=0.8\textwidth]{img/idioma_euskera.jpeg}
+        \caption{La aplicación traducida al Euskera.}
+    \end{minipage}
+\end{figure}
+
+\begin{itemize}
+    \item \textbf{Personalización Visual:} Se permite elegir el tema base (claro u oscuro) y seleccionar un color de acento principal personalizado (Azul, Morado, Naranja, Rojo o Verde).
+    \item \textbf{Idioma:} La aplicación soporta cambio dinámico de idioma entre Castellano, Inglés y Euskera.
+    \item \textbf{Notificaciones:} Un interruptor permite habilitar o deshabilitar los avisos diarios de tareas pendientes.
+    \item \textbf{Comportamiento:} Se pueden modificar parámetros como el criterio de ordenación predeterminado, si visualizar las tareas completadas, y si habilitar el diálogo de confirmación al borrar tareas.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=0.8\textwidth]{img/tema_oscuro.jpeg}
+        \caption{Tema oscuro.}
+    \end{minipage}\hfill
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=0.8\textwidth]{img/tema_morado.jpeg}
+        \caption{Tema morado.}
+    \end{minipage}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=0.8\textwidth]{img/tema_verde.jpeg}
+        \caption{Tema verde.}
+    \end{minipage}\hfill
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=0.8\textwidth]{img/tema_naranja.jpeg}
+        \caption{Tema naranja.}
+    \end{minipage}
+\end{figure}
+
+\subsection{Landscape}
+
+La aplicación se adapta para mostrar el listado de tareas en modo horizontal, lo que permite un mejor uso del espacio disponible.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{img/landscape.jpeg}
+    \caption{Pantalla principal en modo landscape.}
+\end{figure}
+
+\subsection{Exportación de Datos}
+La aplicación dispone de una función para exportar todas las tareas almacenadas a un archivo de texto plano (`.txt`), accesible desde el Navigation Drawer. Esto permite al usuario tener un registro externo de su información.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{img/ej_txt.jpeg}
+    \caption{Ejemplo de un archivo de texto exportado con las tareas.}
+\end{figure}
 
 \newpage
 
 \section{Dificultades}
 
-\newpage
+Durante el desarrollo del proyecto, me encontré con varias dificultades. La principal de ellas fue la gestión de la comunicación entre las clases. Esto se debió a que muchos procesos están delegados en superclases, lo que añade un nivel de abstracción que dificulta tener un control directo sobre el flujo de ejecución. También me costó adaptarme al sistema de interfaces mediante XML, ya que, aunque en Android Studio existe un editor visual, hubo muchos parámetros que tuve que aprender a configurar manualmente para obtener el resultado deseado. Por último, un problema menor que tuve fue que empecé la aplicación sin el uso de fragments, por lo que más tarde tuve que adaptar el código para que funcionara con ellos.
 
 \section{Fuentes utilizadas}
 
-\newpage
+Para la realización de este proyecto se han consultado diversas fuentes de documentación y herramientas de apoyo, entre las que destacan:
+
+\begin{itemize}
+    \item \textbf{Diapositivas de la asignatura: } Principal fuente de información para la realización del proyecto.
+    \item \textbf{Documentación oficial de Android Developers:} Consultas varias puntuales(\url{https://developer.android.com/}).
+    \item \textbf{Stack Overflow:} Utilizado puntualmente para la resolución de errores específicos y búsqueda de enfoques alternativos de implementación.(\url{https://stackoverflow.com/})
+    \item \textbf{Asistente de IA (Antigravity):} Herramienta de inteligencia artificial usada para correción de errores, depuración de código, uso de buenas practicas de programación y revisión de la memoria.(\url{https://antigravity.google/})
+\end{itemize}
 
 \section{Repositorio de código}
+
+El código fuente del proyecto se encuentra disponible en el siguiente repositorio de GitHub:
+
+\begin{center}
+    \url{https://github.com/GonzaloPerezGomez/DASPROYECTO}
+\end{center}
 
 \end{document}

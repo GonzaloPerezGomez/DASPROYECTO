@@ -4,7 +4,7 @@
 
     <!-- Navigation Drawer -->
     <string name="nav_header_title">Gestor de Tareas DAS</string>
-    <string name="nav_header_email" translatable="false">usuario@ingenieria.ehu.es</string>
+    <string name="nav_header_email" translatable="false">gperez093@ikasle.ehu.eus</string>
     <string name="nav_mis_tareas">Mis Tareas</string>
     <string name="nav_exportar_txt">Exportar (.txt)</string>
     <string name="nav_configuracion">Configuración</string>
