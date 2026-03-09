@@ -101,6 +101,7 @@
     <string name="dialog_eliminar_completadas_titulo">Eliminar Completadas</string>
     <string name="dialog_eliminar_completadas_mensaje">¿Estás seguro de que deseas eliminar todas las tareas completadas? Esta acción no se puede deshacer.</string>
     <string name="toast_tareas_completadas_eliminadas">Tareas completadas eliminadas</string>
+    <string name="toolbar_title">Tareas</string>
 
     <string-array name="idiomas_array">
         <item>Español</item>

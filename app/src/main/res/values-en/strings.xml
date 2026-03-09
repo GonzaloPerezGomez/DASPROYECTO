@@ -101,6 +101,7 @@
     <string name="dialog_eliminar_completadas_titulo">Delete Completed</string>
     <string name="dialog_eliminar_completadas_mensaje">Are you sure you want to delete all completed tasks? This action cannot be undone.</string>
     <string name="toast_tareas_completadas_eliminadas">Completed tasks deleted</string>
+    <string name="toolbar_title">Tasks</string>
 
     <string-array name="idiomas_array">
         <item>Español</item>

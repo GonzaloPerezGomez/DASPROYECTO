@@ -101,6 +101,7 @@ public class ListaTareasFragment extends Fragment {
 
         Toolbar toolbar = view.findViewById(R.id.toolbar);
         ((AppCompatActivity) requireActivity()).setSupportActionBar(toolbar);
+        ((AppCompatActivity) requireActivity()).getSupportActionBar().setTitle(R.string.toolbar_title);
 
         // Configurar Drawer desde la Activity
         if (requireActivity() instanceof MainActivity) {

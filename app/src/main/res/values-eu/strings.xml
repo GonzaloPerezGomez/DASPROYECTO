@@ -101,6 +101,7 @@
     <string name="dialog_eliminar_completadas_titulo">Bukatutakoak Ezabatu</string>
     <string name="dialog_eliminar_completadas_mensaje">Ziur zaude bukatutako zeregin guztiak ezabatu nahi dituzula? Ekintza hau ezin da desegin.</string>
     <string name="toast_tareas_completadas_eliminadas">Bukatutako zereginak ezabatuta</string>
+    <string name="toolbar_title">Zereginak</string>
 
     <string-array name="idiomas_array">
         <item>Español</item>
