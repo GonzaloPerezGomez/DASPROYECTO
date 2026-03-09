@@ -20,6 +20,11 @@ import androidx.preference.PreferenceManager;
 
 import com.example.dasproyecto.dialog.PermisoNotificacionesDialog;
 
+/**
+ * Clase base de la que heredan todas las actividades.
+ * Se encarga de aplicar el idioma, el tema (claro/oscuro),
+ * el color secundario y de pedir permiso de notificaciones.
+ */
 public class BaseActivity extends AppCompatActivity {
 
     private String idiomaActual;
@@ -27,6 +32,11 @@ public class BaseActivity extends AppCompatActivity {
     private String temaActual;
     private static final int NOTIFICACION_CODE = 0;
 
+    /**
+     * Envuelve el contexto con el idioma que haya elegido el usuario.
+     *
+     * @param newBase Contexto original.
+     */
     @Override
     protected void attachBaseContext(Context newBase) {
         super.attachBaseContext(Idioma.wrap(newBase));
@@ -34,6 +44,12 @@ public class BaseActivity extends AppCompatActivity {
         idiomaActual = prefs.getString("idioma", "es");
     }
 
+    /**
+     * Se ejecuta al crear la actividad.
+     * Aplica el tema y el color secundario según las preferencias del usuario.
+     *
+     * @param savedInstanceState Estado guardado anterior, si lo hay.
+     */
     @Override
     protected void onCreate(android.os.Bundle savedInstanceState) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
@@ -70,6 +86,10 @@ public class BaseActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
     }
 
+    /**
+     * Al volver a la pantalla, comprueba si cambió el idioma, color o tema.
+     * Si algo cambió, recrea la actividad para que se vean los nuevos ajustes.
+     */
     @Override
     protected void onResume() {
         super.onResume();
@@ -97,6 +117,10 @@ public class BaseActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Pide al usuario permiso para enviar notificaciones.
+     * Necesario a partir de Android 13 (TIRAMISU).
+     */
     public void solicitarPermisosNotificaciones() {
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
@@ -105,6 +129,15 @@ public class BaseActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Recibe la respuesta del usuario al pedir permisos.
+     * Si acepta, crea el canal de notificaciones y programa la alarma diaria.
+     * Si deniega, desactiva las notificaciones en los ajustes.
+     *
+     * @param requestCode  Código de la petición.
+     * @param permissions  Permisos solicitados.
+     * @param grantResults Resultado de cada permiso (concedido o denegado).
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
             @NonNull int[] grantResults) {
@@ -143,6 +176,13 @@ public class BaseActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Gestiona los clics en la Toolbar.
+     * Si se pulsa el botón de "atrás", vuelve a la pantalla anterior.
+     *
+     * @param item Elemento del menú pulsado.
+     * @return true si se procesó el evento, false si no.
+     */
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == android.R.id.home) {

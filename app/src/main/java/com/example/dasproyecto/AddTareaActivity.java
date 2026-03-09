@@ -15,6 +15,11 @@ import com.example.dasproyecto.db.DBmanager;
 import android.util.Log;
 import androidx.annotation.NonNull;
 
+/**
+ * Pantalla para crear una nueva tarea.
+ * Aquí el usuario rellena título, descripción, fecha y prioridad,
+ * y al guardar se inserta en la base de datos.
+ */
 public class AddTareaActivity extends BaseActivity {
 
     private static final String TAG = "AddTareaActivity";
@@ -24,6 +29,12 @@ public class AddTareaActivity extends BaseActivity {
     private TextView tituloActivity;
     private DBmanager dbManager;
 
+    /**
+     * Se ejecuta al abrir la pantalla.
+     * Prepara los campos del formulario, el spinner de prioridad y los botones.
+     *
+     * @param savedInstanceState Estado guardado anterior, si lo hay.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,6 +68,10 @@ public class AddTareaActivity extends BaseActivity {
         });
     }
 
+    /**
+     * Comprueba que los campos estén bien y guarda la tarea en la BD.
+     * Si falta el título o la fecha, muestra un error.
+     */
     private void guardarTarea() {
         String titulo = etTitulo.getText().toString().trim();
         String descripcion = etDescripcion.getText().toString().trim();
@@ -80,6 +95,10 @@ public class AddTareaActivity extends BaseActivity {
         finish();
     }
 
+    /**
+     * Se llama al cerrar la pantalla.
+     * Cierra la conexión con la base de datos para no dejar nada abierto.
+     */
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -88,6 +107,9 @@ public class AddTareaActivity extends BaseActivity {
         }
     }
 
+    /**
+     * Abre el selector de fecha y recoge la fecha que el usuario elija.
+     */
     private void configurarSelectorFecha() {
         getSupportFragmentManager().setFragmentResultListener("fechaSeleccionada", this, (requestKey, bundle) -> {
             int year = bundle.getInt("year");

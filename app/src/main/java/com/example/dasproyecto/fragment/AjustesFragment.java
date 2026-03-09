@@ -14,26 +14,44 @@ import com.example.dasproyecto.BaseActivity;
 import com.example.dasproyecto.R;
 import com.example.dasproyecto.notification.NotificacionReceiver;
 
+/**
+ * Fragmento que muestra las opciones de configuración de la app
+ * (idioma, tema, color, notificaciones) cargadas desde el XML de ajustes.
+ */
 public class AjustesFragment extends PreferenceFragmentCompat
         implements SharedPreferences.OnSharedPreferenceChangeListener {
 
+    /**
+     * Carga las preferencias desde el archivo XML.
+     */
     @Override
     public void onCreatePreferences(@Nullable Bundle savedInstanceState, @Nullable String rootKey) {
         addPreferencesFromResource(R.xml.ajustes);
     }
 
+    /**
+     * Al volver a primer plano, se registra para escuchar cambios en los ajustes.
+     */
     @Override
     public void onResume() {
         super.onResume();
         getPreferenceManager().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
     }
 
+    /**
+     * Al pausarse, deja de escuchar cambios para no gastar recursos.
+     */
     @Override
     public void onPause() {
         super.onPause();
         getPreferenceManager().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
     }
 
+    /**
+     * Cuando el usuario cambia un ajuste, reacciona según lo que sea:
+     * idioma/tema/color → recrea la actividad; notificaciones → pide permisos o
+     * cancela la alarma.
+     */
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, @Nullable String key) {
         if ("idioma".equals(key) || "tema".equals(key) || "color_secundario".equals(key)) {
@@ -50,6 +68,9 @@ public class AjustesFragment extends PreferenceFragmentCompat
         }
     }
 
+    /**
+     * Cancela la alarma diaria de notificaciones.
+     */
     private void cancelarAlarma() {
         Context context = requireContext();
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);

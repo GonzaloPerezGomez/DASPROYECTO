@@ -13,12 +13,18 @@ import com.example.dasproyecto.R;
 import com.example.dasproyecto.db.DBmanager;
 import com.example.dasproyecto.fragment.DetalleTareaFragment;
 
+/**
+ * Diálogo que pide confirmación antes de borrar todas las tareas completadas.
+ */
 public class EliminarTareasCompletadasDialog extends DialogFragment {
 
     private static final String ARG_ID = "id_tarea";
     private static final String ARG_TITULO = "titulo_tarea";
     private DetalleTareaFragment.OnTareaEliminadaListener listener;
 
+    /**
+     * Crea una instancia del diálogo con el listener para avisar cuando se borren.
+     */
     public static EliminarTareasCompletadasDialog newInstance(
             DetalleTareaFragment.OnTareaEliminadaListener listener) {
         EliminarTareasCompletadasDialog frag = new EliminarTareasCompletadasDialog();
@@ -26,6 +32,10 @@ public class EliminarTareasCompletadasDialog extends DialogFragment {
         return frag;
     }
 
+    /**
+     * Monta el AlertDialog.
+     * Si el usuario confirma, borra las completadas de la BD y muestra un Toast.
+     */
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {

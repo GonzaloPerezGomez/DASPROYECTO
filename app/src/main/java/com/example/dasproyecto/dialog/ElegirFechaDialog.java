@@ -9,12 +9,19 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
 import java.util.Calendar;
 
+/**
+ * Diálogo que muestra el selector de fecha nativo de Android.
+ * El usuario elige una fecha y se la devuelve a la pantalla anterior.
+ */
 public class ElegirFechaDialog extends DialogFragment implements DatePickerDialog.OnDateSetListener {
 
     private static final String ARG_DAY = "day";
     private static final String ARG_MONTH = "month";
     private static final String ARG_YEAR = "year";
 
+    /**
+     * Crea una nueva instancia del diálogo con una fecha inicial.
+     */
     public static ElegirFechaDialog newInstance(int day, int month, int year) {
         ElegirFechaDialog frag = new ElegirFechaDialog();
         Bundle args = new Bundle();
@@ -25,6 +32,10 @@ public class ElegirFechaDialog extends DialogFragment implements DatePickerDialo
         return frag;
     }
 
+    /**
+     * Crea el DatePickerDialog con la fecha que se le haya pasado
+     * o si no, usa la fecha de hoy.
+     */
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -42,6 +53,10 @@ public class ElegirFechaDialog extends DialogFragment implements DatePickerDialo
         return new DatePickerDialog(getActivity(), this, y, m, d);
     }
 
+    /**
+     * Se llama cuando el usuario pulsa "Aceptar".
+     * Envía la fecha elegida al fragmento padre.
+     */
     @Override
     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
         Bundle result = new Bundle();

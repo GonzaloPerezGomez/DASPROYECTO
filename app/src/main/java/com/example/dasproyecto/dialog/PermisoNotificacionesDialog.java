@@ -16,10 +16,17 @@ import androidx.preference.PreferenceManager;
 
 import com.example.dasproyecto.R;
 
+/**
+ * Diálogo que aparece cuando el permiso de notificaciones está bloqueado.
+ * Ofrece al usuario ir a los ajustes del sistema para activarlo.
+ */
 public class PermisoNotificacionesDialog extends DialogFragment {
 
     public static final String TAG = "PermisoNotificacionesDialog";
 
+    /**
+     * Crea el diálogo con dos opciones: ir a ajustes o cancelar.
+     */
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
@@ -35,6 +42,10 @@ public class PermisoNotificacionesDialog extends DialogFragment {
         return builder.create();
     }
 
+    /**
+     * Abre la pantalla de ajustes de la app en el sistema
+     * para que el usuario pueda activar las notificaciones.
+     */
     private void abrirAjustesApp() {
         Context context = requireContext();
         Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
@@ -43,6 +54,9 @@ public class PermisoNotificacionesDialog extends DialogFragment {
         startActivity(intent);
     }
 
+    /**
+     * Desactiva las notificaciones en las preferencias de la app.
+     */
     private void desactivarSwitchPrefs() {
         Context context = requireContext();
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);

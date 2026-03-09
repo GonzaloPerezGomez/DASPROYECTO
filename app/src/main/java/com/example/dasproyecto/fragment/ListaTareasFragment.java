@@ -36,6 +36,10 @@ import com.example.dasproyecto.db.DBmanager;
 import com.example.dasproyecto.dialog.EliminarTareasCompletadasDialog;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+/**
+ * Fragmento principal que muestra la lista de tareas en un RecyclerView.
+ * Permite filtrar, ordenar y añadir tareas nuevas.
+ */
 public class ListaTareasFragment extends Fragment {
 
     private static final String TAG = "ListaTareasFragment";
@@ -46,12 +50,18 @@ public class ListaTareasFragment extends Fragment {
 
     private DetalleTareaFragment.OnTareaEliminadaListener listenerEliminada;
 
+    /**
+     * Interfaz para avisar a la Activity cuando se pulsa una tarea.
+     */
     public interface OnTareaSeleccionadaListener {
         void onTareaSeleccionada(long id);
     }
 
     private OnTareaSeleccionadaListener listener;
 
+    /**
+     * Al adjuntarse a la Activity, comprueba que implemente los listeners.
+     */
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
@@ -70,6 +80,9 @@ public class ListaTareasFragment extends Fragment {
         }
     }
 
+    /**
+     * Infla el layout del fragmento.
+     */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -77,6 +90,10 @@ public class ListaTareasFragment extends Fragment {
         return inflater.inflate(R.layout.fragment_lista_tarea, container, false);
     }
 
+    /**
+     * Una vez creada la vista, prepara el RecyclerView, el botón flotante,
+     * la toolbar y la conexión con la BD.
+     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -120,6 +137,10 @@ public class ListaTareasFragment extends Fragment {
         cargarTareas();
     }
 
+    /**
+     * Monta el menú con la barra de búsqueda y filtra tareas según lo que escriba
+     * el usuario.
+     */
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         menu.clear();
@@ -155,6 +176,10 @@ public class ListaTareasFragment extends Fragment {
         }
     }
 
+    /**
+     * Gestiona los clics del menú: ordenar por fecha/prioridad o borrar
+     * completadas.
+     */
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
@@ -183,12 +208,19 @@ public class ListaTareasFragment extends Fragment {
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * Carga las tareas usando el orden guardado en preferencias.
+     */
     public void cargarTareas() {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(requireContext());
         String ordenDefecto = prefs.getString("orden_defecto", "fecha");
         cargarTareas(ordenDefecto);
     }
 
+    /**
+     * Carga las tareas de la BD con el orden indicado
+     * y si es tablet en horizontal, selecciona la primera tarea automáticamente.
+     */
     public void cargarTareas(String orden) {
         if (dbManager == null || recyclerView == null) {
             Log.w(TAG, "cargarTareas: dbManager o recyclerView no inicializados");
@@ -233,6 +265,9 @@ public class ListaTareasFragment extends Fragment {
         }
     }
 
+    /**
+     * Al volver a esta pantalla, recarga las tareas por si hubo cambios.
+     */
     @Override
     public void onResume() {
         super.onResume();
@@ -241,6 +276,9 @@ public class ListaTareasFragment extends Fragment {
         }
     }
 
+    /**
+     * Al destruirse la vista, cierra la conexión con la BD.
+     */
     @Override
     public void onDestroyView() {
         super.onDestroyView();

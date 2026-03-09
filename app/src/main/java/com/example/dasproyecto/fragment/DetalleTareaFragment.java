@@ -25,6 +25,10 @@ import com.example.dasproyecto.R;
 import com.example.dasproyecto.db.DBmanager;
 import com.example.dasproyecto.dialog.EliminarTareaDialog;
 
+/**
+ * Fragmento que muestra los detalles de una tarea
+ * y permite completarla, editarla o borrarla.
+ */
 public class DetalleTareaFragment extends Fragment {
 
     private static final String TAG = "DetalleTareaFragment";
@@ -38,18 +42,29 @@ public class DetalleTareaFragment extends Fragment {
 
     private String[] prioridades;
 
+    /**
+     * Interfaz para avisar a la Activity cuando se borra una tarea.
+     */
     public interface OnTareaEliminadaListener {
         void onTareaEliminada();
     }
 
     private DetalleTareaFragment.OnTareaEliminadaListener listenerEliminada;
 
+    /**
+     * Interfaz para avisar a la Activity cuando se completa o descompleta una
+     * tarea.
+     */
     public interface OnTareaCompletadaListener {
         void onTareaCompletada(long tareaId);
     }
 
     private DetalleTareaFragment.OnTareaCompletadaListener listenerCompletada;
 
+    /**
+     * Al adjuntarse a la Activity, comprueba que implemente los listeners
+     * necesarios.
+     */
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
@@ -67,6 +82,9 @@ public class DetalleTareaFragment extends Fragment {
         }
     }
 
+    /**
+     * Infla el layout del fragmento.
+     */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -74,6 +92,10 @@ public class DetalleTareaFragment extends Fragment {
         return inflater.inflate(R.layout.fragment_detalle_tarea, container, false);
     }
 
+    /**
+     * Una vez creada la vista, conecta los campos, carga los datos de la tarea
+     * y prepara el botón de completar.
+     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -113,12 +135,18 @@ public class DetalleTareaFragment extends Fragment {
         });
     }
 
+    /**
+     * Cambia el texto del botón según si la tarea está completada o no.
+     */
     private void actualizarBotonCompletar() {
         btnCompletar.setText(estadoCompletada == 0
                 ? R.string.btn_completada
                 : R.string.btn_no_completada);
     }
 
+    /**
+     * Lee los datos de la tarea de la BD y rellena los campos en pantalla.
+     */
     private void cargarDatos() {
         Cursor cursor = dbManager.getTarea(tareaId);
         if (cursor != null) {
@@ -139,6 +167,9 @@ public class DetalleTareaFragment extends Fragment {
         actualizarBotonCompletar();
     }
 
+    /**
+     * Gestiona los clics del menú de la toolbar (Editar, Eliminar).
+     */
     private boolean onMenuItemClick(MenuItem item) {
         int id = item.getItemId();
 
@@ -167,6 +198,9 @@ public class DetalleTareaFragment extends Fragment {
         return false;
     }
 
+    /**
+     * Al volver a esta pantalla, recarga los datos por si se editaron.
+     */
     @Override
     public void onResume() {
         super.onResume();
@@ -175,6 +209,9 @@ public class DetalleTareaFragment extends Fragment {
         }
     }
 
+    /**
+     * Al destruirse la vista, cierra la conexión con la BD.
+     */
     @Override
     public void onDestroyView() {
         super.onDestroyView();

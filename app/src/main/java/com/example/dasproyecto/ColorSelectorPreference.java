@@ -17,8 +17,8 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceViewHolder;
 
 /**
- * Preferencia personalizada que muestra una fila de círculos de color
- * para elegir el color secundario de la aplicación.
+ * Preferencia personalizada que muestra círculos de colores
+ * para que el usuario elija el color secundario de la app.
  */
 public class ColorSelectorPreference extends Preference {
 
@@ -63,17 +63,36 @@ public class ColorSelectorPreference extends Preference {
         this(context, null);
     }
 
+    /**
+     * Saca el valor por defecto del XML de preferencias.
+     *
+     * @param a     Array de atributos tipados.
+     * @param index Posición del valor.
+     * @return El valor por defecto como String.
+     */
     @Override
     protected Object onGetDefaultValue(TypedArray a, int index) {
         return a.getString(index);
     }
 
+    /**
+     * Pone el valor inicial de la preferencia.
+     * Si ya hay un color guardado lo usa, si no, usa el valor por defecto.
+     *
+     * @param defaultValue Valor por defecto.
+     */
     @Override
     protected void onSetInitialValue(@Nullable Object defaultValue) {
         selectedColor = getPersistedString(
                 defaultValue != null ? defaultValue.toString() : "azul");
     }
 
+    /**
+     * Dibuja los círculos de colores en pantalla.
+     * Marca con un check el color que esté seleccionado.
+     *
+     * @param holder ViewHolder con las vistas de la preferencia.
+     */
     @Override
     public void onBindViewHolder(@NonNull PreferenceViewHolder holder) {
         super.onBindViewHolder(holder);
@@ -138,6 +157,12 @@ public class ColorSelectorPreference extends Preference {
         }
     }
 
+    /**
+     * Convierte dp a píxeles según la densidad de la pantalla.
+     *
+     * @param dp Valor en dp.
+     * @return Valor en píxeles.
+     */
     private int dpToPx(int dp) {
         float density = getContext().getResources().getDisplayMetrics().density;
         return Math.round(dp * density);

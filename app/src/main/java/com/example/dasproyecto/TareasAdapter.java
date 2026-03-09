@@ -17,18 +17,36 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.dasproyecto.db.DBmanager;
 import com.example.dasproyecto.fragment.ListaTareasFragment;
 
+/**
+ * Adaptador del RecyclerView que muestra la lista de tareas.
+ * Coge los datos de un Cursor y los pinta en cada fila,
+ * aplicando colores según la prioridad y tachando las completadas.
+ */
 public class TareasAdapter extends RecyclerView.Adapter<TareasAdapter.TareaViewHolder> {
 
     private Context context;
     private Cursor cursor;
     private ListaTareasFragment.OnTareaSeleccionadaListener listener;
 
+    /**
+     * Constructor del adaptador.
+     *
+     * @param context  Contexto actual.
+     * @param cursor   Cursor con las tareas de la BD.
+     * @param listener Listener para cuando el usuario pulsa una tarea.
+     */
     public TareasAdapter(Context context, Cursor cursor, ListaTareasFragment.OnTareaSeleccionadaListener listener) {
         this.context = context;
         this.cursor = cursor;
         this.listener = listener;
     }
 
+    /**
+     * Cambia el cursor por uno nuevo y refresca la lista.
+     * Cierra el cursor anterior para no dejar nada abierto.
+     *
+     * @param newCursor El nuevo cursor con los datos actualizados.
+     */
     public void updateCursor(Cursor newCursor) {
         if (cursor != null) {
             cursor.close();
@@ -37,6 +55,9 @@ public class TareasAdapter extends RecyclerView.Adapter<TareasAdapter.TareaViewH
         notifyDataSetChanged();
     }
 
+    /**
+     * Crea el ViewHolder inflando el layout de cada fila.
+     */
     @NonNull
     @Override
     public TareaViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -44,6 +65,14 @@ public class TareasAdapter extends RecyclerView.Adapter<TareasAdapter.TareaViewH
         return new TareaViewHolder(view);
     }
 
+    /**
+     * Rellena una fila con los datos de la tarea correspondiente.
+     * Pone el título, descripción, fecha, color de prioridad y tachado si está
+     * completada.
+     *
+     * @param holder   ViewHolder de la fila.
+     * @param position Posición de la fila en la lista.
+     */
     @Override
     public void onBindViewHolder(@NonNull TareaViewHolder holder, int position) {
         if (!cursor.moveToPosition(position)) {
@@ -111,11 +140,18 @@ public class TareasAdapter extends RecyclerView.Adapter<TareasAdapter.TareaViewH
         });
     }
 
+    /**
+     * Devuelve cuántas tareas hay en el cursor.
+     */
     @Override
     public int getItemCount() {
         return cursor == null ? 0 : cursor.getCount();
     }
 
+    /**
+     * ViewHolder que guarda las referencias a las vistas de cada fila
+     * para no tener que buscarlas cada vez.
+     */
     static class TareaViewHolder extends RecyclerView.ViewHolder {
         TextView tvTitulo, tvDescripcion, tvFecha;
         View divider;

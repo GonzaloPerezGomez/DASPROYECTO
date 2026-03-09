@@ -15,6 +15,10 @@ import androidx.annotation.NonNull;
 import com.example.dasproyecto.dialog.ElegirFechaDialog;
 import com.example.dasproyecto.db.DBmanager;
 
+/**
+ * Pantalla para editar una tarea que ya existe.
+ * Carga los datos actuales y deja que el usuario los modifique y guarde.
+ */
 public class EditTareaActivity extends BaseActivity {
 
     private static final String TAG = "EditTareaActivity";
@@ -25,6 +29,12 @@ public class EditTareaActivity extends BaseActivity {
     private TextView tituloActivity;
     private long tareaId = -1;
 
+    /**
+     * Se ejecuta al abrir la pantalla.
+     * Prepara el formulario y carga los datos de la tarea a editar.
+     *
+     * @param savedInstanceState Estado guardado anterior, si lo hay.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -69,6 +79,9 @@ public class EditTareaActivity extends BaseActivity {
         btnCancelar.setOnClickListener(v -> finish());
     }
 
+    /**
+     * Comprueba que los campos estén bien y actualiza la tarea en la BD.
+     */
     private void actualizarTarea() {
         String titulo = etTitulo.getText().toString().trim();
         String descripcion = etDescripcion.getText().toString().trim();
@@ -87,6 +100,10 @@ public class EditTareaActivity extends BaseActivity {
         finish();
     }
 
+    /**
+     * Se llama al cerrar la pantalla.
+     * Cierra la conexión con la BD.
+     */
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -95,6 +112,10 @@ public class EditTareaActivity extends BaseActivity {
         }
     }
 
+    /**
+     * Abre el selector de fecha y recoge la fecha elegida.
+     * Si ya había una fecha puesta, la usa como punto de partida.
+     */
     private void configurarSelectorFecha() {
         getSupportFragmentManager().setFragmentResultListener("fechaSeleccionada", this, (requestKey, bundle) -> {
             int year = bundle.getInt("year");

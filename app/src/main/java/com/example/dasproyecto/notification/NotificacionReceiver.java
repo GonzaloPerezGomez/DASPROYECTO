@@ -24,12 +24,20 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
 
+/**
+ * Receiver que se dispara con la alarma diaria.
+ * Mira si hay tareas pendientes y, si las hay, muestra una notificación.
+ */
 public class NotificacionReceiver extends BroadcastReceiver {
 
     private static final String TAG = "NotificacionReceiver";
     private static final int NOTIFICACION_TAREAS_ID = 1;
     private static final String CHANNEL_ID = "tareas_channel";
 
+    /**
+     * Se ejecuta cuando salta la alarma.
+     * Comprueba los permisos, busca tareas pendientes y lanza la notificación.
+     */
     @Override
     public void onReceive(Context context, Intent intent) {
         Log.d(TAG, "onReceive ejecutado - Comprobando tareas pendientes...");
@@ -86,6 +94,10 @@ public class NotificacionReceiver extends BroadcastReceiver {
         }
     }
 
+    /**
+     * Crea el canal de notificaciones si estamos en Android 8 (Oreo) o superior.
+     * Sin esto, las notificaciones no se muestran.
+     */
     @SuppressLint("ObsoleteSdkInt")
     private void crearCanalSiNecesario(Context context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

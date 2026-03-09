@@ -13,6 +13,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
+/**
+ * Clase que gestiona todas las operaciones con la base de datos de tareas:
+ * crear, leer, actualizar y borrar (CRUD). También tiene métodos para formatear
+ * fechas.
+ */
 public class DBmanager {
     private static final String TAG = "DBmanager";
     public static final String TABLE_NAME = "tareas";
@@ -35,14 +40,27 @@ public class DBmanager {
     private final DBconexion conexion;
     private SQLiteDatabase db;
 
+    /**
+     * Constructor. Crea la conexión a la BD.
+     *
+     * @param context Contexto de la app.
+     */
     public DBmanager(Context context) {
         conexion = new DBconexion(context);
     }
 
+    /**
+     * Abre la base de datos en modo escritura.
+     *
+     * @throws SQLException Si hay algún problema al abrir.
+     */
     public void open() throws SQLException {
         db = conexion.getWritableDatabase();
     }
 
+    /**
+     * Cierra la conexión con la BD.
+     */
     public void close() {
         conexion.close();
     }
@@ -50,16 +68,28 @@ public class DBmanager {
     private static final String[] columnas = { COL_ID, COL_TITULO, COL_DESCRIPCION, COL_PRIORIDAD, COL_FECHALIMITE,
             COL_COMPLETADA };
 
+    /**
+     * Devuelve todas las tareas ordenadas por fecha.
+     *
+     * @param ocultarCompletadas Si es true, no incluye las tareas completadas.
+     * @return Cursor con las tareas.
+     */
     public Cursor getTareas(boolean ocultarCompletadas) {
         String seleccion = ocultarCompletadas ? COL_COMPLETADA + " = 0" : null;
         return db.query(TABLE_NAME, columnas, seleccion, null, null, null, COL_FECHALIMITE + " ASC");
     }
 
+    /**
+     * Igual que getTareas() pero ordenado por prioridad (de mayor a menor).
+     */
     public Cursor getTareasByPrioridad(boolean ocultarCompletadas) {
         String seleccion = ocultarCompletadas ? COL_COMPLETADA + " = 0" : null;
         return db.query(TABLE_NAME, columnas, seleccion, null, null, null, COL_PRIORIDAD + " DESC");
     }
 
+    /**
+     * Busca tareas cuyo título o descripción contengan el texto dado.
+     */
     public Cursor getTareasFiltradas(String texto, boolean ocultarCompletadas) {
         String seleccion = "(" + COL_TITULO + " LIKE ? OR " + COL_DESCRIPCION + " LIKE ?)";
         if (ocultarCompletadas) {
@@ -69,12 +99,18 @@ public class DBmanager {
         return db.query(TABLE_NAME, columnas, seleccion, argumentos, null, null, COL_FECHALIMITE + " ASC");
     }
 
+    /**
+     * Marca o desmarca una tarea como completada.
+     */
     public void actualizarEstado(long id, int estado) {
         ContentValues values = new ContentValues();
         values.put(COL_COMPLETADA, estado);
         db.update(TABLE_NAME, values, COL_ID + " = " + id, null);
     }
 
+    /**
+     * Inserta una nueva tarea en la BD.
+     */
     public void insertar(String titulo, String desc, int prioridad, String fecha) {
         ContentValues values = new ContentValues();
         values.put(COL_TITULO, titulo);
@@ -85,14 +121,23 @@ public class DBmanager {
         Log.i(TAG, "Tarea guardada: " + titulo);
     }
 
+    /**
+     * Borra una tarea por su ID.
+     */
     public void eliminar(long id) {
         db.delete(TABLE_NAME, COL_ID + " = " + id, null);
     }
 
+    /**
+     * Borra todas las tareas que estén marcadas como completadas.
+     */
     public void eliminarCompletadas() {
         db.delete(TABLE_NAME, COL_COMPLETADA + " = 1", null);
     }
 
+    /**
+     * Actualiza todos los campos de una tarea existente.
+     */
     public void actualizarTareaCompleta(long tareaId, String titulo, String descripcion, int prioridad, String fecha) {
         ContentValues values = new ContentValues();
         values.put(COL_TITULO, titulo);
@@ -107,6 +152,10 @@ public class DBmanager {
         }
     }
 
+    /**
+     * Busca las tareas pendientes cuya fecha límite ya haya pasado o sea hoy.
+     * Devuelve sus títulos para mostrarlos en la notificación.
+     */
     public ArrayList<String> tareasPendientes(String fechaHoyDB) {
         ArrayList<String> tareasPendientes = new ArrayList<>();
 
@@ -140,6 +189,10 @@ public class DBmanager {
         return tareasPendientes;
     }
 
+    /**
+     * Convierte una fecha de formato visual (dd/MM/yyyy) a formato de BD
+     * (yyyy-MM-dd).
+     */
     public static String formatFechaToDB(String fechaUI) {
         if (fechaUI == null || fechaUI.trim().isEmpty())
             return "";
@@ -157,6 +210,9 @@ public class DBmanager {
         return fechaUI;
     }
 
+    /**
+     * Convierte una fecha de formato BD (yyyy-MM-dd) a formato visual (dd/MM/yyyy).
+     */
     public static String formatFechaToUI(String fechaDB) {
         if (fechaDB == null || fechaDB.trim().isEmpty())
             return "";
@@ -180,6 +236,9 @@ public class DBmanager {
         return fechaDB;
     }
 
+    /**
+     * Devuelve una tarea concreta por su ID.
+     */
     public Cursor getTarea(long id) {
         return db.query(TABLE_NAME, columnas, COL_ID + " = ?",
                 new String[] { String.valueOf(id) }, null, null, null);

@@ -10,26 +10,45 @@ import androidx.preference.PreferenceManager;
 
 import java.util.Locale;
 
+/**
+ * Clase Application de la app.
+ * Se encarga de aplicar el idioma elegido por el usuario
+ * desde el arranque de la aplicación.
+ */
 public class Idioma extends Application {
 
+    /**
+     * Se llama cuando arranca la app, antes de abrir cualquier pantalla.
+     */
     @Override
     public void onCreate() {
         super.onCreate();
     }
 
+    /**
+     * Se llama cuando cambia la configuración del dispositivo (rotación, idioma,
+     * etc.).
+     *
+     * @param newConfig La nueva configuración del sistema.
+     */
     @Override
     public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
     }
 
+    /**
+     * Aplica el idioma elegido al contexto base de la app.
+     *
+     * @param base Contexto base del sistema.
+     */
     @Override
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(wrap(base));
     }
 
     /**
-     * Envuelve un Context con el locale guardado en preferencias.
-     * Se usa desde Application.attachBaseContext y BaseActivity.attachBaseContext.
+     * Envuelve un contexto con el idioma guardado en las preferencias.
+     * Lo usan tanto Application como BaseActivity.
      */
     public static Context wrap(Context context) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);

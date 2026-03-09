@@ -45,12 +45,25 @@ import java.io.OutputStream;
 import java.io.BufferedWriter;
 import java.io.OutputStreamWriter;
 
+/**
+ * Pantalla principal de la app.
+ * Tiene el menú lateral, muestra la lista de tareas
+ * y coordina la navegación entre la lista y el detalle. También permite
+ * exportar tareas.
+ */
 public class MainActivity extends BaseActivity implements ListaTareasFragment.OnTareaSeleccionadaListener,
         DetalleTareaFragment.OnTareaEliminadaListener, DetalleTareaFragment.OnTareaCompletadaListener {
 
     private static final String TAG = "MainActivity";
     private ActivityResultLauncher<Intent> exportTxtLauncher;
 
+    /**
+     * Se ejecuta al abrir la app.
+     * Monta el menú lateral, carga la lista de tareas y pide permiso de
+     * notificaciones.
+     *
+     * @param savedInstanceState Estado guardado anterior, si lo hay.
+     */
     @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,6 +93,9 @@ public class MainActivity extends BaseActivity implements ListaTareasFragment.On
         solicitarPermisosNotificaciones();
     }
 
+    /**
+     * Prepara el menú lateral (Drawer) y define qué pasa al pulsar cada opción.
+     */
     private void setupNavigationDrawer() {
         DrawerLayout drawerLayout = findViewById(R.id.main_drawer);
         NavigationView navigationView = findViewById(R.id.nav_view);
@@ -107,6 +123,10 @@ public class MainActivity extends BaseActivity implements ListaTareasFragment.On
         });
     }
 
+    /**
+     * Abre el selector del sistema para crear un archivo .txt donde se exportarán
+     * las tareas.
+     */
     private void exportarTareasTxt() {
         Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
@@ -115,6 +135,12 @@ public class MainActivity extends BaseActivity implements ListaTareasFragment.On
         exportTxtLauncher.launch(intent);
     }
 
+    /**
+     * Lee las tareas de la BD y las escribe en el archivo elegido.
+     * Se hace en un hilo aparte para no bloquear la pantalla.
+     *
+     * @param uri Ruta del archivo de destino.
+     */
     private void exportTareasToFile(Uri uri) {
         new Thread(() -> {
             DBmanager dbManager = new DBmanager(this);
@@ -165,6 +191,12 @@ public class MainActivity extends BaseActivity implements ListaTareasFragment.On
         }).start();
     }
 
+    /**
+     * Configura el botón de hamburguesa para abrir el menú lateral
+     * y el botón atrás del dispositivo para cerrarlo.
+     *
+     * @param toolbar La Toolbar de la pantalla.
+     */
     public void setupDrawerToggle(Toolbar toolbar) {
         DrawerLayout drawerLayout = findViewById(R.id.main_drawer);
 
@@ -188,6 +220,12 @@ public class MainActivity extends BaseActivity implements ListaTareasFragment.On
         });
     }
 
+    /**
+     * Se llama cuando el usuario pulsa una tarea de la lista.
+     * En horizontal la abre al lado; en vertical abre una pantalla nueva.
+     *
+     * @param tareaId ID de la tarea seleccionada.
+     */
     @Override
     public void onTareaSeleccionada(long tareaId) {
         int orientacion = getResources().getConfiguration().orientation;
@@ -208,6 +246,10 @@ public class MainActivity extends BaseActivity implements ListaTareasFragment.On
         }
     }
 
+    /**
+     * Se llama cuando se borra una tarea.
+     * Refresca la lista y quita el fragmento de detalle.
+     */
     @Override
     public void onTareaEliminada() {
         ListaTareasFragment listaFragment = (ListaTareasFragment) getSupportFragmentManager()
@@ -224,6 +266,12 @@ public class MainActivity extends BaseActivity implements ListaTareasFragment.On
         }
     }
 
+    /**
+     * Se llama cuando se marca o desmarca una tarea como completada.
+     * Actualiza la lista y el detalle.
+     *
+     * @param tareaId ID de la tarea modificada.
+     */
     @Override
     public void onTareaCompletada(long tareaId) {
         ListaTareasFragment listaFragment = (ListaTareasFragment) getSupportFragmentManager()
@@ -246,6 +294,12 @@ public class MainActivity extends BaseActivity implements ListaTareasFragment.On
         }
     }
 
+    /**
+     * Programa una alarma diaria a las 8:00 AM para comprobar tareas pendientes
+     * y mostrar una notificación si las hay.
+     *
+     * @param context Contexto de la app.
+     */
     public static void programarAlarmaDiaria(Context context) {
 
         Intent intent = new Intent(context, NotificacionReceiver.class);

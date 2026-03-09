@@ -6,8 +6,18 @@ import androidx.annotation.NonNull;
 
 import com.example.dasproyecto.fragment.AjustesFragment;
 
+/**
+ * Pantalla de ajustes de la app.
+ * Carga el fragmento de preferencias donde se cambia el idioma, el tema, etc.
+ */
 public class AjustesActivity extends BaseActivity {
 
+    /**
+     * Se ejecuta al abrir la pantalla.
+     * Configura la Toolbar y mete el fragmento de ajustes.
+     *
+     * @param savedInstanceState Estado guardado anterior, si lo hay.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

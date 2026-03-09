@@ -7,6 +7,7 @@
 \usepackage{listings}
 \usepackage{xcolor}
 \usepackage{float}
+\usepackage[inkscapelatex=false]{svg}
 \usepackage{algorithm}
 \usepackage{algpseudocode}
 \usepackage{amssymb}
@@ -210,7 +211,7 @@ Las actividades que controlan el flujo principal de la aplicación:
     \item \textbf{\texttt{MainActivity}:} Es el núcleo de la interfaz. Configurada en el manifest con \texttt{launchMode="singleTop"}, gestiona la \texttt{Toolbar}, el \texttt{Navigation Drawer} y orquesta la carga de \texttt{Fragments} dependiendo de la orientación del dispositivo.
     \item \textbf{\texttt{BaseActivity}:} Funciona como la clase padre de todas las actividades secundarias. Centraliza código duplicado y gestiona transiciones, temas, colores dinámicos elegidos por el usuario, control del idioma y el comportamiento de retroceso.
     \item \textbf{\texttt{AddTareaActivity} y \texttt{EditTareaActivity}:} Pantallas dedicadas a los formularios de creación y edición, conectando las entradas del usuario con el \texttt{DBmanager}.
-    \item \textbf{\texttt{ViewTareaActivity}:} Contenedor exclusivo utilizado en teléfonos móviles (orientación vertical) para alojar el detalle de una tarea.
+    \item \textbf{\texttt{ViewTareaActivity}:} Contenedor exclusivo utilizado en orientación vertical para alojar el detalle de una tarea.
 \end{itemize}
 
 \subsection{Fragmentos y Adaptabilidad}
@@ -219,7 +220,7 @@ Para cumplir con el diseño adaptativo horizontal/vertical, se implementaron los
 
 \begin{itemize}
     \item \textbf{\texttt{ListaTareasFragment}:} Responsable de instanciar el \texttt{RecyclerView}, consultar las tareas a la base de datos e inyectarlas a través del adaptador.
-    \item \textbf{\texttt{DetalleTareaFragment}:} Muestra estáticamente los datos concretos de una tarea seleccionada usando \textit{Intents} y \textit{Bundles} para transferir los datos entre vistas.
+    \item \textbf{\texttt{DetalleTareaFragment}:} Muestra estáticamente los datos concretos de una tarea seleccionada usando \textit{Bundles} para transferir los datos entre vistas.
     \item \textbf{\texttt{AjustesFragment}:} Extiende \texttt{Preference\allowbreak Fragment\allowbreak Compat} para renderizar dinámicamente el XML de opciones y reaccionar automáticamente a los cambios que haga el usuario sobre el tema, aspecto o idioma.
 \end{itemize}
 
@@ -231,6 +232,30 @@ Finalmente, la aplicación se apoya en otras clases clave para el correcto funci
     \item \textbf{\texttt{TareasAdapter}:} Es el puente entre el \texttt{RecyclerView} y el cursor de base de datos. Se encarga de instanciar e inflar cada \texttt{CardView} (`item\_tarea.xml`), aplicar colores según la prioridad de la tarea y marcar visualmente las tareas completadas.
     \item \textbf{\texttt{NotificacionReceiver} y \texttt{BootReceiver}:} Clases que extienden \texttt{Broadcast\allowbreak Receiver}. La primera es la responsable de construir y lanzar la notificación diaria. La segunda asegura que el temporizador (AlarmaManager) se vuelva a configurar independientemente si el usuario reinicia el dispositivo, persignando así la alarma en el sistema operativo.
 \end{itemize}
+
+\subsection{Diagrama de clases}
+
+Para facilitar la comprensión de la estructura del proyecto, se han elaborado tres diagramas de clases UML, agrupados por capa funcional.
+
+\begin{figure}[H]
+    \centering
+    \includesvg[width=\textwidth]{img/Diagrama1_Actividades}
+    \caption{Diagrama de clases: Actividades y navegación.}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includesvg[width=\textwidth]{img/Diagrama2_Fragmentos}
+    \caption{Diagrama de clases: Fragmentos, adaptadores e interfaces.}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includesvg[width=\textwidth]{img/Diagrama3_Datos_Dialogos}
+    \caption{Diagrama de clases: Datos, diálogos y notificaciones.}
+\end{figure}
+
+
 
 \section{Manual de Usuario}
 
@@ -254,7 +279,7 @@ Al iniciar la aplicación, el usuario accederá a la pantalla principal, donde s
     \begin{minipage}{0.45\textwidth}
         \centering
         \includegraphics[width=0.8\textwidth]{img/orden_por_fecha.jpeg}
-        \caption{Ordenación por fecha.}
+        \caption{Listado de tareas ordenado por fecha.}
     \end{minipage}
 \end{figure}
 
@@ -294,12 +319,12 @@ Pulsando sobre una tarea, se accede a la vista de detalles, la cual muestra la i
     \begin{minipage}{0.45\textwidth}
         \centering
         \includegraphics[width=0.8\textwidth]{img/detalles_tarea.jpeg}
-        \caption{Vista de los detalles de una tarea.}
+        \caption{Vista de la pantalla de edición de una tarea.}
     \end{minipage}\hfill
     \begin{minipage}{0.45\textwidth}
         \centering
         \includegraphics[width=0.8\textwidth]{img/accion_eliminar_tarea.jpeg}
-        \caption{Confirmación al eliminar una tarea individual.}
+        \caption{Acción de eliminar una tarea.}
     \end{minipage}
 \end{figure}
 
@@ -407,7 +432,7 @@ La aplicación se adapta para mostrar el listado de tareas en modo horizontal, l
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth]{img/landscape.jpeg}
+    \includegraphics[width=0.8\textwidth]{img/landscape.jpeg}
     \caption{Pantalla principal en modo landscape.}
 \end{figure}
 

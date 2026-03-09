@@ -12,12 +12,19 @@ import com.example.dasproyecto.R;
 import com.example.dasproyecto.db.DBmanager;
 import com.example.dasproyecto.fragment.DetalleTareaFragment;
 
+/**
+ * Diálogo de confirmación para borrar una tarea.
+ * Pregunta al usuario si está seguro antes de eliminarla.
+ */
 public class EliminarTareaDialog extends DialogFragment {
 
     private static final String ARG_ID = "id_tarea";
     private static final String ARG_TITULO = "titulo_tarea";
     private DetalleTareaFragment.OnTareaEliminadaListener listener;
 
+    /**
+     * Crea una instancia del diálogo con el ID y título de la tarea a borrar.
+     */
     public static EliminarTareaDialog newInstance(long id, String titulo,
             DetalleTareaFragment.OnTareaEliminadaListener listener) {
         EliminarTareaDialog frag = new EliminarTareaDialog();
@@ -29,6 +36,10 @@ public class EliminarTareaDialog extends DialogFragment {
         return frag;
     }
 
+    /**
+     * Monta el AlertDialog.
+     * Si el usuario pulsa "Sí", borra la tarea de la BD y avisa al listener.
+     */
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
