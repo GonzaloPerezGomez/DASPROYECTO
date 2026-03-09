@@ -186,6 +186,7 @@ public class DBmanager {
             }
         }
         cursor.close();
+        Log.i(TAG, "Tareas pendientes: " + tareasPendientes.toString());
         return tareasPendientes;
     }
 
