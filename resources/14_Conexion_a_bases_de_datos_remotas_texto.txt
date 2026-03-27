@@ -1,0 +1,335 @@
+--- Pagina 1 ---
+CONEXIÓN  A  BASES 
+DE  DATOS  REMOTAS
+
+--- Pagina 2 ---
+3CONEXIÓN ABASES DEDATOS REMOTAS
+Para realizar la conexión se necesita que la aplicación 
+tenga permisos de acceso a Internet
+<?xml version= "1.0" encoding= "utf-8"?>
+<manifest xmlns:android= "http://schemas.android.com/apk/res/android"
+    package= "com.example.tema15ejercicio1">
+    <uses-permission android:name=" android.permission.INTERNET" />
+    <application
+        …
+    >
+        < activity android:name=".MainActivity" >
+            …
+        </activity>    </application>
+</manifest>
+
+--- Pagina 3 ---
+8CONEXIÓN  A BASES  DE DATOS  REMOTAS
+Usando servicios web
+Se necesitan varios elementos externos al dispositivo móvil 
+Un servidor (hardware) al que se tenga acceso por red
+Un software servidor que ejecute los servicios web implementados en 
+un lenguaje de programación
+Por ejemplo: Apache + PHP
+Un Sistema de Gestión de Bases de Datos 
+Por ejemplo: MySQL
+Un formato para enviar y recoger los resultados 
+Por ejemplo: JSON
+
+--- Pagina 4 ---
+9CONEXIÓN  A BASES  DE DATOS  REMOTAS
+Usando servicios web
+La aplicación solicita la ejecución de la sentencia a un servicio 
+web
+El servicio web ejecuta la sentencia contra la base de datos y devuelve el resultado (si es necesario)
+App Servicio Web BBDD
+Formato para el resultadoLenguaje de programación 
+para los servicios web
+
+--- Pagina 5 ---
+10CONEXIÓN  A BASES  DE DATOS  REMOTAS
+Usando servicios web
+Hay que generar los ficheros PHP que se conectan a la Base de 
+Datos y trabajan en base a los parámetros que reciben.
+Hay que cuidar un poco el diseño.
+Ni un PHP para cada cosa ni un único PHP que lo haga todo
+SUGERENCIA : Hacer funciones, agruparlas por “temática” en un fichero 
+y usar un parámetro en la llamada al PHP para saber qué función 
+ejecutar
+
+--- Pagina 6 ---
+11CONEXIÓN  A BASES  DE DATOS  REMOTAS
+Usando servicios web
+Se generan los ficheros PHP que se conectan a la Base de 
+Datos y trabajan en base a los parámetros que reciben
+<?php
+…$DB_SERVER= "255.255.255.255"; #la dirección del servidor
+$DB_USER ="usuario"; #el usuario para esa base de datos
+$DB_PASS ="password" ; #la clave para ese usuario
+$DB_DATABASE= “nombreBD "; #la base de datos a la que hay que conectarse
+# Se establece la conexión:
+$con = mysqli_connect( $DB_SERVER, $DB_USER , $DB_PASS , $DB_DATABASE );
+#Comprobamos conexión
+if (mysqli_connect_errno()) {
+echo 'Error de conexion: ' . mysqli_connect_error();
+exit();}…?>
+<?php…$parametro = $_POST["nombreParametro "];
+…
+?>
+
+--- Pagina 7 ---
+12CONEXIÓN  A BASES  DE DATOS  REMOTAS
+Usando servicios web
+Se generan los ficheros PHP que se conectan a la Base de 
+Datos y trabajan en base a los parámetros que reciben
+Para devolver los resultados se usan formatos de intercambio de información
+XML
+SOAP
+JSON
+….<?php
+…# Ejecutar la sentencia SQL$resultado = mysqli_query( $con, "SELECT * FROM usuarios WHERE nombre = '$parametro'");
+# Comprobar si se ha ejecutado correctamenteif (!$resultado) {
+echo 'Ha ocurrido algún error: ' . mysqli_error( $con);
+}…?>
+¡Cuidado con las comillas!
+Para indicar un string dentro de otro, 
+comillas simples dentro de las dobles
+JSON es muy popular por ser legible y muy 
+ligero
+
+--- Pagina 8 ---
+13CONEXIÓN  A BASES  DE DATOS  REMOTAS
+Usando servicios web
+JSON trabaja con arrays  de pares (atributo: valor) 
+PHP >= 5.2 trabaja con JSON directamente[
+{"Id":"1", "Nombre":"Pepe", "Apellido" :"Perez"}, 
+{"Id":"2", "Nombre":"Pepa", "Apellido" :"Jimenez"}, 
+{"Id":"3", "Nombre":"Raúl", "Apellido" :"García"}
+]
+<?php
+…
+#Acceder al resultado$fila = mysqli_fetch_row ($resultado );
+# Generar el array con los resultados con la forma Atributo - Valor
+$arrayresultados  = array(
+'nombre'  => $fila[1],
+'apellido'  => $fila[2],
+'edad' => $fila[3],
+'direccion ' => $fila[4],
+);…?>Si hubiera más de un elemento, se 
+generaría un array  de arrays
+$arrayresultados [0] = array  (…);
+$arrayresultados [1] = array  (…);
+…Para versiones anteriores hay que 
+añadir una librería
+Índice de la columna, comienza en 0
+
+--- Pagina 9 ---
+14CONEXIÓN  A BASES  DE DATOS  REMOTAS
+Usando servicios web
+El fichero PHP puede devolver el array de resultados 
+transformado en un objeto JSON
+<?php
+…#Devolver el resultado en formato JSONecho json_encode ($arrayresultados);
+…?>
+Se usa la función echo 
+(imprimir) para devolver Si queremos devolver un entero, un string, etc. no 
+hace falta usar JSON. Es solo para datos 
+estructurados
+
+--- Pagina 10 ---
+15CONEXIÓN  A BASES  DE DATOS  REMOTAS
+Usando servicios web
+En el código Java, para hacer llamadas remotas, se usan 
+objetos de tipo HttpParams , HttpURLConnection …
+Las peticiones Http deben ejecutarse de manera asíncrona
+Podemos utilizar WorkManager y crear trabajos de segundo plano
+import androidx.work.Worker;
+…
+public class conexionBDWebService extends Worker{
+…
+}
+
+--- Pagina 11 ---
+16CONEXIÓN  A BASES  DE DATOS  REMOTAS
+Usando servicios web
+Podemos recuperar datos de tareas y dibujarlos en la UI
+En la tarea, crear un objeto Data con los datos a recuperar
+Ver tema ”Trabajo en segundo plano”, diapositiva 10
+En la actividad, añadir un Observer  a la tarea antes de 
+encolarla usando WorkManager
+OneTimeWorkRequest otwr = new 
+OneTimeWorkRequest.Builder (conexionBDWebService. class).build();
+WorkManager.getInstance( this).getWorkInfoByIdLiveData( otwr.getId ())
+        .observe(this, new Observer <WorkInfo>() {
+            @Override
+            public  void onChanged(WorkInfo  workInfo ) {
+                if(workInfo != null &&  workInfo.getState().isFinished ()){
+                    TextView textViewResult = findViewById (R.id. textoResultado);
+                    textViewResult.setText (workInfo.getOutputData().getString ("datos"));
+                }
+            }        });
+WorkManager.getInstance( this).enqueue( otwr);Coloca los datos en 
+un TextView
+
+--- Pagina 12 ---
+17CONEXIÓN  A BASES  DE DATOS  REMOTAS
+Usando servicios web
+En el doWork  del trabajo en segundo plano se genera un 
+objeto HttpURLConnection  con la configuración 
+correspondiente
+String direccion = "http://servidor/servicioweb.php";
+HttpURLConnection urlConnection = null;
+try {
+    URL destino = new URL(direccion);
+    urlConnection = (HttpURLConnection) destino.openConnection();
+    urlConnection.setConnectTimeout( 5000);
+    urlConnection.setReadTimeout( 5000);
+    …Si estamos trabajando en local con el simulador, la IP de la propia máquina es 
+10.0.0.2 (el equivalente a localhost  o 127.0.0.1)
+
+--- Pagina 13 ---
+18CONEXIÓN  A BASES  DE DATOS  REMOTAS
+Usando servicios web
+Desde Android 8, por defecto, sólo se permiten las conexiones 
+HTTPS
+Si queremos activar las conexiones HTTP hay que indicarlo en el manifiesto
+<?xml version= "1.0" encoding= "utf-8"?>
+<manifest xmlns:android= "http://schemas.android.com/apk/res/android"
+    package= "com.example.tema14ejercicio1">
+    <uses-permission android:name=" android.permission.INTERNET" />
+    <application
+        …
+        android:usesCleartextTraffic= "true">
+        < activity android:name=".MainActivity" >
+            …        </activity>    </application>
+</manifest>Habilita HTTP de texto 
+simple
+
+--- Pagina 14 ---
+19CONEXIÓN  A BASES  DE DATOS  REMOTAS
+Usando servicios web
+Para enviar parámetros al fichero PHP, se puede crear un 
+string tal y como se escribiría en la petición http:
+Alternativa: generar usando otras clases como UriString parametros = "param1=" +dato+"&param2=" +valor+"&param3="+otrodato;Nombre del parámetro Separador Valor
+Uri.Builder builder  = new Uri.Builder()
+        .appendQueryParameter ("param1" , dato)
+        .appendQueryParameter ("param2" , String. valueOf(valor))
+        .appendQueryParameter ("param3" , otrodato );
+String parametros  = builder.build().getEncodedQuery ();Tienen que ser todo Strings
+
+--- Pagina 15 ---
+20CONEXIÓN  A BASES  DE DATOS  REMOTAS
+Usando servicios web
+Hay que configurar el objeto HttpURLConnection para indicar 
+que se envían parámetros
+Para incluir los parámetros en la llamada se usa un objeto 
+PrintWriterurlConnection.setRequestMethod( "POST");
+urlConnection.setDoOutput( true);
+urlConnection.setRequestProperty ("Content- Type", "application /x-www-form-urlencoded ");Formato de envío
+Necesario si se usa POST o PUT
+Formato de los parámetros
+PrintWriter out = new PrintWriter( urlConnection.getOutputStream());
+out.print( parametros);
+out.close();
+Al terminar de incluir los parámetros hay que cerrarlo
+
+--- Pagina 16 ---
+21CONEXIÓN  A BASES  DE DATOS  REMOTAS
+Usando servicios web
+Se pueden enviar parámetros de otro tipo como, por ejemplo, 
+JSON
+Existen múltiples librerías para trabajar con JSON en Android. Una de las más usadas: json -simple
+implementation ('com.googlecode.json -simple:json -simple:1.1.1')
+  { exclude group: ' junit', module: 'junit' }
+Añadir la dependencia en el 
+gradle  del módulo (app)
+
+--- Pagina 17 ---
+22CONEXIÓN  A BASES  DE DATOS  REMOTAS
+Usando servicios web
+Se crea el objeto JSON
+Hay que configurar el HttpURLConnection
+Al enviarlo, transformarlo a String
+PrintWriter out = new PrintWriter( urlConnection.getOutputStream());
+out.print( parametrosJSON.toString());
+out.close();
+Convertir el JSON en StringJSONObject parametrosJSON  = new JSONObject();
+parametrosJSON.put ("param1", dato);
+parametrosJSON.put ("param2", valor);
+parametrosJSON.put ("param3", otrodato);
+urlConnection.setRequestProperty("Content- Type","application/json" );
+Formato de los parámetros
+
+--- Pagina 18 ---
+23CONEXIÓN  A BASES  DE DATOS  REMOTAS
+Usando servicios web
+En el PHP se recoge el JSON
+Se accede al objeto JSON para recuperar el valor de los 
+campos que nos interesen<?php…$parametros = json_decode ( file_get_contents( 'php://input' ), true );
+…?>
+<?php…$param1=$parametros["param1"];
+$param2=$parametros["param2"];
+ …?>
+
+--- Pagina 19 ---
+24CONEXIÓN  A BASES  DE DATOS  REMOTAS
+Usando servicios web
+Se ejecuta la llamada al servicio web mediante:
+Se mira el código de vuelta (debe ser 200), y se procesa el 
+resultadoint statusCode = urlConnection.getResponseCode();
+Es importante recoger el resultado
+https://httpstatuses.com/
+if (statusCode == 200){
+    BufferedInputStream inputStream = new BufferedInputStream( urlConnection.getInputStream());
+    BufferedReader  bufferedReader = new BufferedReader (new InputStreamReader( inputStream, "UTF-8"));
+    String line, result="";
+    while ((line = bufferedReader.readLine()) != null){
+        result += line;
+    }
+    inputStream.close();
+    …Si todo ha ido bien
+Cerrar el Stream  recibidoVamos generando en la variable result  el resultado final
+
+--- Pagina 20 ---
+25CONEXIÓN  A BASES  DE DATOS  REMOTAS
+Usando servicios web
+Se extrae la información del resultado
+Si es un JSON, se crea el objeto y se trabaja con él
+JSONParser  parser = new JSONParser();
+JSONObject  json = (JSONObject ) parser.parse(result );
+String nom  = (String) json.get( "nombre");
+String ap  = (String)json.get( "Apellido");
+Object anios = (String) json.get ("Edad");
+if (anios!= null){
+    int edad=(Integer) anios;
+}
+else{    int edad=0;
+}
+String dir  = (String) json.get( "Direccion" );Clave de los datos en el JSON
+
+--- Pagina 21 ---
+26CONEXIÓN  A BASES  DE DATOS  REMOTAS
+Usando servicios web
+Se extrae la información del resultado
+Si es un JSON, se crea el objeto y se trabaja con él
+Si es un array , usar el tipo JSONArray
+JSONArray jsonArray  = new JSONArray (result);
+ArrayList< String> lista = new ArrayList<>();
+for(int i = 0; i < jsonArray.length (); i++)
+{
+    String  nombre = jsonArray .getJSONObject(i). getString ("Nombre" );
+    lista.add (nombre);
+}
+Clave de los datos en el JSON
+
+--- Pagina 22 ---
+27CONEXIÓN  A BASES  DE DATOS  REMOTAS
+Ejercicio 1
+Crear una aplicación que se conecte con una base de datos 
+remota y liste el contenido de una tabla
+Servicio: getNombres.php
+
+--- Pagina 23 ---
+28CONEXIÓN  A BASES  DE DATOS  REMOTAS
+Ejercicio 1
+Modificar la aplicación para que permita la inserción de un 
+nombre nuevo en la tabla de la BBDD
+Servicio: insertNombre.php
+Parámetro: “nombre”
+Debe ser un String  con longitud entre 1 y 14 caracteres.
+

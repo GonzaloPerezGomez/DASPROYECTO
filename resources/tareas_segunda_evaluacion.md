@@ -1,0 +1,92 @@
+# Segunda Evaluación — Task Tracker
+
+## Fase 1-2: Análisis y Backlog
+- [x] Identificar los 8 ítems clave
+- [x] Auditar código actual
+- [x] Documentar estado de cada ítem
+- [x] Generar backlog con deuda técnica
+- [x] Preguntas de arquitectura respondidas
+
+## Fase 3: Roadmap
+- [x] Roadmap detallado con tareas atómicas
+- [ ] Aprobación del roadmap por el usuario
+
+## Implementación
+
+### Hito 1: Servidor PHP + MySQL
+- [x] Crear BD y tablas en Google Cloud
+- [x] `registro.php`
+- [x] `login.php`
+- [x] `tareas.php` (CRUD)
+- [x] `perfil.php` (foto)
+- [x] `fcm_enviar.php`
+
+### Hito 2: Login / Registro en Android
+- [x] Manifest: INTERNET + cleartext
+- [x] build.gradle: WorkManager
+- [x] `LoginActivity`
+- [x] `RegistroActivity`
+- [x] `ConexionWorker`
+- [x] Gestión de sesión
+- [x] Cerrar sesión
+
+### Hito 3: CRUD Remoto
+- [ ] Refactorizar `DBmanager` → remoto
+- [ ] Campos latitud/longitud
+- [ ] `AddTareaActivity` + ubicación
+- [ ] `EditTareaActivity` + ubicación
+- [ ] `ListaTareasFragment` → JSON
+- [ ] `DetalleTareaFragment` + icono ubicación
+- [ ] `TareasAdapter` + icono ubicación
+- [ ] Limpiar SQLite local
+
+### Hito 4: Google Maps + Geolocalización
+- [ ] Dependencias maps + location
+- [ ] API Key en manifest
+- [ ] Permisos de ubicación
+- [ ] `SeleccionarUbicacionActivity`
+- [ ] Integrar en formularios
+- [ ] Icono en lista → abrir Maps
+
+### Hito 5: Cámara + Foto de Perfil
+- [ ] Permiso CAMERA
+- [ ] Header Navigation Drawer con foto
+- [ ] Captura con cámara
+- [ ] Subida al servidor
+- [ ] Carga y visualización (Glide)
+- [ ] FileProvider
+
+### Hito 6: Servicio Proximidad
+- [ ] `ProximidadService`
+- [ ] Permisos FOREGROUND_SERVICE + location
+- [ ] Location tracking en servicio
+- [ ] Lógica de distancia <200m
+- [ ] Broadcast service ↔ activity
+- [ ] Controles iniciar/detener
+
+### Hito 7: Content Provider
+- [ ] `TareasContentProvider`
+- [ ] URIs y authority
+- [ ] CRUD vía ContentResolver
+- [ ] Registrar en manifest
+
+### Hito 8: Widget
+- [ ] `TareasWidgetProvider`
+- [ ] Layout XML del widget
+- [ ] `widget_info.xml`
+- [ ] Registrar en manifest
+- [ ] Fetch + actualización periódica
+- [ ] Click → abrir app
+
+### Hito 9: FCM
+- [ ] Firebase Console + `google-services.json`
+- [ ] Dependencias Firebase
+- [ ] `MiFirebaseMessagingService`
+- [ ] Token FCM → servidor
+- [ ] `fcm_enviar.php` funcional
+- [ ] Registrar servicio en manifest
+
+
+### Posteriores
+- [ ] Arreglar selector de color en ajustes
+- [ ] Editar perfil

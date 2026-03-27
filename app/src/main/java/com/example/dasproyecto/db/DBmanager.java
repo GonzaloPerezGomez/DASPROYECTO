@@ -13,6 +13,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
+import androidx.lifecycle.LiveData;
+import androidx.work.Data;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkInfo;
+import androidx.work.WorkManager;
+import com.example.dasproyecto.ConexionWorker;
+
 /**
  * Clase que gestiona todas las operaciones con la base de datos de tareas:
  * crear, leer, actualizar y borrar (CRUD). También tiene métodos para formatear
@@ -39,6 +46,7 @@ public class DBmanager {
 
     private final DBconexion conexion;
     private SQLiteDatabase db;
+    private final Context context;
 
     /**
      * Constructor. Crea la conexión a la BD.
@@ -46,6 +54,7 @@ public class DBmanager {
      * @param context Contexto de la app.
      */
     public DBmanager(Context context) {
+        this.context = context;
         conexion = new DBconexion(context);
     }
 
@@ -243,5 +252,40 @@ public class DBmanager {
     public Cursor getTarea(long id) {
         return db.query(TABLE_NAME, columnas, COL_ID + " = ?",
                 new String[] { String.valueOf(id) }, null, null, null);
+    }
+
+    // =========================================================================
+    // MÉTODOS REMOTOS (WorkManager Wrapper)
+    // =========================================================================
+
+    public LiveData<WorkInfo> loginRemoto(String email, String password) {
+        Data datos = new Data.Builder()
+                .putString("accion", "login")
+                .putString("email", email)
+                .putString("password", password)
+                .build();
+        
+        OneTimeWorkRequest req = new OneTimeWorkRequest.Builder(ConexionWorker.class)
+                .setInputData(datos)
+                .build();
+        
+        WorkManager.getInstance(context).enqueue(req);
+        return WorkManager.getInstance(context).getWorkInfoByIdLiveData(req.getId());
+    }
+
+    public LiveData<WorkInfo> registroRemoto(String nombre, String email, String password) {
+        Data datos = new Data.Builder()
+                .putString("accion", "registro")
+                .putString("nombre", nombre)
+                .putString("email", email)
+                .putString("password", password)
+                .build();
+        
+        OneTimeWorkRequest req = new OneTimeWorkRequest.Builder(ConexionWorker.class)
+                .setInputData(datos)
+                .build();
+        
+        WorkManager.getInstance(context).enqueue(req);
+        return WorkManager.getInstance(context).getWorkInfoByIdLiveData(req.getId());
     }
 }

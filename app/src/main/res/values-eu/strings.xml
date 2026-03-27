@@ -136,5 +136,21 @@
         <item>oscuro</item>
     </string-array>
 
+    <!-- Login y Registro -->
+    <string name="titulo_login">Hasi saioa</string>
+    <string name="hint_email">Posta elektronikoa</string>
+    <string name="hint_password">Pasahitza</string>
+    <string name="chk_recuerdame">Gogoratu</string>
+    <string name="btn_login">Sartu</string>
+    <string name="btn_ir_registro">Ez daukazu konturik? Erregistratu</string>
+    <string name="titulo_registro">Kontua Sortu</string>
+    <string name="hint_nombre">Izen-abizenak</string>
+    <string name="hint_confirmar_password">Pasahitza baieztatu</string>
+    <string name="btn_registrarse">Erregistratu</string>
+    <string name="btn_volver_login">Kontua baduzu? Hasi saioa</string>
+
+    <string name="config_cerrar_sesion">Saioa itxi</string>
+    <string name="config_cerrar_sesion_summary">Uneko kontutik deskonektatu</string>
+    <string name="config_cerrar_sesion_confirmar">Ziur al zaude saioa itxi nahi duzula?</string>
 
 </resources>

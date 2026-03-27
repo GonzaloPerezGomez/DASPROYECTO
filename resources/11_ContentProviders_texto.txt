@@ -1,0 +1,164 @@
+--- Pagina 1 ---
+CONTENT PROVIDERS
+
+--- Pagina 2 ---
+2CONTENT PROVIDERS
+Content provider
+Es una interfaz estándar para acceder a un repositorio de 
+datos
+Del sistema operativo
+De otras aplicaciones
+Proporciona un acceso a los datos como si fueran tablas de una base de datos relacional
+Imagen extraída de https://developer.android.com/guide/topics/providers/content -provider -basics.html?hl=es -419Columnas
+Contenido
+
+--- Pagina 3 ---
+3CONTENT  PROVIDERS
+Content provider
+Android incluye content  providers  que gestionan audio, vídeo, 
+imágenes, información de contacto...
+CalendarContract.CalendarColumns
+ContactsContract.ContactNameColumns
+MediaStore.Audio.AlbumColumns
+MediaStore.Files.FileColumns
+MediaStore.Images.ImageColumns
+MediaStore.MediaColumns
+MediaStore.Video.VideoColumns
+Telephony.TextBasedSmsColumns
+...
+Listado completo
+https://developer.android.com/reference/android/provider/package -summary.html
+
+--- Pagina 4 ---
+4CONTENT  PROVIDERS
+Content provider
+Para acceder a un ContentProvider  se usa un objeto 
+ContentResolver  que permite las operaciones de añadir, leer, 
+modificar y eliminar (CRUD)
+Algunos necesitan permisos específicos en el manifiesto 
+(algunos son considerados peligrosos y hay que gestionar su concesión)
+La forma más cómoda de acceder a la información es a través del método query (Uri, projection , selection , selectionArgs, 
+sortOrder )<uses-permission  android :name="android.permission.READ_USER_DICTIONARY "/>
+<uses-permission  android :name="android.permission.WRITE_CONTACTS "/>
+El equivalente a ejecutar una sentencia SQL
+
+--- Pagina 5 ---
+5CONTENT  PROVIDERS
+Content provider
+Lectura de datos
+A través del método query (Uri, projection , selection , selectionArgs , 
+sortOrder )
+Uri (Universal Resource Identifier ): Es lo que identifica el 
+ContentProvider . 
+Tiene 3 campos:
+•Prefijo: tipo de dato
+•Authority : nombre o identificador del ContentProvider
+•Tabla: nombre de la tabla a la que se quiere acceder
+Los ContentProvider  de Android usan constantes para definir sus URIs
+Se pueden crear en tiempo de ejecuciónEl equivalente a ejecutar una sentencia SQL
+content://user_dictionary/words
+UserDictionary.Words.CONTENT_URI
+Uri uridinamica = Uri.parse ("content ://users_dictionary /words");
+
+--- Pagina 6 ---
+6CONTENT  PROVIDERS
+Content provider
+Lectura de datos
+A través del método query (Uri, projection , selection , selectionArgs , 
+sortOrder )
+Projection : las columnas que se quieren escoger (dependen del 
+ContentProvider  que se esté usando)
+Selection  y selectionArgs : la condición a cumplir por las tuplasEl equivalente a ejecutar una sentencia SQL
+String[] columnas = new String[] {
+        UserDictionary.Words. _ID,
+        UserDictionary.Words. WORD,
+        UserDictionary.Words. LOCALE};ID de la palabra, es la clave de la tabla
+La palabra
+La localización (el idioma) de la palabra
+String condicion = UserDictionary.Words. _ID+" > ? AND " + UserDictionary.Words.LOCALE +" =?";
+String[] args={"5" ,"es_ES"};
+
+--- Pagina 7 ---
+7CONTENT  PROVIDERS
+Content provider
+Lectura de datos
+A través del método query (Uri, projection , selection , selectionArgs , 
+sortOrder )
+sortOrder : forma de ordenar el resultado
+El resultado se recoge en un objeto de tipo CursorEl equivalente a ejecutar una sentencia SQL
+String orden= UserDictionary.Words. WORD+" ASC";
+Cursor cursor  = getContentResolver().query (uridinamica , columnas, 
+     condicion , args, orden);
+while (cursor.moveToNext ()) {
+   int id = cursor.getInt (1);
+    String  palabra = cursor.getString( 2);
+    …
+}
+cursor.close();
+Importante cerrar el cursor tras terminar de trabajar con él
+
+--- Pagina 8 ---
+8CONTENT  PROVIDERS
+Content provider
+Añadir datos al ContentProvider
+A través de un objeto ContentValues  y del método insert (…)
+ContentValues  valoresnuevos = new ContentValues ();
+valoresnuevos.put(UserDictionary.Words.LOCALE , (String) null);
+valoresnuevos.put(UserDictionary.Words.WORD , ”Iker");
+valoresnuevos.put(UserDictionary.Words.FREQUENCY , "1");Locale  a null porque no está 
+asociada a un idioma concreto y 
+frequency  al mínimo para que la 
+considere “rara”
+Uri nuevauri = getContentResolver().insert(UserDictionary.Words. CONTENT_URI,valoresnuevos);
+Se genera una URI nueva
+
+--- Pagina 9 ---
+9CONTENT  PROVIDERS
+Content provider
+Modificar datos en el ContentProvider
+A través de un objeto ContentValues  y del método update (…)
+ContentValues mCambios = new ContentValues();
+mCambios. put(UserDictionary. Words.FREQUENCY , “255");  El valor que se quiere modificar
+String cond= UserDictionary.Words .WORD + “LIKE ?”;
+String[] args= {“Iker”};
+int numFilasAfectadas = getContentResolver ().update( UserDictionary .Words.CONTENT_URI,
+      mCambios,  cond, args);  La condición para indicar sobre 
+qué tuplas  se hace la 
+modificación
+Devuelve el número de filas afectadas
+
+--- Pagina 10 ---
+10CONTENT  PROVIDERS
+Content provider
+Eliminar datos en el ContentProvider
+Definiendo la condición a cumplir y usando el método delete (…)
+String cond= UserDictionary.Words .WORD + “LIKE ?”;
+String[] args= {“Iker”};
+int numFilasEliminadas  = getContentResolver().delete ( UserDictionary.Words .CONTENT_URI , 
+cond, args); La condición para indicar sobre 
+qué tuplas  hay que eliminar
+Devuelve el número de filas afectadas
+
+--- Pagina 11 ---
+11CONTENT  PROVIDERS
+Ejercicio 1
+Hacer una aplicación que muestre en un TextView  las 
+canciones disponibles en el dispositivo.
+Content provider : MediaStore.Audio. Media
+URI: MediaStore.Audio.Media.INTERNAL_CONTENT_URI
+
+--- Pagina 12 ---
+12CONTENT  PROVIDERS
+Ejercicio 2
+Modificar el laboratorio 7 para que las canciones a reproducir 
+sean las del dispositivo y se pueda avanzar y retroceder 
+canción desde la notificación permanente. (Content provider : 
+MediaStore.Audio.Media )
+Para obtener el archivo de la canción a partir del ID:
+long id = Long. parseLong (cu.getString( 0)); //
+Uri uri = ContentUris. withAppendedId(MediaStore.Audio.Media.INTERNAL_CONTENT_URI , id);
+MediaPlayer mp  = MediaPlayer. create(this, uri);Columna donde se encuentra 
+MediaStore.Audio.Media._ID
+Será EXTERNAL o INTERNAL
+Código de: https://github.com/google/ExoPlayer/issues/6963#issuecomment -585331452<uses-permission  android :name="android.permission.ACCESS_MEDIA_LOCATION" />Incluir en el manifesto
+

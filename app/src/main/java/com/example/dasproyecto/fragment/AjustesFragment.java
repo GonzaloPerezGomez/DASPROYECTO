@@ -27,6 +27,30 @@ public class AjustesFragment extends PreferenceFragmentCompat
     @Override
     public void onCreatePreferences(@Nullable Bundle savedInstanceState, @Nullable String rootKey) {
         addPreferencesFromResource(R.xml.ajustes);
+
+        androidx.preference.Preference prefCerrarSesion = findPreference("cerrar_sesion");
+        if (prefCerrarSesion != null) {
+            prefCerrarSesion.setOnPreferenceClickListener(preference -> {
+                cerrarSesion();
+                return true;
+            });
+        }
+    }
+
+    private void cerrarSesion() {
+        new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                .setTitle(R.string.config_cerrar_sesion)
+                .setMessage(R.string.config_cerrar_sesion_confirmar)
+                .setPositiveButton(android.R.string.yes, (dialog, which) -> {
+                    getPreferenceManager().getSharedPreferences().edit()
+                            .remove("session_user_id")
+                            .apply();
+                    Intent i = new Intent(requireActivity(), com.example.dasproyecto.LoginActivity.class);
+                    i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(i);
+                })
+                .setNegativeButton(android.R.string.no, null)
+                .show();
     }
 
     /**

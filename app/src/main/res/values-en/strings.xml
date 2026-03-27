@@ -136,5 +136,21 @@
         <item>oscuro</item>
     </string-array>
 
+    <!-- Login y Registro -->
+    <string name="titulo_login">Log in</string>
+    <string name="hint_email">Email</string>
+    <string name="hint_password">Password</string>
+    <string name="chk_recuerdame">Remember me</string>
+    <string name="btn_login">Login</string>
+    <string name="btn_ir_registro">Don\'t have an account? Sign up</string>
+    <string name="titulo_registro">Create Account</string>
+    <string name="hint_nombre">Full name</string>
+    <string name="hint_confirmar_password">Confirm password</string>
+    <string name="btn_registrarse">Sign up</string>
+    <string name="btn_volver_login">Already have an account? Log in</string>
+
+    <string name="config_cerrar_sesion">Log Out</string>
+    <string name="config_cerrar_sesion_summary">Disconnect from the current account</string>
+    <string name="config_cerrar_sesion_confirmar">Are you sure you want to log out?</string>
 
 </resources>

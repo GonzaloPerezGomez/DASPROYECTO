@@ -68,6 +68,11 @@
             app:summary="@string/config_confirmar_eliminar_summary"
             app:defaultValue="true" />
 
+        <Preference
+            app:key="cerrar_sesion"
+            app:title="@string/config_cerrar_sesion"
+            app:summary="@string/config_cerrar_sesion_summary" />
+
     </PreferenceCategory>
 
 </PreferenceScreen>

@@ -80,7 +80,7 @@
             android:orientation="horizontal"
             android:gravity="end">
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnCancelar"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -88,7 +88,7 @@
                 style="@style/Widget.MaterialComponents.Button.TextButton"
                 android:layout_marginEnd="8dp"/>
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnGuardar"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

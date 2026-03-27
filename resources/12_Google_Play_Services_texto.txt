@@ -1,0 +1,87 @@
+--- Pagina 1 ---
+GOOGLE PLAYSERVICES
+
+
+--- Pagina 2 ---
+2GOOGLE PLAY SERVICES
+El APK Google Play services :
+Contiene los servicios que ofrece 
+Google , y corre n en segundo plano .
+Las app sinteractúan con él 
+mediante la librería de cliente 
+(Android SDK manager).
+Reciben actualizaciones automáticas
+SDKs retrocompatibles con vers . >= 
+Android 6 (API 23) .
+Imagen extraída de https://developers.google.com/android/guides/overview
+
+
+--- Pagina 3 ---
+3GOOGLE   PLAY   SERVICES
+Incluir los Google Play Services  en nuestro proyecto:
+Android Studio: en Android SDK   SDK  Tools => seleccionar 
+“Google Play Services ”.
+Seleccionar
+
+--- Pagina 4 ---
+4GOOGLE   PLAY   SERVICES
+Incluir los Google Play Services  en nuestro proyecto:
+Comprobar el fichero build -gradle  del proyecto:
+Actualizar el fichero build -gradle  del módulo:
+El campo dependencies  debe contener una referencia a cada servicio 
+de Google que se quiera utilizar:
+Listado completo
+https://developers.google.com/android/guides/setupbuildscript {
+    repositories {
+        google()
+        jcenter()        
+    }
+}Hay que asegurarse que entre los 
+repositorios del fichero build.gradle  DEL 
+PROYECTO, está google()
+dependencies  {
+    …
+    implementation  'com.google.android.gms:play- services- auth:19.0.0'
+    …
+}
+
+--- Pagina 5 ---
+5GOOGLE   PLAY   SERVICES
+Acceso a los servicios de Google
+Esconveniente comprobar el estado de Google Play Services 
+enel dispositivo antes de hacer ninguna llamada
+private boolean comprobarPlayServices(){
+    GoogleApiAvailability api = GoogleApiAvailability. getInstance();
+    int code = api.isGooglePlayServicesAvailable (this);
+    if (code == ConnectionResult.SUCCESS ) {        
+        return true;
+    }
+    else  {
+        if (api.isUserResolvableError( code)){
+            api.getErrorDialog( this, code, 58).show();
+        }
+        return false;
+    }
+}Muestra un diálogo avisando del 
+problema y dirigiendo a la solución.
+Código para identificar la petición
+
+--- Pagina 6 ---
+6GOOGLE   PLAY   SERVICES
+Acceso a los servicios de Google
+Algunos servicios se pueden acceder usa ndo directamente los
+objetos correspondientes sin permisos
+Algunos servicios pueden necesitar permisos enelmanifiesto
+y habrá que gestionar la petición de permisos entiempo realFusedLocationProviderClient cliente = LocationServices.getFusedLocationProviderClient( this);
+<uses-permission android :name="android.permission.ACCESS_COARSE_LOCATION"/>
+<uses-permission android :name="android.permission.ACCESS_FINE_LOCATION"/>Localización basada en antenas
+Localización más precisa, usando el GPS. 
+Incluye la anterior
+
+--- Pagina 7 ---
+7GOOGLE   PLAY   SERVICES
+Acceso a los servicios de Google
+Algunos servicios requerirán identificación a través de una
+cuenta de Google
+Se estudiará más adelante
+

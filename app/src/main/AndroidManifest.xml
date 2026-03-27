@@ -8,6 +8,9 @@
     <!-- Permiso para re-programar la alarma tras reinicio del dispositivo -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
+    <!-- Permiso para conexión a internet (obligatorio para BBDD remota) -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:name=".Idioma"
         android:allowBackup="true"
@@ -17,17 +20,28 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
+        android:usesCleartextTraffic="true"
         android:theme="@style/Theme.DASPROYECTO">
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"
-            android:exported="true">
+            android:exported="false">
+        </activity>
+        
+        <activity
+            android:name=".LoginActivity"
+            android:exported="true"
+            android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        
+        <activity
+            android:name=".RegistroActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize"/>
         <activity
             android:name=".AddTareaActivity"
             android:parentActivityName=".MainActivity" />
