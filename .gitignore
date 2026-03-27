@@ -23,6 +23,10 @@
 hs_err_pid*
 replay_pid*
 
-memoria/*
-!memoria/memoria.tex
-!memoria/pdf_content.txt
+memoria001/*
+!memoria001/memoria.tex
+!memoria001/pdf_content.txt
+
+memoria002/*
+!memoria002/memoria.tex
+!memoria002/pdf_content.txt
