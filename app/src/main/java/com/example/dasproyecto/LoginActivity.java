@@ -7,6 +7,8 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.example.dasproyecto.db.DBmanager;
+
 import org.json.JSONObject;
 
 import androidx.preference.PreferenceManager;
@@ -48,7 +50,8 @@ public class LoginActivity extends BaseActivity {
         btnIrRegistro = findViewById(R.id.btnIrRegistro);
         chkRecuerdame = findViewById(R.id.chkRecuerdame);
 
-        // Comprobar si teníamos guardado un email previo (si usó "Recuérdame" antes pero cerró sesión)
+        // Comprobar si teníamos guardado un email previo (si usó "Recuérdame" antes
+        // pero cerró sesión)
         String correoGuardado = pref.getString("login_email", "");
         if (!correoGuardado.isEmpty()) {
             etEmail.setText(correoGuardado);
@@ -78,7 +81,7 @@ public class LoginActivity extends BaseActivity {
         }
 
         Log.d(TAG, "Intentando login con: " + email);
-        
+
         // Guardar email en preferencias si marcó "Recuérdame"
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = pref.edit();
@@ -95,7 +98,7 @@ public class LoginActivity extends BaseActivity {
         Toast.makeText(this, "Conectando al servidor...", Toast.LENGTH_SHORT).show();
         btnLogin.setEnabled(false);
 
-        com.example.dasproyecto.db.DBmanager db = new com.example.dasproyecto.db.DBmanager(this);
+        DBmanager db = new DBmanager(this);
         db.loginRemoto(email, password).observe(this, workInfo -> {
             if (workInfo != null && workInfo.getState().isFinished()) {
                 btnLogin.setEnabled(true);

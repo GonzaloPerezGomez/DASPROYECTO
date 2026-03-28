@@ -12,6 +12,12 @@ import android.widget.Toast;
 import com.example.dasproyecto.dialog.ElegirFechaDialog;
 import com.example.dasproyecto.db.DBmanager;
 
+import android.content.Intent;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+
+import org.json.JSONObject;
+
 import android.util.Log;
 import androidx.annotation.NonNull;
 
@@ -25,9 +31,31 @@ public class AddTareaActivity extends BaseActivity {
     private static final String TAG = "AddTareaActivity";
     private EditText etTitulo, etDescripcion, etFecha;
     private Spinner spinnerPrioridad;
-    private Button btnGuardar, btnCancelar;
-    private TextView tituloActivity;
+    private Button btnGuardar, btnCancelar, btnSeleccionarUbicacion;
+    private TextView tituloActivity, tvUbicacionSeleccionada;
     private DBmanager dbManager;
+
+    private Double latitudDB = null;
+    private Double longitudDB = null;
+    private String direccionDB = null;
+
+    private final ActivityResultLauncher<Intent> mapLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                    Intent data = result.getData();
+                    latitudDB = data.getDoubleExtra("latitud", 0.0);
+                    longitudDB = data.getDoubleExtra("longitud", 0.0);
+                    direccionDB = data.getStringExtra("direccion");
+                    
+                    if (direccionDB != null && !direccionDB.isEmpty()) {
+                        tvUbicacionSeleccionada.setText("📍 " + direccionDB);
+                    } else {
+                        tvUbicacionSeleccionada.setText(String.format(java.util.Locale.getDefault(), "📍 Lat: %.4f, Lng: %.4f", latitudDB, longitudDB));
+                    }
+                }
+            }
+    );
 
     /**
      * Se ejecuta al abrir la pantalla.
@@ -49,6 +77,8 @@ public class AddTareaActivity extends BaseActivity {
         spinnerPrioridad = findViewById(R.id.spinnerPrioridad);
         btnGuardar = findViewById(R.id.btnGuardar);
         btnCancelar = findViewById(R.id.btnCancelar);
+        btnSeleccionarUbicacion = findViewById(R.id.btnSeleccionarUbicacion);
+        tvUbicacionSeleccionada = findViewById(R.id.tvUbicacionSeleccionada);
 
         String[] prioridades = getResources().getStringArray(R.array.prioridades_array);
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, prioridades);
@@ -59,6 +89,8 @@ public class AddTareaActivity extends BaseActivity {
         dbManager.open();
 
         etFecha.setOnClickListener(v -> configurarSelectorFecha());
+
+        btnSeleccionarUbicacion.setOnClickListener(v -> mapLauncher.launch(new Intent(this, SeleccionarUbicacionActivity.class)));
 
         btnGuardar.setOnClickListener(v -> guardarTarea());
 
@@ -89,10 +121,32 @@ public class AddTareaActivity extends BaseActivity {
             return;
         }
 
-        dbManager.insertar(titulo, descripcion, prioridadIndex, fechaDB);
-        Log.i(TAG, "Tarea guardada: " + titulo);
-        Toast.makeText(this, R.string.toast_tarea_guardada, Toast.LENGTH_SHORT).show();
-        finish();
+        btnGuardar.setEnabled(false);
+        Toast.makeText(this, "Guardando tarea en el servidor...", Toast.LENGTH_SHORT).show();
+
+        dbManager.insertarRemoto(titulo, descripcion, prioridadIndex, fechaDB, latitudDB, longitudDB, direccionDB).observe(this, workInfo -> {
+            if (workInfo != null && workInfo.getState().isFinished()) {
+                btnGuardar.setEnabled(true);
+                String resultado = workInfo.getOutputData().getString("datos");
+                if (resultado == null) {
+                    Toast.makeText(this, "Error de red al guardar", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                try {
+                    JSONObject json = new JSONObject(resultado);
+                    if (json.getBoolean("exito")) {
+                        Log.i(TAG, "Tarea guardada exitosamente: " + titulo);
+                        Toast.makeText(this, R.string.toast_tarea_guardada, Toast.LENGTH_SHORT).show();
+                        finish();
+                    } else {
+                        Toast.makeText(this, "Error del servidor: " + json.optString("mensaje"), Toast.LENGTH_LONG).show();
+                    }
+                } catch (Exception e) {
+                    Log.e(TAG, "Error parseando la respuesta al insertar: " + resultado, e);
+                    Toast.makeText(this, "Error interno al guardar", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 
     /**

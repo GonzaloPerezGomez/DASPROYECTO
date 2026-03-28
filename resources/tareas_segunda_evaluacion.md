@@ -31,22 +31,23 @@
 - [x] Cerrar sesión
 
 ### Hito 3: CRUD Remoto
-- [ ] Refactorizar `DBmanager` → remoto
-- [ ] Campos latitud/longitud
-- [ ] `AddTareaActivity` + ubicación
-- [ ] `EditTareaActivity` + ubicación
-- [ ] `ListaTareasFragment` → JSON
-- [ ] `DetalleTareaFragment` + icono ubicación
-- [ ] `TareasAdapter` + icono ubicación
-- [ ] Limpiar SQLite local
+- [x] Refactorizar `DBmanager` → remoto (inserción completada)
+- [x] Adaptar `ListaTareasFragment` a `JSONObject`
+- [x] Refactor Editar / Borrar
+- [x] Arreglar orden por defecto y seleccion de orden momentaneo
+- [x] `EditTareaActivity` + ubicación
+- [x] `DetalleTareaFragment` + icono ubicación
+- [x] `TareasAdapter` + icono ubicación
+- [x] Limpiar SQLite local
 
 ### Hito 4: Google Maps + Geolocalización
-- [ ] Dependencias maps + location
-- [ ] API Key en manifest
-- [ ] Permisos de ubicación
-- [ ] `SeleccionarUbicacionActivity`
-- [ ] Integrar en formularios
-- [ ] Icono en lista → abrir Maps
+- [x] Dependencias maps + location
+- [x] API Key en manifest
+- [x] Permisos de ubicación
+- [x] `SeleccionarUbicacionActivity`
+- [x] Integrar en formularios
+- [x] Icono en lista → abrir Maps
+- [x] Icono en detalle → abrir Maps
 
 ### Hito 5: Cámara + Foto de Perfil
 - [ ] Permiso CAMERA

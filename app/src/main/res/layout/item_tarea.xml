@@ -30,6 +30,16 @@
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
+            <ImageView
+                android:id="@+id/ivIconoUbicacion"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@android:drawable/ic_dialog_map"
+                android:contentDescription="@string/label_ubicacion"
+                android:layout_marginStart="8dp"
+                android:visibility="gone"
+                app:tint="?attr/colorPrimary" />
+
         </LinearLayout>
 
         <TextView

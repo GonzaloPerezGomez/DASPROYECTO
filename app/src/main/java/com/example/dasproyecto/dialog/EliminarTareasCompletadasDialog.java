@@ -8,6 +8,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.FragmentActivity;
 
 import com.example.dasproyecto.R;
 import com.example.dasproyecto.db.DBmanager;
@@ -43,13 +44,19 @@ public class EliminarTareasCompletadasDialog extends DialogFragment {
         builder.setTitle(getString(R.string.dialog_eliminar_completadas_titulo));
         builder.setMessage(getString(R.string.dialog_eliminar_completadas_mensaje));
         builder.setPositiveButton(getString(R.string.dialog_eliminar_confirmar), (dialog, i) -> {
-            DBmanager dbManager = new DBmanager(getActivity());
+            androidx.fragment.app.FragmentActivity activityActivity = getActivity();
+            if (activityActivity == null) return;
+            
+            DBmanager dbManager = new DBmanager(activityActivity);
             dbManager.open();
-            dbManager.eliminarCompletadas();
-            dbManager.close();
-            listener.onTareaEliminada();
-            Toast.makeText(getActivity(), getString(R.string.toast_tareas_completadas_eliminadas), Toast.LENGTH_SHORT)
-                    .show();
+            
+            dbManager.eliminarCompletadasRemoto().observe(activityActivity, workInfo -> {
+                if (workInfo != null && workInfo.getState().isFinished()) {
+                    dbManager.close();
+                    if (listener != null) listener.onTareaEliminada();
+                    android.widget.Toast.makeText(activityActivity, activityActivity.getString(R.string.toast_tareas_completadas_eliminadas), android.widget.Toast.LENGTH_SHORT).show();
+                }
+            });
         });
         builder.setNegativeButton(getString(R.string.dialog_eliminar_cancelar), (dialog, i) -> dialog.dismiss());
         return builder.create();

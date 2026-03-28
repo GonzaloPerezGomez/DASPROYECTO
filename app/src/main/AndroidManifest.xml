@@ -10,6 +10,10 @@
 
     <!-- Permiso para conexión a internet (obligatorio para BBDD remota) -->
     <uses-permission android:name="android.permission.INTERNET" />
+    
+    <!-- Permisos de localización requeridos para Google Maps y FusedLocationProvider -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <application
         android:name=".Idioma"
@@ -22,6 +26,11 @@
         android:supportsRtl="true"
         android:usesCleartextTraffic="true"
         android:theme="@style/Theme.DASPROYECTO">
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="${MAPS_API_KEY}" />
+
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"
@@ -50,8 +59,14 @@
             android:parentActivityName=".MainActivity" />
         <activity
             android:name=".ViewTareaActivity"
+            android:exported="false"
             android:label="@string/label_ver_tarea"
             android:parentActivityName=".MainActivity" />
+        <activity
+            android:name=".SeleccionarUbicacionActivity"
+            android:exported="false"
+            android:label="Seleccionar Ubicación"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
         <activity
             android:name=".AjustesActivity"
             android:label="@string/config_titulo"

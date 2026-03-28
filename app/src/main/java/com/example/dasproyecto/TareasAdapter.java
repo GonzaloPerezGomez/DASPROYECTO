@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -17,41 +18,77 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.dasproyecto.db.DBmanager;
 import com.example.dasproyecto.fragment.ListaTareasFragment;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+
 /**
  * Adaptador del RecyclerView que muestra la lista de tareas.
- * Coge los datos de un Cursor y los pinta en cada fila,
+ * Coge los datos de un JSONArray (servidor) y los pinta en cada fila,
  * aplicando colores según la prioridad y tachando las completadas.
  */
 public class TareasAdapter extends RecyclerView.Adapter<TareasAdapter.TareaViewHolder> {
 
     private Context context;
-    private Cursor cursor;
+    private List<JSONObject> tareasList;
+    private List<JSONObject> tareasOriginales;
     private ListaTareasFragment.OnTareaSeleccionadaListener listener;
 
     /**
      * Constructor del adaptador.
      *
      * @param context  Contexto actual.
-     * @param cursor   Cursor con las tareas de la BD.
      * @param listener Listener para cuando el usuario pulsa una tarea.
      */
-    public TareasAdapter(Context context, Cursor cursor, ListaTareasFragment.OnTareaSeleccionadaListener listener) {
+    public TareasAdapter(Context context, ListaTareasFragment.OnTareaSeleccionadaListener listener) {
         this.context = context;
-        this.cursor = cursor;
         this.listener = listener;
+        this.tareasList = new ArrayList<>();
+        this.tareasOriginales = new ArrayList<>();
     }
 
     /**
-     * Cambia el cursor por uno nuevo y refresca la lista.
-     * Cierra el cursor anterior para no dejar nada abierto.
+     * Reemplaza la lista actual de tareas con los datos del servidor (JSON).
      *
-     * @param newCursor El nuevo cursor con los datos actualizados.
+     * @param jsonArray Array JSON devuelto por php
      */
-    public void updateCursor(Cursor newCursor) {
-        if (cursor != null) {
-            cursor.close();
+    public void setTareas(JSONArray jsonArray) {
+        tareasList.clear();
+        tareasOriginales.clear();
+        try {
+            if (jsonArray != null) {
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    JSONObject obj = jsonArray.getJSONObject(i);
+                    tareasList.add(obj);
+                    tareasOriginales.add(obj);
+                }
+            }
+        } catch (Exception e) {
+            Log.e("TareasAdapter", "Error al parsear array de tareas", e);
         }
-        cursor = newCursor;
+        notifyDataSetChanged();
+    }
+
+    /**
+     * Filtra la lista localmente al escribir en el buscador
+     */
+    public void filtrar(String texto) {
+        tareasList.clear();
+        if (texto == null || texto.isEmpty()) {
+            tareasList.addAll(tareasOriginales);
+        } else {
+            String q = texto.toLowerCase(Locale.getDefault());
+            for (JSONObject t : tareasOriginales) {
+                String tit = t.optString("titulo", "").toLowerCase(Locale.getDefault());
+                String desc = t.optString("descripcion", "").toLowerCase(Locale.getDefault());
+                if (tit.contains(q) || desc.contains(q)) {
+                    tareasList.add(t);
+                }
+            }
+        }
         notifyDataSetChanged();
     }
 
@@ -75,17 +112,16 @@ public class TareasAdapter extends RecyclerView.Adapter<TareasAdapter.TareaViewH
      */
     @Override
     public void onBindViewHolder(@NonNull TareaViewHolder holder, int position) {
-        if (!cursor.moveToPosition(position)) {
-            return;
-        }
+        JSONObject tarea = tareasList.get(position);
 
-        String titulo = cursor.getString(cursor.getColumnIndexOrThrow(DBmanager.COL_TITULO));
-        String descripcion = cursor.getString(cursor.getColumnIndexOrThrow(DBmanager.COL_DESCRIPCION));
-        String fechaBD = cursor.getString(cursor.getColumnIndexOrThrow(DBmanager.COL_FECHALIMITE));
+        String titulo = tarea.optString("titulo", "");
+        String descripcion = tarea.optString("descripcion", "");
+        String fechaBD = tarea.optString("fechaLimite", "");
+        if (fechaBD.equals("null") || fechaBD.isEmpty()) fechaBD = "";
         String fechaUI = DBmanager.formatFechaToUI(fechaBD);
-        int prioridad = cursor.getInt(cursor.getColumnIndexOrThrow(DBmanager.COL_PRIORIDAD));
-        long id = cursor.getLong(cursor.getColumnIndexOrThrow(DBmanager.COL_ID));
-        int completada = cursor.getInt(cursor.getColumnIndexOrThrow(DBmanager.COL_COMPLETADA));
+        int prioridad = tarea.optInt("prioridad", 0);
+        long id = tarea.optLong("id", -1);
+        int completada = tarea.optInt("completada", 0);
 
         if (completada == 1) {
             holder.cardView.setCardBackgroundColor(Color.parseColor("#E0E0E0")); // Gris claro
@@ -99,20 +135,51 @@ public class TareasAdapter extends RecyclerView.Adapter<TareasAdapter.TareaViewH
 
         holder.tvTitulo.setText(titulo);
 
-        if (descripcion != null && !descripcion.trim().isEmpty()) {
+        if (descripcion != null && !descripcion.trim().isEmpty() && !descripcion.equals("null")) {
             holder.tvDescripcion.setText(descripcion);
             holder.tvDescripcion.setVisibility(View.VISIBLE);
         } else {
             holder.tvDescripcion.setVisibility(View.GONE);
         }
 
-        if (fechaUI != null && !fechaUI.trim().isEmpty()) {
+        if (fechaUI != null && !fechaUI.trim().isEmpty() && !fechaUI.equals("null")) {
             holder.tvFecha.setText(fechaUI);
             holder.divider.setVisibility(View.VISIBLE);
             holder.layoutFecha.setVisibility(View.VISIBLE);
         } else {
             holder.divider.setVisibility(View.GONE);
             holder.layoutFecha.setVisibility(View.GONE);
+        }
+
+        String latitudStr = tarea.optString("latitud", "null");
+        String longitudStr = tarea.optString("longitud", "null");
+        String direccionStr = tarea.optString("direccion", "null");
+        
+        if (!latitudStr.equals("null") && !latitudStr.isEmpty() || (!direccionStr.equals("null") && !direccionStr.isEmpty())) {
+            holder.ivIconoUbicacion.setVisibility(View.VISIBLE);
+            holder.ivIconoUbicacion.setOnClickListener(v -> {
+                try {
+                    String uriText;
+                    if (!direccionStr.equals("null") && !direccionStr.isEmpty()) {
+                        uriText = "geo:0,0?q=" + android.net.Uri.encode(direccionStr);
+                    } else {
+                        uriText = "geo:" + latitudStr + "," + longitudStr + "?q=" + latitudStr + "," + longitudStr;
+                    }
+                    android.content.Intent mapIntent = new android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(uriText));
+                    mapIntent.setPackage("com.google.android.apps.maps");
+                    if (mapIntent.resolveActivity(context.getPackageManager()) != null) {
+                        context.startActivity(mapIntent);
+                    } else {
+                        android.content.Intent genericMapIntent = new android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(uriText));
+                        context.startActivity(genericMapIntent);
+                    }
+                } catch (Exception e) {
+                    android.widget.Toast.makeText(context, "No se pudo abrir el mapa", android.widget.Toast.LENGTH_SHORT).show();
+                }
+            });
+        } else {
+            holder.ivIconoUbicacion.setVisibility(View.GONE);
+            holder.ivIconoUbicacion.setOnClickListener(null);
         }
 
         holder.id = id;
@@ -141,11 +208,11 @@ public class TareasAdapter extends RecyclerView.Adapter<TareasAdapter.TareaViewH
     }
 
     /**
-     * Devuelve cuántas tareas hay en el cursor.
+     * Devuelve cuántas tareas hay en el array.
      */
     @Override
     public int getItemCount() {
-        return cursor == null ? 0 : cursor.getCount();
+        return tareasList == null ? 0 : tareasList.size();
     }
 
     /**
@@ -157,6 +224,7 @@ public class TareasAdapter extends RecyclerView.Adapter<TareasAdapter.TareaViewH
         View divider;
         LinearLayout layoutFecha;
         CardView cardView;
+        ImageView ivIconoUbicacion;
         long id = -1;
 
         public TareaViewHolder(@NonNull View itemView) {
@@ -167,6 +235,7 @@ public class TareasAdapter extends RecyclerView.Adapter<TareasAdapter.TareaViewH
             divider = itemView.findViewById(R.id.divider);
             layoutFecha = itemView.findViewById(R.id.layoutFecha);
             cardView = itemView.findViewById(R.id.cardViewTarea);
+            ivIconoUbicacion = itemView.findViewById(R.id.ivIconoUbicacion);
         }
     }
 }

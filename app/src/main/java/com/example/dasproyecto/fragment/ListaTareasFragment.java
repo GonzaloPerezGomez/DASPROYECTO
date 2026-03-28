@@ -20,6 +20,9 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -47,6 +50,8 @@ public class ListaTareasFragment extends Fragment {
     private DBmanager dbManager;
     private TareasAdapter adapter;
     private boolean primeraSeleccionRealizada = false;
+    private String ordenDefectoActual = null;
+    private String ordenActual = null;
 
     private DetalleTareaFragment.OnTareaEliminadaListener listenerEliminada;
 
@@ -154,22 +159,16 @@ public class ListaTareasFragment extends Fragment {
             searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                 @Override
                 public boolean onQueryTextChange(String newText) {
-                    if (dbManager != null && adapter != null) {
-                        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(requireContext());
-                        boolean ocultar = prefs.getBoolean("ocultar_completadas", false);
-                        Cursor cursor = dbManager.getTareasFiltradas(newText, ocultar);
-                        adapter.updateCursor(cursor);
+                    if (adapter != null) {
+                        adapter.filtrar(newText);
                     }
                     return true;
                 }
 
                 @Override
                 public boolean onQueryTextSubmit(String query) {
-                    if (dbManager != null && adapter != null) {
-                        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(requireContext());
-                        boolean ocultar = prefs.getBoolean("ocultar_completadas", false);
-                        Cursor cursor = dbManager.getTareasFiltradas(query, ocultar);
-                        adapter.updateCursor(cursor);
+                    if (adapter != null) {
+                        adapter.filtrar(query);
                     }
                     return true;
                 }
@@ -193,14 +192,20 @@ public class ListaTareasFragment extends Fragment {
                         .newInstance(listenerEliminada);
                 dialogo.show(getParentFragmentManager(), "EliminarCompletadas");
             } else {
-                listenerEliminada.onTareaEliminada();
-                dbManager.eliminarCompletadas();
-                cargarTareas();
-                Toast.makeText(requireContext(), R.string.toast_completadas_eliminadas, Toast.LENGTH_SHORT).show();
+                dbManager.eliminarCompletadasRemoto().observe(getViewLifecycleOwner(), workInfo -> {
+                    if (workInfo != null && workInfo.getState().isFinished()) {
+                        if (listenerEliminada != null) {
+                            listenerEliminada.onTareaEliminada();
+                        }
+                        Toast.makeText(requireContext(), R.string.toast_completadas_eliminadas, Toast.LENGTH_SHORT)
+                                .show();
+                        cargarTareas(ordenActual != null ? ordenActual : "fechaLimite");
+                    }
+                });
             }
             return true;
         } else if (id == R.id.ordenar_fecha) {
-            cargarTareas("fecha");
+            cargarTareas("fechaLimite");
             return true;
         } else if (id == R.id.ordenar_prioridad) {
             cargarTareas("prioridad");
@@ -214,56 +219,70 @@ public class ListaTareasFragment extends Fragment {
      */
     public void cargarTareas() {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(requireContext());
-        String ordenDefecto = prefs.getString("orden_defecto", "fecha");
+        String ordenDefecto = prefs.getString("orden_defecto", "fechaLimite");
+        this.ordenDefectoActual = ordenDefecto;
         cargarTareas(ordenDefecto);
     }
 
     /**
-     * Carga las tareas de la BD con el orden indicado
-     * y si es tablet en horizontal, selecciona la primera tarea automáticamente.
+     * Carga las tareas de la BD con el orden indicado a través de
+     * getTareasRemoto().
      */
     public void cargarTareas(String orden) {
+        this.ordenActual = orden;
+        Log.d(TAG, "cargarTareas() invocado. Orden: " + orden);
+
         if (dbManager == null || recyclerView == null) {
             Log.w(TAG, "cargarTareas: dbManager o recyclerView no inicializados");
             return;
         }
 
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(requireContext());
-        boolean ocultar = prefs.getBoolean("ocultar_completadas", false);
+        // Antes lo hacíamos con Cursores locales de SQLite. Ahora somos PROS y lo
+        // hacemos asíncrono.
+        dbManager.getTareasRemoto(orden).observe(getViewLifecycleOwner(), workInfo -> {
+            if (workInfo != null && workInfo.getState().isFinished()) {
+                String resultado = workInfo.getOutputData().getString("datos");
+                Log.d(TAG, "Respuesta cruda del servidor (getTareas): " + resultado);
 
-        Cursor cursor;
-        try {
-            if ("prioridad".equals(orden)) {
-                cursor = dbManager.getTareasByPrioridad(ocultar);
-            } else {
-                cursor = dbManager.getTareas(ocultar);
+                if (resultado == null) {
+                    Log.e(TAG, "El resultado es NULL. Posible error de red o timeout.");
+                    return;
+                }
+
+                try {
+                    JSONObject json = new JSONObject(resultado);
+                    if (json.getBoolean("exito")) {
+                        JSONArray tareasArray = json.getJSONArray("tareas");
+                        Log.d(TAG, "Parseo de JSON exitoso. Tareas recuperadas: " + tareasArray.length());
+
+                        if (adapter == null) {
+                            adapter = new TareasAdapter(requireContext(), listener);
+                            recyclerView.setAdapter(adapter);
+                        }
+                        adapter.setTareas(tareasArray);
+
+                        // Lógica de tablet (orientación apaisada): selecciona automáticamente la
+                        // primera tarea
+                        boolean orientationLandscape = getResources()
+                                .getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
+                        if (!primeraSeleccionRealizada && listener != null && orientationLandscape
+                                && tareasArray.length() > 0) {
+                            long primeraTareaId = tareasArray.getJSONObject(0).getLong("id");
+                            Log.d(TAG, "Auto-seleccionando primera tarea remota con ID: " + primeraTareaId);
+                            listener.onTareaSeleccionada(primeraTareaId);
+                            primeraSeleccionRealizada = true;
+                        }
+
+                    } else {
+                        Toast.makeText(requireContext(), "Error servidor: " + json.optString("mensaje"),
+                                Toast.LENGTH_LONG).show();
+                    }
+                } catch (Exception e) {
+                    Log.e(TAG, "Error parseando tareas del servidor: " + resultado, e);
+                    Toast.makeText(requireContext(), "Error de parseo", Toast.LENGTH_SHORT).show();
+                }
             }
-        } catch (Exception e) {
-            Log.e(TAG, "Error al cargar tareas: " + e.getMessage(), e);
-            return;
-        }
-
-        if (cursor == null) {
-            Log.w(TAG, "cargarTareas: cursor es null");
-            return;
-        }
-
-        if (adapter == null) {
-            adapter = new TareasAdapter(requireContext(), cursor, listener);
-            recyclerView.setAdapter(adapter);
-        } else {
-            adapter.updateCursor(cursor);
-        }
-
-        if (!primeraSeleccionRealizada && listener != null
-                && getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            if (cursor.moveToFirst()) {
-                long primeraTareaId = cursor.getLong(cursor.getColumnIndexOrThrow(DBmanager.COL_ID));
-                Log.d(TAG, "Auto-seleccionando primera tarea con ID: " + primeraTareaId);
-                listener.onTareaSeleccionada(primeraTareaId);
-            }
-            primeraSeleccionRealizada = true;
-        }
+        });
     }
 
     /**
@@ -273,7 +292,15 @@ public class ListaTareasFragment extends Fragment {
     public void onResume() {
         super.onResume();
         if (dbManager != null && adapter != null) {
-            cargarTareas();
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(requireContext());
+            String defectoActual = prefs.getString("orden_defecto", "fechaLimite");
+            if (defectoActual != this.ordenDefectoActual) {
+                this.ordenActual = defectoActual;
+                this.ordenDefectoActual = defectoActual;
+                cargarTareas(ordenActual);
+            } else {
+                cargarTareas(ordenActual);
+            }
         }
     }
 

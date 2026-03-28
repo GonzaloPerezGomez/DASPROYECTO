@@ -20,6 +20,10 @@ import androidx.preference.PreferenceManager;
 
 import com.example.dasproyecto.dialog.PermisoNotificacionesDialog;
 
+import android.widget.Toast;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
+
 /**
  * Clase base de la que heredan todas las actividades.
  * Se encarga de aplicar el idioma, el tema (claro/oscuro),
@@ -126,6 +130,25 @@ public class BaseActivity extends AppCompatActivity {
                 Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this,
                     new String[] { Manifest.permission.POST_NOTIFICATIONS }, NOTIFICACION_CODE);
+        }
+    }
+
+    /**
+     * Comprueba que los servicios de Google Play estén instalados y actualizados.
+     * Si no, levanta un diálogo permitiendo al usuario solucionarlo.
+     */
+    protected boolean comprobarPlayServices() {
+        GoogleApiAvailability api = GoogleApiAvailability.getInstance();
+        int code = api.isGooglePlayServicesAvailable(this);
+        if (code == ConnectionResult.SUCCESS) {
+            return true;
+        } else {
+            if (api.isUserResolvableError(code)) {
+                api.getErrorDialog(this, code, 58).show();
+            } else {
+                Toast.makeText(this, "Este dispositivo no soporta Google Play Services", Toast.LENGTH_SHORT).show();
+            }
+            return false;
         }
     }
 

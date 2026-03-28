@@ -11,6 +11,7 @@ import androidx.fragment.app.DialogFragment;
 import com.example.dasproyecto.R;
 import com.example.dasproyecto.db.DBmanager;
 import com.example.dasproyecto.fragment.DetalleTareaFragment;
+import androidx.fragment.app.FragmentActivity;
 
 /**
  * Diálogo de confirmación para borrar una tarea.
@@ -50,13 +51,19 @@ public class EliminarTareaDialog extends DialogFragment {
         builder.setTitle(getString(R.string.dialog_eliminar_titulo));
         builder.setMessage(getString(R.string.dialog_eliminar_mensaje, tituloTarea));
         builder.setPositiveButton(getString(R.string.dialog_eliminar_confirmar), (dialog, i) -> {
-            DBmanager dbManager = new DBmanager(getActivity());
+            androidx.fragment.app.FragmentActivity activityActivity = getActivity();
+            if (activityActivity == null) return;
+            
+            DBmanager dbManager = new DBmanager(activityActivity);
             dbManager.open();
-            dbManager.eliminar(idTarea);
-            dbManager.close();
-            listener.onTareaEliminada();
-            Toast.makeText(getActivity(), getString(R.string.toast_tarea_eliminada, tituloTarea), Toast.LENGTH_SHORT)
-                    .show();
+            
+            dbManager.eliminarRemoto(idTarea).observe(activityActivity, workInfo -> {
+                if (workInfo != null && workInfo.getState().isFinished()) {
+                    dbManager.close();
+                    if (listener != null) listener.onTareaEliminada();
+                    android.widget.Toast.makeText(activityActivity, activityActivity.getString(R.string.toast_tarea_eliminada, tituloTarea), android.widget.Toast.LENGTH_SHORT).show();
+                }
+            });
         });
         builder.setNegativeButton(getString(R.string.dialog_eliminar_cancelar), (dialog, i) -> dialog.dismiss());
         return builder.create();

@@ -5,6 +5,8 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.example.dasproyecto.db.DBmanager;
+
 import org.json.JSONObject;
 
 import com.google.android.material.button.MaterialButton;
@@ -74,7 +76,7 @@ public class RegistroActivity extends BaseActivity {
         Toast.makeText(this, "Registrando en la base de datos...", Toast.LENGTH_SHORT).show();
         btnRegistrarse.setEnabled(false);
 
-        com.example.dasproyecto.db.DBmanager db = new com.example.dasproyecto.db.DBmanager(this);
+        DBmanager db = new DBmanager(this);
         db.registroRemoto(nombre, email, password).observe(this, workInfo -> {
             if (workInfo != null && workInfo.getState().isFinished()) {
                 btnRegistrarse.setEnabled(true);
@@ -82,7 +84,8 @@ public class RegistroActivity extends BaseActivity {
                 try {
                     JSONObject json = new JSONObject(resultado);
                     if (json.getBoolean("exito")) {
-                        Toast.makeText(this, "Cuenta creada con éxito. Ya puedes iniciar sesión.", Toast.LENGTH_LONG).show();
+                        Toast.makeText(this, "Cuenta creada con éxito. Ya puedes iniciar sesión.", Toast.LENGTH_LONG)
+                                .show();
                         finish(); // Volvemos al LoginActivity
                     } else {
                         Toast.makeText(this, "Error: " + json.getString("mensaje"), Toast.LENGTH_LONG).show();

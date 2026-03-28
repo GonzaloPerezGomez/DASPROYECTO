@@ -13,7 +13,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
+import android.content.SharedPreferences;
+
 import androidx.lifecycle.LiveData;
+import androidx.preference.PreferenceManager;
 import androidx.work.Data;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkInfo;
@@ -77,89 +80,7 @@ public class DBmanager {
     private static final String[] columnas = { COL_ID, COL_TITULO, COL_DESCRIPCION, COL_PRIORIDAD, COL_FECHALIMITE,
             COL_COMPLETADA };
 
-    /**
-     * Devuelve todas las tareas ordenadas por fecha.
-     *
-     * @param ocultarCompletadas Si es true, no incluye las tareas completadas.
-     * @return Cursor con las tareas.
-     */
-    public Cursor getTareas(boolean ocultarCompletadas) {
-        String seleccion = ocultarCompletadas ? COL_COMPLETADA + " = 0" : null;
-        return db.query(TABLE_NAME, columnas, seleccion, null, null, null, COL_FECHALIMITE + " ASC");
-    }
 
-    /**
-     * Igual que getTareas() pero ordenado por prioridad (de mayor a menor).
-     */
-    public Cursor getTareasByPrioridad(boolean ocultarCompletadas) {
-        String seleccion = ocultarCompletadas ? COL_COMPLETADA + " = 0" : null;
-        return db.query(TABLE_NAME, columnas, seleccion, null, null, null, COL_PRIORIDAD + " DESC");
-    }
-
-    /**
-     * Busca tareas cuyo título o descripción contengan el texto dado.
-     */
-    public Cursor getTareasFiltradas(String texto, boolean ocultarCompletadas) {
-        String seleccion = "(" + COL_TITULO + " LIKE ? OR " + COL_DESCRIPCION + " LIKE ?)";
-        if (ocultarCompletadas) {
-            seleccion += " AND " + COL_COMPLETADA + " = 0";
-        }
-        String[] argumentos = { "%" + texto + "%", "%" + texto + "%" };
-        return db.query(TABLE_NAME, columnas, seleccion, argumentos, null, null, COL_FECHALIMITE + " ASC");
-    }
-
-    /**
-     * Marca o desmarca una tarea como completada.
-     */
-    public void actualizarEstado(long id, int estado) {
-        ContentValues values = new ContentValues();
-        values.put(COL_COMPLETADA, estado);
-        db.update(TABLE_NAME, values, COL_ID + " = " + id, null);
-    }
-
-    /**
-     * Inserta una nueva tarea en la BD.
-     */
-    public void insertar(String titulo, String desc, int prioridad, String fecha) {
-        ContentValues values = new ContentValues();
-        values.put(COL_TITULO, titulo);
-        values.put(COL_DESCRIPCION, desc);
-        values.put(COL_PRIORIDAD, prioridad);
-        values.put(COL_FECHALIMITE, fecha);
-        db.insert(TABLE_NAME, null, values);
-        Log.i(TAG, "Tarea guardada: " + titulo);
-    }
-
-    /**
-     * Borra una tarea por su ID.
-     */
-    public void eliminar(long id) {
-        db.delete(TABLE_NAME, COL_ID + " = " + id, null);
-    }
-
-    /**
-     * Borra todas las tareas que estén marcadas como completadas.
-     */
-    public void eliminarCompletadas() {
-        db.delete(TABLE_NAME, COL_COMPLETADA + " = 1", null);
-    }
-
-    /**
-     * Actualiza todos los campos de una tarea existente.
-     */
-    public void actualizarTareaCompleta(long tareaId, String titulo, String descripcion, int prioridad, String fecha) {
-        ContentValues values = new ContentValues();
-        values.put(COL_TITULO, titulo);
-        values.put(COL_DESCRIPCION, descripcion);
-        values.put(COL_PRIORIDAD, prioridad);
-        values.put(COL_FECHALIMITE, fecha);
-        int actualizados = db.update(TABLE_NAME, values, COL_ID + " = " + tareaId, null);
-        if (actualizados == 0) {
-            Log.e(TAG, "No se encontró la tarea con ID: " + tareaId);
-        } else {
-            Log.i(TAG, "Tarea actualizada: " + titulo);
-        }
-    }
 
     /**
      * Busca las tareas pendientes cuya fecha límite ya haya pasado o sea hoy.
@@ -246,13 +167,7 @@ public class DBmanager {
         return fechaDB;
     }
 
-    /**
-     * Devuelve una tarea concreta por su ID.
-     */
-    public Cursor getTarea(long id) {
-        return db.query(TABLE_NAME, columnas, COL_ID + " = ?",
-                new String[] { String.valueOf(id) }, null, null, null);
-    }
+
 
     // =========================================================================
     // MÉTODOS REMOTOS (WorkManager Wrapper)
@@ -264,11 +179,11 @@ public class DBmanager {
                 .putString("email", email)
                 .putString("password", password)
                 .build();
-        
+
         OneTimeWorkRequest req = new OneTimeWorkRequest.Builder(ConexionWorker.class)
                 .setInputData(datos)
                 .build();
-        
+
         WorkManager.getInstance(context).enqueue(req);
         return WorkManager.getInstance(context).getWorkInfoByIdLiveData(req.getId());
     }
@@ -280,11 +195,159 @@ public class DBmanager {
                 .putString("email", email)
                 .putString("password", password)
                 .build();
-        
+
         OneTimeWorkRequest req = new OneTimeWorkRequest.Builder(ConexionWorker.class)
                 .setInputData(datos)
                 .build();
+
+        WorkManager.getInstance(context).enqueue(req);
+        return WorkManager.getInstance(context).getWorkInfoByIdLiveData(req.getId());
+    }
+
+    public LiveData<WorkInfo> getTareasRemoto(String ordenUI) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        int userId = prefs.getInt("session_user_id", -1);
+        if (userId == -1) {
+            Log.e(TAG, "No hay usuario logueado");
+            return null;
+        }
+
+        boolean ocultarCompletadas = prefs.getBoolean("ocultar_completadas", false);
         
+        String ordenSQL = "fechaLimite";
+        if ("prioridad".equals(ordenUI)) {
+            ordenSQL = "prioridad";
+        }
+
+        Data datos = new Data.Builder()
+                .putString("accion", "tareas")
+                .putString("tarea_accion", "getTareas")
+                .putInt("usuario_id", userId)
+                .putBoolean("ocultar_completadas", ocultarCompletadas)
+                .putString("orden", ordenSQL)
+                .build();
+
+        OneTimeWorkRequest req = new OneTimeWorkRequest.Builder(ConexionWorker.class)
+                .setInputData(datos)
+                .build();
+
+        Log.d(TAG, "Lanzando WorkManager para getTareas. Usuario: " + userId + " | Ocultar Completadas: "
+                + ocultarCompletadas + " | Orden: " + ordenSQL);
+        WorkManager.getInstance(context).enqueue(req);
+        return WorkManager.getInstance(context).getWorkInfoByIdLiveData(req.getId());
+    }
+
+    public LiveData<WorkInfo> insertarRemoto(String titulo, String desc, int prioridad, String fecha, Double latitud, Double longitud, String direccion) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        int userId = prefs.getInt("session_user_id", -1);
+
+        Data datos = new Data.Builder()
+                .putString("accion", "tareas")
+                .putString("tarea_accion", "insertTarea")
+                .putInt("usuario_id", userId)
+                .putString("titulo", titulo)
+                .putString("descripcion", desc)
+                .putInt("prioridad", prioridad)
+                // Enviamos "" si la fecha es null para no romper el PHP, o no ponemos la key
+                .putString("fechaLimite", fecha != null ? fecha : "")
+                .putString("latitud", latitud != null ? String.valueOf(latitud) : "")
+                .putString("longitud", longitud != null ? String.valueOf(longitud) : "")
+                .putString("direccion", direccion != null ? direccion : "")
+                .build();
+
+        OneTimeWorkRequest req = new OneTimeWorkRequest.Builder(ConexionWorker.class)
+                .setInputData(datos)
+                .build();
+
+        Log.d(TAG, "Lanzando WorkManager para insertarTarea: " + titulo);
+        WorkManager.getInstance(context).enqueue(req);
+        return WorkManager.getInstance(context).getWorkInfoByIdLiveData(req.getId());
+    }
+
+    public LiveData<WorkInfo> getTareaRemoto(long tareaId) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        int userId = prefs.getInt("session_user_id", -1);
+
+        Data datos = new Data.Builder()
+                .putString("accion", "tareas")
+                .putString("tarea_accion", "getTarea")
+                .putInt("usuario_id", userId)
+                .putInt("tarea_id", (int) tareaId)
+                .build();
+
+        OneTimeWorkRequest req = new OneTimeWorkRequest.Builder(ConexionWorker.class).setInputData(datos).build();
+        WorkManager.getInstance(context).enqueue(req);
+        return WorkManager.getInstance(context).getWorkInfoByIdLiveData(req.getId());
+    }
+
+    public LiveData<WorkInfo> actualizarTareaCompletaRemoto(long tareaId, String titulo, String desc, int prioridad,
+            String fecha, Double latitud, Double longitud, String direccion) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        int userId = prefs.getInt("session_user_id", -1);
+
+        Data datos = new Data.Builder()
+                .putString("accion", "tareas")
+                .putString("tarea_accion", "updateTarea")
+                .putInt("usuario_id", userId)
+                .putInt("tarea_id", (int) tareaId)
+                .putString("titulo", titulo)
+                .putString("descripcion", desc)
+                .putInt("prioridad", prioridad)
+                .putString("fechaLimite", fecha != null ? fecha : "")
+                .putString("latitud", latitud != null ? String.valueOf(latitud) : "")
+                .putString("longitud", longitud != null ? String.valueOf(longitud) : "")
+                .putString("direccion", direccion != null ? direccion : "")
+                .build();
+
+        OneTimeWorkRequest req = new OneTimeWorkRequest.Builder(ConexionWorker.class).setInputData(datos).build();
+        WorkManager.getInstance(context).enqueue(req);
+        return WorkManager.getInstance(context).getWorkInfoByIdLiveData(req.getId());
+    }
+
+    public LiveData<WorkInfo> actualizarEstadoRemoto(long tareaId, int estado) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        int userId = prefs.getInt("session_user_id", -1);
+
+        Data datos = new Data.Builder()
+                .putString("accion", "tareas")
+                .putString("tarea_accion", "updateTarea")
+                .putInt("usuario_id", userId)
+                .putInt("tarea_id", (int) tareaId)
+                .putInt("completada", estado)
+                .build();
+
+        OneTimeWorkRequest req = new OneTimeWorkRequest.Builder(ConexionWorker.class).setInputData(datos).build();
+        WorkManager.getInstance(context).enqueue(req);
+        return WorkManager.getInstance(context).getWorkInfoByIdLiveData(req.getId());
+    }
+
+    public LiveData<WorkInfo> eliminarRemoto(long tareaId) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        int userId = prefs.getInt("session_user_id", -1);
+
+        Data datos = new Data.Builder()
+                .putString("accion", "tareas")
+                .putString("tarea_accion", "deleteTarea")
+                .putInt("usuario_id", userId)
+                .putInt("tarea_id", (int) tareaId)
+                .build();
+
+        OneTimeWorkRequest req = new OneTimeWorkRequest.Builder(ConexionWorker.class).setInputData(datos).build();
+        WorkManager.getInstance(context).enqueue(req);
+        return WorkManager.getInstance(context).getWorkInfoByIdLiveData(req.getId());
+    }
+
+    public LiveData<WorkInfo> eliminarCompletadasRemoto() {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        int userId = prefs.getInt("session_user_id", -1);
+
+        Data datos = new Data.Builder()
+                .putString("accion", "tareas")
+                .putString("tarea_accion", "deleteCompletadas")
+                .putInt("usuario_id", userId)
+                .build();
+
+        OneTimeWorkRequest req = new OneTimeWorkRequest.Builder(ConexionWorker.class).setInputData(datos).build();
         WorkManager.getInstance(context).enqueue(req);
         return WorkManager.getInstance(context).getWorkInfoByIdLiveData(req.getId());
     }

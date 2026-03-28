@@ -22,6 +22,9 @@
     <string name="error_titulo_requerido">El título es obligatorio</string>
     <string name="toast_tarea_guardada">Tarea guardada</string>
     <string name="toast_tarea_actualizada">Tarea actualizada</string>
+    <string name="label_ubicacion">Ubicación</string>
+    <string name="btn_ubicacion">📍 Añadir Ubicación</string>
+    <string name="ubicacion_no_establecida">N/A</string>
 
     <!-- Prioridades -->
     <string-array name="prioridades_array">

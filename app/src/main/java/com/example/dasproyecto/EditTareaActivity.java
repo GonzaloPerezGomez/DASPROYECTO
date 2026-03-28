@@ -10,6 +10,12 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+import org.json.JSONObject;
+
+import android.content.Intent;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+
 import androidx.annotation.NonNull;
 
 import com.example.dasproyecto.dialog.ElegirFechaDialog;
@@ -24,10 +30,32 @@ public class EditTareaActivity extends BaseActivity {
     private static final String TAG = "EditTareaActivity";
     private EditText etTitulo, etDescripcion, etFecha;
     private Spinner spinnerPrioridad;
-    private Button btnGuardar, btnCancelar;
+    private Button btnGuardar, btnCancelar, btnSeleccionarUbicacion;
     private DBmanager dbManager;
-    private TextView tituloActivity;
+    private TextView tituloActivity, tvUbicacionSeleccionada;
     private long tareaId = -1;
+
+    private Double latitudDB = null;
+    private Double longitudDB = null;
+    private String direccionDB = null;
+
+    private final ActivityResultLauncher<Intent> mapLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                    Intent data = result.getData();
+                    latitudDB = data.getDoubleExtra("latitud", 0.0);
+                    longitudDB = data.getDoubleExtra("longitud", 0.0);
+                    direccionDB = data.getStringExtra("direccion");
+                    
+                    if (direccionDB != null && !direccionDB.isEmpty()) {
+                        tvUbicacionSeleccionada.setText("📍 " + direccionDB);
+                    } else {
+                        tvUbicacionSeleccionada.setText(String.format(java.util.Locale.getDefault(), "📍 Lat: %.4f, Lng: %.4f", latitudDB, longitudDB));
+                    }
+                }
+            }
+    );
 
     /**
      * Se ejecuta al abrir la pantalla.
@@ -49,6 +77,10 @@ public class EditTareaActivity extends BaseActivity {
         spinnerPrioridad = findViewById(R.id.spinnerPrioridad);
         btnGuardar = findViewById(R.id.btnGuardar);
         btnCancelar = findViewById(R.id.btnCancelar);
+        btnSeleccionarUbicacion = findViewById(R.id.btnSeleccionarUbicacion);
+        tvUbicacionSeleccionada = findViewById(R.id.tvUbicacionSeleccionada);
+
+        btnSeleccionarUbicacion.setOnClickListener(v -> mapLauncher.launch(new Intent(this, SeleccionarUbicacionActivity.class)));
 
         String[] prioridades = getResources().getStringArray(R.array.prioridades_array);
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, prioridades);
@@ -60,17 +92,48 @@ public class EditTareaActivity extends BaseActivity {
             dbManager.open();
             Log.d(TAG, "Recuperando tarea con ID: " + getIntent().getLongExtra(DBmanager.COL_ID, -1));
             tareaId = getIntent().getLongExtra(DBmanager.COL_ID, -1);
-            Cursor cursor = dbManager.getTarea(tareaId);
-            if (cursor != null) {
-                if (cursor.moveToFirst()) {
-                    etTitulo.setText(cursor.getString(cursor.getColumnIndexOrThrow(DBmanager.COL_TITULO)));
-                    etDescripcion.setText(cursor.getString(cursor.getColumnIndexOrThrow(DBmanager.COL_DESCRIPCION)));
-                    String fechaBD = cursor.getString(cursor.getColumnIndexOrThrow(DBmanager.COL_FECHALIMITE));
-                    etFecha.setText(DBmanager.formatFechaToUI(fechaBD));
-                    spinnerPrioridad.setSelection(cursor.getInt(cursor.getColumnIndexOrThrow(DBmanager.COL_PRIORIDAD)));
+            
+            // Reemplazo del cursor por observer
+            dbManager.getTareaRemoto(tareaId).observe(this, workInfo -> {
+                if (workInfo != null && workInfo.getState().isFinished()) {
+                    String resultado = workInfo.getOutputData().getString("datos");
+                    if (resultado == null) return;
+                    try {
+                        JSONObject json = new JSONObject(resultado);
+                        if (json.getBoolean("exito")) {
+                            JSONObject tarea = json.getJSONObject("tarea");
+                            etTitulo.setText(tarea.optString("titulo", ""));
+                            String desc = tarea.optString("descripcion", "");
+                            if (!desc.equals("null")) etDescripcion.setText(desc);
+                            
+                            String fechaBD = tarea.optString("fechaLimite", "");
+                            if (!fechaBD.equals("null")) etFecha.setText(DBmanager.formatFechaToUI(fechaBD));
+                            
+                            spinnerPrioridad.setSelection(tarea.optInt("prioridad", 0));
+                            String direccion = tarea.optString("direccion", "null");
+                            String lat = tarea.optString("latitud", "null");
+                            String lng = tarea.optString("longitud", "null");
+                            
+                            if (!lat.equals("null") && !lat.isEmpty()) {
+                                latitudDB = Double.parseDouble(lat);
+                                longitudDB = Double.parseDouble(lng);
+                                tvUbicacionSeleccionada.setText(String.format("📍 Lat: %s | Lng: %s", lat, lng));
+                            }
+                            
+                            if (!direccion.equals("null") && !direccion.isEmpty()) {
+                                direccionDB = direccion;
+                                tvUbicacionSeleccionada.setText("📍 " + direccion);
+                            }
+                            
+                            if (latitudDB == null && direccionDB == null) {
+                                tvUbicacionSeleccionada.setText(R.string.ubicacion_no_establecida);
+                            }
+                        }
+                    } catch (Exception e) {
+                        Log.e(TAG, "Error parseando la tarea", e);
+                    }
                 }
-                cursor.close();
-            }
+            });
         }
 
         etFecha.setOnClickListener(v -> configurarSelectorFecha());
@@ -94,10 +157,16 @@ public class EditTareaActivity extends BaseActivity {
             return;
         }
 
-        dbManager.actualizarTareaCompleta(tareaId, titulo, descripcion, prioridadIndex, fechaDB);
-
-        Toast.makeText(this, R.string.toast_tarea_actualizada, Toast.LENGTH_SHORT).show();
-        finish();
+        btnGuardar.setEnabled(false);
+        Toast.makeText(this, "Guardando...", Toast.LENGTH_SHORT).show();
+        
+        dbManager.actualizarTareaCompletaRemoto(tareaId, titulo, descripcion, prioridadIndex, fechaDB, latitudDB, longitudDB, direccionDB).observe(this, workInfo -> {
+            if (workInfo != null && workInfo.getState().isFinished()) {
+                btnGuardar.setEnabled(true);
+                Toast.makeText(this, R.string.toast_tarea_actualizada, Toast.LENGTH_SHORT).show();
+                finish();
+            }
+        });
     }
 
     /**

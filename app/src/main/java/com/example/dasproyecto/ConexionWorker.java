@@ -18,12 +18,13 @@ import java.net.URL;
 
 /**
  * Worker para realizar conexiones en segundo plano con la base de datos remota
- * utilizando la API nativa HttpURLConnection, tal y como se especifica en la guía del curso.
+ * utilizando la API nativa HttpURLConnection, tal y como se especifica en la
+ * guía del curso.
  */
 public class ConexionWorker extends Worker {
 
     private static final String TAG = "ConexionWorker";
-    private static final String SERVER_URL = "http://104.198.26.237:81/";
+    private static final String SERVER_URL = "http://34.133.172.131:81/";
 
     public ConexionWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
@@ -33,7 +34,8 @@ public class ConexionWorker extends Worker {
     @Override
     public Result doWork() {
         String accion = getInputData().getString("accion");
-        if (accion == null) return Result.failure();
+        if (accion == null)
+            return Result.failure();
 
         HttpURLConnection urlConnection = null;
         try {
@@ -42,7 +44,7 @@ public class ConexionWorker extends Worker {
             urlConnection = (HttpURLConnection) destino.openConnection();
             urlConnection.setConnectTimeout(5000);
             urlConnection.setReadTimeout(5000);
-            
+
             // Configurar método POST y cabeceras
             urlConnection.setRequestMethod("POST");
             urlConnection.setDoOutput(true);
@@ -58,8 +60,9 @@ public class ConexionWorker extends Worker {
                     }
                 }
             }
-            
-            // Si la acción es Tareas, hay un campo 'accion' interno en tareas.php (getTareas, insertTarea, etc)
+
+            // Si la acción es Tareas, hay un campo 'accion' interno en tareas.php
+            // (getTareas, insertTarea, etc)
             if (accion.equals("tareas")) {
                 builder.appendQueryParameter("accion", getInputData().getString("tarea_accion"));
             }
@@ -105,7 +108,8 @@ public class ConexionWorker extends Worker {
             Data errorData = new Data.Builder()
                     .putString("datos", "{\"exito\":false, \"mensaje\":\"Error de red local: " + e.getMessage() + "\"}")
                     .build();
-            // Retornamos success con el json de error, para que el Observer lo lea y muestre el toast.
+            // Retornamos success con el json de error, para que el Observer lo lea y
+            // muestre el toast.
             return Result.success(errorData);
         } finally {
             if (urlConnection != null) {

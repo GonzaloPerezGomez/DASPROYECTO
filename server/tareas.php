@@ -8,8 +8,8 @@
  */
 require_once("config.php");
 
-$accion     = isset($_POST["accion"])     ? $_POST["accion"]     : "";
-$usuario_id = isset($_POST["usuario_id"]) ? (int)$_POST["usuario_id"] : 0;
+$accion = isset($_POST["accion"]) ? $_POST["accion"] : "";
+$usuario_id = isset($_POST["usuario_id"]) ? (int) $_POST["usuario_id"] : 0;
 
 if (empty($accion) || $usuario_id <= 0) {
     echo json_encode(["exito" => false, "mensaje" => "Falta acción o usuario_id"]);
@@ -20,11 +20,36 @@ if (empty($accion) || $usuario_id <= 0) {
 $respuesta = ["exito" => false, "mensaje" => "Acción desconocida"];
 
 switch ($accion) {
+    case "getTarea":
+        $tarea_id = isset($_POST["tarea_id"]) ? (int) $_POST["tarea_id"] : 0;
+        if ($tarea_id <= 0) {
+            $respuesta = ["exito" => false, "mensaje" => "ID de tarea inválido"];
+            break;
+        }
+
+        $stmt = mysqli_prepare($conexion, "SELECT * FROM tareas WHERE id = ? AND usuario_id = ?");
+        mysqli_stmt_bind_param($stmt, "ii", $tarea_id, $usuario_id);
+        mysqli_stmt_execute($stmt);
+        $resultado = mysqli_stmt_get_result($stmt);
+
+        if ($fila = mysqli_fetch_assoc($resultado)) {
+            $fila["id"] = (int) $fila["id"];
+            $fila["prioridad"] = (int) $fila["prioridad"];
+            $fila["completada"] = (int) $fila["completada"];
+            $fila["latitud"] = $fila["latitud"] !== null ? (float) $fila["latitud"] : null;
+            $fila["longitud"] = $fila["longitud"] !== null ? (float) $fila["longitud"] : null;
+            $respuesta = ["exito" => true, "tarea" => $fila];
+        } else {
+            $respuesta = ["exito" => false, "mensaje" => "Tarea no encontrada"];
+        }
+        mysqli_stmt_close($stmt);
+        break;
+
     case "getTareas":
-        // Param opcional: ocultar_completadas (0 o 1)
+        // Param opcional: ocultar_completadas (true o false)
         // Param opcional: orden (prioridad o fecha)
-        $ocultar = isset($_POST["ocultar_completadas"]) && $_POST["ocultar_completadas"] == "1";
-        $orden   = isset($_POST["orden"]) && $_POST["orden"] == "prioridad" ? "prioridad DESC" : "fechaLimite ASC";
+        $ocultar = isset($_POST["ocultar_completadas"]) && $_POST["ocultar_completadas"] == "true";
+        $orden = isset($_POST["orden"]) && $_POST["orden"] == "prioridad" ? "prioridad DESC" : "fechaLimite ASC";
 
         $sql = "SELECT * FROM tareas WHERE usuario_id = ?";
         if ($ocultar) {
@@ -40,11 +65,11 @@ switch ($accion) {
         $tareas = [];
         while ($fila = mysqli_fetch_assoc($resultado)) {
             // Asegurar tipos para el cliente Java
-            $fila["id"] = (int)$fila["id"];
-            $fila["prioridad"] = (int)$fila["prioridad"];
-            $fila["completada"] = (int)$fila["completada"];
-            $fila["latitud"] = $fila["latitud"] !== null ? (float)$fila["latitud"] : null;
-            $fila["longitud"] = $fila["longitud"] !== null ? (float)$fila["longitud"] : null;
+            $fila["id"] = (int) $fila["id"];
+            $fila["prioridad"] = (int) $fila["prioridad"];
+            $fila["completada"] = (int) $fila["completada"];
+            $fila["latitud"] = $fila["latitud"] !== null ? (float) $fila["latitud"] : null;
+            $fila["longitud"] = $fila["longitud"] !== null ? (float) $fila["longitud"] : null;
             $tareas[] = $fila;
         }
 
@@ -53,14 +78,15 @@ switch ($accion) {
         break;
 
     case "insertTarea":
-        $titulo      = isset($_POST["titulo"]) ? trim($_POST["titulo"]) : "";
-        $desc        = isset($_POST["descripcion"]) ? trim($_POST["descripcion"]) : "";
-        $prioridad   = isset($_POST["prioridad"]) ? (int)$_POST["prioridad"] : 0;
+        $titulo = isset($_POST["titulo"]) ? trim($_POST["titulo"]) : "";
+        $desc = isset($_POST["descripcion"]) ? trim($_POST["descripcion"]) : "";
+        $prioridad = isset($_POST["prioridad"]) ? (int) $_POST["prioridad"] : 0;
         $fechaLimite = isset($_POST["fechaLimite"]) ? $_POST["fechaLimite"] : null;
-        if (empty($fechaLimite)) $fechaLimite = null; // para la BD
-        $latitud     = isset($_POST["latitud"]) && $_POST["latitud"] !== "" ? (float)$_POST["latitud"] : null;
-        $longitud    = isset($_POST["longitud"]) && $_POST["longitud"] !== "" ? (float)$_POST["longitud"] : null;
-        $direccion   = isset($_POST["direccion"]) ? trim($_POST["direccion"]) : null;
+        if (empty($fechaLimite))
+            $fechaLimite = null; // para la BD
+        $latitud = isset($_POST["latitud"]) && $_POST["latitud"] !== "" ? (float) $_POST["latitud"] : null;
+        $longitud = isset($_POST["longitud"]) && $_POST["longitud"] !== "" ? (float) $_POST["longitud"] : null;
+        $direccion = isset($_POST["direccion"]) ? trim($_POST["direccion"]) : null;
 
         if (empty($titulo)) {
             $respuesta = ["exito" => false, "mensaje" => "El título es obligatorio"];
@@ -69,7 +95,7 @@ switch ($accion) {
 
         $stmt = mysqli_prepare($conexion, "INSERT INTO tareas (usuario_id, titulo, descripcion, prioridad, fechaLimite, latitud, longitud, direccion) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
         mysqli_stmt_bind_param($stmt, "issisdds", $usuario_id, $titulo, $desc, $prioridad, $fechaLimite, $latitud, $longitud, $direccion);
-        
+
         if (mysqli_stmt_execute($stmt)) {
             $respuesta = ["exito" => true, "tarea_id" => mysqli_insert_id($conexion)];
         } else {
@@ -79,7 +105,7 @@ switch ($accion) {
         break;
 
     case "updateTarea":
-        $tarea_id = isset($_POST["tarea_id"]) ? (int)$_POST["tarea_id"] : 0;
+        $tarea_id = isset($_POST["tarea_id"]) ? (int) $_POST["tarea_id"] : 0;
         if ($tarea_id <= 0) {
             $respuesta = ["exito" => false, "mensaje" => "ID de tarea inválido"];
             break;
@@ -87,7 +113,7 @@ switch ($accion) {
 
         // Si mandan "completada", significa que es un update rápido de estado (check/uncheck)
         if (isset($_POST["completada"])) {
-            $completada = (int)$_POST["completada"];
+            $completada = (int) $_POST["completada"];
             $stmt = mysqli_prepare($conexion, "UPDATE tareas SET completada = ? WHERE id = ? AND usuario_id = ?");
             mysqli_stmt_bind_param($stmt, "iii", $completada, $tarea_id, $usuario_id);
             if (mysqli_stmt_execute($stmt)) {
@@ -100,17 +126,17 @@ switch ($accion) {
         }
 
         // Actualización completa (desde EditTareaActivity)
-        $titulo      = trim($_POST["titulo"]);
-        $desc        = trim($_POST["descripcion"]);
-        $prioridad   = (int)$_POST["prioridad"];
+        $titulo = trim($_POST["titulo"]);
+        $desc = trim($_POST["descripcion"]);
+        $prioridad = (int) $_POST["prioridad"];
         $fechaLimite = isset($_POST["fechaLimite"]) && !empty($_POST["fechaLimite"]) ? $_POST["fechaLimite"] : null;
-        $latitud     = isset($_POST["latitud"]) && $_POST["latitud"] !== "" ? (float)$_POST["latitud"] : null;
-        $longitud    = isset($_POST["longitud"]) && $_POST["longitud"] !== "" ? (float)$_POST["longitud"] : null;
-        $direccion   = isset($_POST["direccion"]) ? trim($_POST["direccion"]) : null;
+        $latitud = isset($_POST["latitud"]) && $_POST["latitud"] !== "" ? (float) $_POST["latitud"] : null;
+        $longitud = isset($_POST["longitud"]) && $_POST["longitud"] !== "" ? (float) $_POST["longitud"] : null;
+        $direccion = isset($_POST["direccion"]) ? trim($_POST["direccion"]) : null;
 
         $stmt = mysqli_prepare($conexion, "UPDATE tareas SET titulo=?, descripcion=?, prioridad=?, fechaLimite=?, latitud=?, longitud=?, direccion=? WHERE id=? AND usuario_id=?");
         mysqli_stmt_bind_param($stmt, "ssisddsii", $titulo, $desc, $prioridad, $fechaLimite, $latitud, $longitud, $direccion, $tarea_id, $usuario_id);
-        
+
         if (mysqli_stmt_execute($stmt)) {
             $respuesta = ["exito" => true, "mensaje" => "Tarea actualizada"];
         } else {
@@ -120,7 +146,7 @@ switch ($accion) {
         break;
 
     case "deleteTarea":
-        $tarea_id = isset($_POST["tarea_id"]) ? (int)$_POST["tarea_id"] : 0;
+        $tarea_id = isset($_POST["tarea_id"]) ? (int) $_POST["tarea_id"] : 0;
         if ($tarea_id <= 0) {
             $respuesta = ["exito" => false, "mensaje" => "ID de tarea inválido"];
             break;

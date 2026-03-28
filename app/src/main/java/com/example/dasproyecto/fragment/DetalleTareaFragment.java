@@ -11,8 +11,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import org.json.JSONObject;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -34,7 +37,8 @@ public class DetalleTareaFragment extends Fragment {
     private static final String TAG = "DetalleTareaFragment";
     private static final String ARG_TAREA_ID = "tarea_id";
 
-    private TextView tvTitulo, tvDescripcion, tvFecha, tvPrioridad;
+    private TextView tvTitulo, tvDescripcion, tvFecha, tvPrioridad, tvUbicacion;
+    private ImageButton btnAbrirMapa;
     private Button btnCompletar;
     private DBmanager dbManager;
     private long tareaId = -1;
@@ -110,6 +114,8 @@ public class DetalleTareaFragment extends Fragment {
         tvDescripcion = view.findViewById(R.id.tvDescripcion);
         tvFecha = view.findViewById(R.id.tvFecha);
         tvPrioridad = view.findViewById(R.id.tvPrioridad);
+        tvUbicacion = view.findViewById(R.id.tvUbicacion);
+        btnAbrirMapa = view.findViewById(R.id.btnAbrirMapa);
         btnCompletar = view.findViewById(R.id.btnCompletar);
 
         if (getArguments() != null) {
@@ -128,10 +134,16 @@ public class DetalleTareaFragment extends Fragment {
         cargarDatos();
 
         btnCompletar.setOnClickListener(v -> {
-            estadoCompletada = (estadoCompletada == 0) ? 1 : 0;
-            dbManager.actualizarEstado(tareaId, estadoCompletada);
-            listenerCompletada.onTareaCompletada(tareaId);
-            actualizarBotonCompletar();
+            btnCompletar.setEnabled(false);
+            int nuevoEstado = (estadoCompletada == 0) ? 1 : 0;
+            dbManager.actualizarEstadoRemoto(tareaId, nuevoEstado).observe(getViewLifecycleOwner(), workInfo -> {
+                if (workInfo != null && workInfo.getState().isFinished()) {
+                    btnCompletar.setEnabled(true);
+                    estadoCompletada = nuevoEstado;
+                    listenerCompletada.onTareaCompletada(tareaId);
+                    actualizarBotonCompletar();
+                }
+            });
         });
     }
 
@@ -148,23 +160,73 @@ public class DetalleTareaFragment extends Fragment {
      * Lee los datos de la tarea de la BD y rellena los campos en pantalla.
      */
     private void cargarDatos() {
-        Cursor cursor = dbManager.getTarea(tareaId);
-        if (cursor != null) {
-            if (cursor.moveToFirst()) {
-                Log.d(TAG, "Tarea encontrada: " + cursor.getString(cursor.getColumnIndexOrThrow(DBmanager.COL_TITULO)));
-                tvTitulo.setText(cursor.getString(cursor.getColumnIndexOrThrow(DBmanager.COL_TITULO)));
-                tvDescripcion.setText(cursor.getString(cursor.getColumnIndexOrThrow(DBmanager.COL_DESCRIPCION)));
-                String fechaBD = cursor.getString(cursor.getColumnIndexOrThrow(DBmanager.COL_FECHALIMITE));
-                tvFecha.setText(DBmanager.formatFechaToUI(fechaBD));
-
-                estadoCompletada = cursor.getInt(cursor.getColumnIndexOrThrow(DBmanager.COL_COMPLETADA));
-
-                int prioridad = cursor.getInt(cursor.getColumnIndexOrThrow(DBmanager.COL_PRIORIDAD));
-                tvPrioridad.setText(prioridades[prioridad]);
+        dbManager.getTareaRemoto(tareaId).observe(getViewLifecycleOwner(), workInfo -> {
+            if (workInfo != null && workInfo.getState().isFinished()) {
+                String resultado = workInfo.getOutputData().getString("datos");
+                if (resultado == null) return;
+                try {
+                    JSONObject json = new JSONObject(resultado);
+                    if (json.getBoolean("exito")) {
+                        JSONObject tarea = json.getJSONObject("tarea");
+                        Log.d(TAG, "Tarea remota cargada: " + tarea.optString("titulo"));
+                        
+                        tvTitulo.setText(tarea.optString("titulo", ""));
+                        String desc = tarea.optString("descripcion", "");
+                        if (!desc.equals("null")) tvDescripcion.setText(desc);
+                        
+                        String fechaBD = tarea.optString("fechaLimite", "");
+                        if (!fechaBD.equals("null")) tvFecha.setText(DBmanager.formatFechaToUI(fechaBD));
+                        
+                        estadoCompletada = tarea.optInt("completada", 0);
+                        int prioridad = tarea.optInt("prioridad", 0);
+                        tvPrioridad.setText(prioridades[prioridad]);
+                        actualizarBotonCompletar();
+                        
+                        String direccion = tarea.optString("direccion", "null");
+                        String lat = tarea.optString("latitud", "null");
+                        String lng = tarea.optString("longitud", "null");
+                        
+                        if (!lat.equals("null") && !lat.isEmpty() || (!direccion.equals("null") && !direccion.isEmpty())) {
+                            if (!direccion.equals("null") && !direccion.isEmpty()) {
+                                tvUbicacion.setText(direccion);
+                            } else {
+                                tvUbicacion.setText(String.format("Lat: %s\nLng: %s", lat, lng));
+                            }
+                            btnAbrirMapa.setVisibility(View.VISIBLE);
+                            
+                            btnAbrirMapa.setOnClickListener(v -> {
+                                try {
+                                    String uriText;
+                                    if (!direccion.equals("null") && !direccion.isEmpty()) {
+                                        uriText = "geo:0,0?q=" + android.net.Uri.encode(direccion);
+                                    } else {
+                                        uriText = "geo:" + lat + "," + lng + "?q=" + lat + "," + lng;
+                                    }
+                                    Intent mapIntent = new Intent(Intent.ACTION_VIEW, android.net.Uri.parse(uriText));
+                                    mapIntent.setPackage("com.google.android.apps.maps");
+                                    if (mapIntent.resolveActivity(requireContext().getPackageManager()) != null) {
+                                        startActivity(mapIntent);
+                                    } else {
+                                        Intent genericMapIntent = new Intent(Intent.ACTION_VIEW, android.net.Uri.parse(uriText));
+                                        startActivity(genericMapIntent);
+                                    }
+                                } catch (Exception e) {
+                                    Toast.makeText(requireContext(), "No se pudo abrir el mapa", Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                        } else {
+                            tvUbicacion.setText(R.string.ubicacion_no_establecida);
+                            btnAbrirMapa.setVisibility(View.GONE);
+                            btnAbrirMapa.setOnClickListener(null);
+                        }
+                    } else {
+                        Toast.makeText(requireContext(), "Tarea no encontrada remotamente", Toast.LENGTH_SHORT).show();
+                    }
+                } catch (Exception e) {
+                    Log.e(TAG, "Error parseando la tarea", e);
+                }
             }
-            cursor.close();
-        }
-        actualizarBotonCompletar();
+        });
     }
 
     /**
@@ -188,10 +250,12 @@ public class DetalleTareaFragment extends Fragment {
                 dialogo.show(getParentFragmentManager(), "EliminarTareaDialog");
                 return true;
             } else {
-                dbManager.eliminar(tareaId);
-                listenerEliminada.onTareaEliminada();
-                Toast.makeText(getActivity(), getString(R.string.toast_tarea_eliminada, titulo), Toast.LENGTH_SHORT)
-                        .show();
+                dbManager.eliminarRemoto(tareaId).observe(getViewLifecycleOwner(), workInfo -> {
+                    if (workInfo != null && workInfo.getState().isFinished()) {
+                        listenerEliminada.onTareaEliminada();
+                        Toast.makeText(getActivity(), getString(R.string.toast_tarea_eliminada, titulo), Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
         }
 

@@ -91,6 +91,7 @@ public class MainActivity extends BaseActivity implements ListaTareasFragment.On
         }
 
         solicitarPermisosNotificaciones();
+        comprobarPlayServices();
     }
 
     /**
@@ -142,53 +143,78 @@ public class MainActivity extends BaseActivity implements ListaTareasFragment.On
      * @param uri Ruta del archivo de destino.
      */
     private void exportTareasToFile(Uri uri) {
-        new Thread(() -> {
-            DBmanager dbManager = new DBmanager(this);
-            dbManager.open();
-            Cursor cursor = dbManager.getTareas(false);
-            StringBuilder sb = new StringBuilder();
-            sb.append("MIS TAREAS\n");
-            sb.append("====================\n\n");
+        DBmanager dbManager = new DBmanager(this);
+        dbManager.getTareasRemoto("fechaLimite").observe(this, workInfo -> {
+            if (workInfo != null && workInfo.getState().isFinished()) {
+                String resultado = workInfo.getOutputData().getString("datos");
+                if (resultado == null) {
+                    Toast.makeText(this, "Error al obtener tareas para exportar", Toast.LENGTH_SHORT).show();
+                    return;
+                }
 
-            if (cursor != null && cursor.moveToFirst()) {
-                do {
-                    String titulo = cursor.getString(cursor.getColumnIndexOrThrow(DBmanager.COL_TITULO));
-                    String desc = cursor.getString(cursor.getColumnIndexOrThrow(DBmanager.COL_DESCRIPCION));
-                    String fechaBD = cursor.getString(cursor.getColumnIndexOrThrow(DBmanager.COL_FECHALIMITE));
-                    String fechaUI = DBmanager.formatFechaToUI(fechaBD);
-                    int prioridad = cursor.getInt(cursor.getColumnIndexOrThrow(DBmanager.COL_PRIORIDAD));
-                    int completada = cursor.getInt(cursor.getColumnIndexOrThrow(DBmanager.COL_COMPLETADA));
+                new Thread(() -> {
+                    try {
+                        org.json.JSONObject resultJson = new org.json.JSONObject(resultado);
+                        if (!resultJson.getBoolean("exito")) {
+                            runOnUiThread(() -> Toast.makeText(this, "Error del servidor al exportar", Toast.LENGTH_SHORT).show());
+                            return;
+                        }
 
-                    String strPrioridad = "Baja";
-                    if (prioridad == 1)
-                        strPrioridad = "Media";
-                    else if (prioridad == 2)
-                        strPrioridad = "Alta";
+                        org.json.JSONArray tareasArray = resultJson.getJSONArray("tareas");
+                        StringBuilder sb = new StringBuilder();
+                        sb.append("MIS TAREAS\n");
+                        sb.append("====================\n\n");
 
-                    String strEstado = (completada == 1) ? "Completada" : "Pendiente";
-                    fechaUI = (fechaUI != null && !fechaUI.isEmpty()) ? fechaUI : "Sin fecha";
+                        for (int i = 0; i < tareasArray.length(); i++) {
+                            org.json.JSONObject tarea = tareasArray.getJSONObject(i);
+                            String titulo = tarea.optString("titulo", "");
+                            String desc = tarea.optString("descripcion", "");
+                            String fechaBD = tarea.optString("fechaLimite", "");
+                            String fechaUI = DBmanager.formatFechaToUI(fechaBD);
+                            int prioridad = tarea.optInt("prioridad", 0);
+                            int completada = tarea.optInt("completada", 0);
 
-                    sb.append(String.format("- [%s] %s (Prioridad: %s, Límite: %s)\n", strEstado, titulo, strPrioridad,
-                            fechaUI));
-                    if (desc != null && !desc.trim().isEmpty()) {
-                        sb.append("  ").append(desc.replace("\n", "\n  ")).append("\n");
+                            String strPrioridad = "Baja";
+                            if (prioridad == 1) strPrioridad = "Media";
+                            else if (prioridad == 2) strPrioridad = "Alta";
+
+                            String strEstado = (completada == 1) ? "Completada" : "Pendiente";
+                            fechaUI = (fechaUI != null && !fechaUI.isEmpty() && !fechaUI.equals("null")) ? fechaUI : "Sin fecha";
+
+                            sb.append(String.format("- [%s] %s (Prioridad: %s, Límite: %s)\n", strEstado, titulo, strPrioridad, fechaUI));
+                            if (desc != null && !desc.trim().isEmpty() && !desc.equals("null")) {
+                                sb.append("  ").append(desc.replace("\n", "\n  ")).append("\n");
+                            }
+
+                            String direccion = tarea.optString("direccion", "null");
+                            if (!direccion.equals("null") && !direccion.isEmpty()) {
+                                sb.append("  📍 Ubicación: ").append(direccion).append("\n");
+                            } else {
+                                String lat = tarea.optString("latitud", "null");
+                                String lng = tarea.optString("longitud", "null");
+                                if (!lat.equals("null") && !lat.isEmpty()) {
+                                    sb.append(String.format("  📍 Ubicación: Lat: %s | Lng: %s\n", lat, lng));
+                                }
+                            }
+                            
+                            sb.append("\n");
+                        }
+
+                        try (OutputStream os = getContentResolver().openOutputStream(uri);
+                             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os))) {
+                            writer.write(sb.toString());
+                            runOnUiThread(() -> Toast.makeText(this, "Tareas exportadas correctamente", Toast.LENGTH_SHORT).show());
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            runOnUiThread(() -> Toast.makeText(this, "Error al escribir el archivo", Toast.LENGTH_SHORT).show());
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        runOnUiThread(() -> Toast.makeText(this, "Error parseando tareas para exportar", Toast.LENGTH_SHORT).show());
                     }
-                    sb.append("\n");
-                } while (cursor.moveToNext());
+                }).start();
             }
-            if (cursor != null)
-                cursor.close();
-            dbManager.close();
-
-            try (OutputStream os = getContentResolver().openOutputStream(uri);
-                    BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os))) {
-                writer.write(sb.toString());
-                runOnUiThread(() -> Toast.makeText(this, "Tareas exportadas correctamente", Toast.LENGTH_SHORT).show());
-            } catch (Exception e) {
-                e.printStackTrace();
-                runOnUiThread(() -> Toast.makeText(this, "Error al exportar tareas", Toast.LENGTH_SHORT).show());
-            }
-        }).start();
+        });
     }
 
     /**
