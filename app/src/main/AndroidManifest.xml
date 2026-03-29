@@ -15,6 +15,9 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
+    <!-- Permiso para la cámara -->
+    <uses-permission android:name="android.permission.CAMERA" />
+
     <application
         android:name=".Idioma"
         android:allowBackup="true"
@@ -94,6 +97,21 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
+
+        <!--
+            FileProvider: permite compartir archivos privados (ej: fotos temporales)
+            con aplicaciones externas (ej: la app de la cámara).
+        -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
     </application>
 
 

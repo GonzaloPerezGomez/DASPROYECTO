@@ -351,4 +351,19 @@ public class DBmanager {
         WorkManager.getInstance(context).enqueue(req);
         return WorkManager.getInstance(context).getWorkInfoByIdLiveData(req.getId());
     }
+
+    public LiveData<WorkInfo> actualizarFotoPerfilRemoto(int usuarioId, String fotoPath) {
+        Data datos = new Data.Builder()
+                .putString("accion", "perfil")
+                .putInt("usuario_id", usuarioId)
+                .putString("foto_path", fotoPath)
+                .build();
+
+        OneTimeWorkRequest req = new OneTimeWorkRequest.Builder(ConexionWorker.class)
+                .setInputData(datos)
+                .build();
+
+        WorkManager.getInstance(context).enqueue(req);
+        return WorkManager.getInstance(context).getWorkInfoByIdLiveData(req.getId());
+    }
 }

@@ -108,7 +108,16 @@ public class LoginActivity extends BaseActivity {
                     if (json.getBoolean("exito")) {
                         // Guardar estado de sesión (ej: id_usuario logueado)
                         int userId = json.optInt("usuario_id", -1);
-                        pref.edit().putInt("session_user_id", userId).apply();
+                        String nombre = json.optString("nombre", "");
+                        String fotoUrl = json.optString("foto_url", "");
+                        String emailServer = json.optString("email", email);
+
+                        pref.edit()
+                            .putInt("session_user_id", userId)
+                            .putString("session_user_name", nombre)
+                            .putString("session_user_foto", fotoUrl)
+                            .putString("session_user_email", emailServer)
+                            .apply();
 
                         Toast.makeText(this, "¡Bienvenido!", Toast.LENGTH_SHORT).show();
                         Intent intent = new Intent(LoginActivity.this, MainActivity.class);

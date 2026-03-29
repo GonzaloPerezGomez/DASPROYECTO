@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <!-- 
+        Context.getExternalFilesDir() -> Android/data/com.example.dasproyecto/files/Pictures
+    -->
+    <external-files-path name="mis_fotos" path="Pictures" />
+</paths>

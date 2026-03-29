@@ -15,6 +15,11 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.util.Base64;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 
 /**
  * Worker para realizar conexiones en segundo plano con la base de datos remota
@@ -24,7 +29,7 @@ import java.net.URL;
 public class ConexionWorker extends Worker {
 
     private static final String TAG = "ConexionWorker";
-    private static final String SERVER_URL = "http://34.133.172.131:81/";
+    private static final String SERVER_URL = "http://34.136.118.138:81/";
 
     public ConexionWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
@@ -53,10 +58,31 @@ public class ConexionWorker extends Worker {
             // Construir los parámetros usando Uri.Builder (soportado por PHP $_POST nativo)
             Uri.Builder builder = new Uri.Builder();
             for (String key : getInputData().getKeyValueMap().keySet()) {
-                if (!key.equals("accion")) { // No enviamos 'accion' por POST si ya va en la URL (.php)
+                if (!key.equals("accion") && !key.equals("foto_path")) { // No enviamos 'accion' por POST si ya va en la
+                                                                         // URL (.php)
                     Object value = getInputData().getKeyValueMap().get(key);
                     if (value != null) {
                         builder.appendQueryParameter(key, String.valueOf(value));
+                    }
+                }
+            }
+
+            // Si la acción es perfil, procesamos la foto desde el disco
+            if (accion.equals("perfil")) {
+                String fotoPath = getInputData().getString("foto_path");
+                if (fotoPath != null) {
+                    File file = new File(fotoPath);
+                    if (file.exists()) {
+                        Bitmap bitmap = BitmapFactory.decodeFile(fotoPath);
+                        if (bitmap != null) {
+                            // Redimensionar para asegurar que el server lo acepte y no consuma mucha red
+                            Bitmap resized = Bitmap.createScaledBitmap(bitmap, 800, 800, true);
+                            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                            resized.compress(Bitmap.CompressFormat.JPEG, 80, baos);
+                            byte[] imageBytes = baos.toByteArray();
+                            String imageB64 = Base64.encodeToString(imageBytes, Base64.DEFAULT);
+                            builder.appendQueryParameter("imagen_base64", imageB64);
+                        }
                     }
                 }
             }
@@ -92,9 +118,17 @@ public class ConexionWorker extends Worker {
 
                 Log.d(TAG, "Respuesta del servidor: " + result.toString());
 
+                // Limpiar la respuesta para extraer solo el JSON (por si hay warnings de PHP)
+                String rawData = result.toString();
+                int start = rawData.indexOf("{");
+                int end = rawData.lastIndexOf("}");
+                if (start != -1 && end != -1 && end >= start) {
+                    rawData = rawData.substring(start, end + 1);
+                }
+
                 // Devolver el resultado al Activity
                 Data resultados = new Data.Builder()
-                        .putString("datos", result.toString())
+                        .putString("datos", rawData)
                         .build();
 
                 return Result.success(resultados);

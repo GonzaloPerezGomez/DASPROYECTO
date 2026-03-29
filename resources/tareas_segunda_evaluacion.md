@@ -50,12 +50,12 @@
 - [x] Icono en detalle → abrir Maps
 
 ### Hito 5: Cámara + Foto de Perfil
-- [ ] Permiso CAMERA
-- [ ] Header Navigation Drawer con foto
-- [ ] Captura con cámara
-- [ ] Subida al servidor
-- [ ] Carga y visualización (Glide)
-- [ ] FileProvider
+- [x] Permiso CAMERA
+- [x] Header Navigation Drawer con foto
+- [x] Captura con cámara
+- [x] Subida al servidor
+- [x] Carga y visualización (Glide)
+- [x] FileProvider
 
 ### Hito 6: Servicio Proximidad
 - [ ] `ProximidadService`
@@ -90,4 +90,6 @@
 
 ### Posteriores
 - [ ] Arreglar selector de color en ajustes
-- [ ] Editar perfil
+- [ ] Bonton de lapiz en el nav_drawer de main para acceder a formulario de editar perfil
+- [ ] La imagen de perfil de nav_drawer no abre la camara si no que amplia la imagen
+- [ ] Editar imagen perfil se mueve a formulario de editar perfil

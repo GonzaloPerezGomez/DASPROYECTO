@@ -10,12 +10,19 @@
     android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
     <com.google.android.material.imageview.ShapeableImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:id="@+id/ivPerfil"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
         android:paddingTop="8dp"
-        android:src="@android:drawable/ic_menu_edit" />
+        android:scaleType="centerCrop"
+        android:src="@drawable/ic_launcher_background"
+        app:shapeAppearanceOverlay="@style/CircleImage"
+        android:contentDescription="Foto de perfil"
+        android:clickable="true"
+        android:focusable="true" />
 
     <TextView
+        android:id="@+id/textViewUserName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingTop="8dp"
@@ -24,7 +31,7 @@
         android:textStyle="bold" />
 
     <TextView
-        android:id="@+id/textViewUser"
+        android:id="@+id/textViewUserEmail"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/nav_header_email" />

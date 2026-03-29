@@ -44,6 +44,18 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import java.io.OutputStream;
 import java.io.BufferedWriter;
 import java.io.OutputStreamWriter;
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import androidx.core.content.FileProvider;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.util.Base64;
+import java.io.ByteArrayOutputStream;
+import com.bumptech.glide.Glide;
+import androidx.preference.PreferenceManager;
+import android.content.SharedPreferences;
 
 /**
  * Pantalla principal de la app.
@@ -56,6 +68,11 @@ public class MainActivity extends BaseActivity implements ListaTareasFragment.On
 
     private static final String TAG = "MainActivity";
     private ActivityResultLauncher<Intent> exportTxtLauncher;
+    private ActivityResultLauncher<Uri> takePictureLauncher;
+    private ActivityResultLauncher<String> requestPermissionLauncher;
+    private Uri photoUri;
+    private String currentPhotoPath;
+    private com.google.android.material.imageview.ShapeableImageView ivPerfil;
 
     /**
      * Se ejecuta al abrir la app.
@@ -82,6 +99,24 @@ public class MainActivity extends BaseActivity implements ListaTareasFragment.On
                     }
                 });
 
+        requestPermissionLauncher = registerForActivityResult(
+                new ActivityResultContracts.RequestPermission(),
+                isGranted -> {
+                    if (isGranted) {
+                        dispatchTakePictureIntent();
+                    } else {
+                        Toast.makeText(this, "Permiso de cámara denegado", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+        takePictureLauncher = registerForActivityResult(
+                new ActivityResultContracts.TakePicture(),
+                success -> {
+                    if (success) {
+                        subirFotoServidor();
+                    }
+                });
+
         setupNavigationDrawer();
 
         if (savedInstanceState == null) {
@@ -100,6 +135,27 @@ public class MainActivity extends BaseActivity implements ListaTareasFragment.On
     private void setupNavigationDrawer() {
         DrawerLayout drawerLayout = findViewById(R.id.main_drawer);
         NavigationView navigationView = findViewById(R.id.nav_view);
+
+        // Acceder a la cabecera para configurar la foto de perfil
+        android.view.View headerView = navigationView.getHeaderView(0);
+        ivPerfil = headerView.findViewById(R.id.ivPerfil);
+        android.widget.TextView tvUserName = headerView.findViewById(R.id.textViewUserName);
+        android.widget.TextView tvUserEmail = headerView.findViewById(R.id.textViewUserEmail);
+        
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
+        tvUserName.setText(pref.getString("session_user_name", "Usuario"));
+        tvUserEmail.setText(pref.getString("session_user_email", "email@ejemplo.com"));
+        
+        cargarFotoPerfilLocal();
+
+        ivPerfil.setOnClickListener(v -> {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+                dispatchTakePictureIntent();
+            } else {
+                requestPermissionLauncher.launch(Manifest.permission.CAMERA);
+            }
+        });
+
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -353,5 +409,88 @@ public class MainActivity extends BaseActivity implements ListaTareasFragment.On
                 pendingIntent);
 
         Log.d(TAG, "Alarma diaria programada para las 8:00 AM → próxima: " + calendario.getTime());
+    }
+
+    /**
+     * Lanza el intent de la cámara tras preparar el archivo donde se guardará la foto.
+     */
+    private void dispatchTakePictureIntent() {
+        Intent takePictureIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+        try {
+            File photoFile = createImageFile();
+            if (photoFile != null) {
+                photoUri = FileProvider.getUriForFile(this,
+                        getApplicationContext().getPackageName() + ".fileprovider",
+                        photoFile);
+                takePictureLauncher.launch(photoUri);
+            }
+        } catch (IOException ex) {
+            Log.e(TAG, "Error al crear el archivo de imagen", ex);
+            Toast.makeText(this, "Error al preparar la cámara", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    /**
+     * Crea un archivo temporal en el almacenamiento privado de la app.
+     */
+    private File createImageFile() throws IOException {
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = getExternalFilesDir(android.os.Environment.DIRECTORY_PICTURES);
+        File image = File.createTempFile(
+                imageFileName,
+                ".jpg",
+                storageDir
+        );
+        currentPhotoPath = image.getAbsolutePath();
+        return image;
+    }
+
+    /**
+     * Carga la foto de perfil si ya existe una URL guardada.
+     */
+    private void cargarFotoPerfilLocal() {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        String fotoUrl = prefs.getString("session_user_foto", null);
+        if (fotoUrl != null && !fotoUrl.isEmpty()) {
+            Glide.with(this)
+                .load(fotoUrl)
+                .placeholder(R.drawable.ic_launcher_background)
+                .circleCrop()
+                .into(ivPerfil);
+        }
+    }
+
+    /**
+     * Convierte la imagen capturada a Base64 y llama al DBmanager para subirla.
+     */
+    private void subirFotoServidor() {
+        if (currentPhotoPath == null) return;
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        int userId = prefs.getInt("session_user_id", -1);
+
+        if (userId != -1) {
+            Toast.makeText(this, "Subiendo foto...", Toast.LENGTH_SHORT).show();
+            DBmanager db = new DBmanager(this);
+            db.actualizarFotoPerfilRemoto(userId, currentPhotoPath).observe(this, workInfo -> {
+                if (workInfo != null && workInfo.getState().isFinished()) {
+                    String resultado = workInfo.getOutputData().getString("datos");
+                    try {
+                        org.json.JSONObject json = new org.json.JSONObject(resultado);
+                        if (json.getBoolean("exito")) {
+                            String fotoUrl = json.getString("foto_url");
+                            prefs.edit().putString("session_user_foto", fotoUrl).apply();
+                            cargarFotoPerfilLocal();
+                            Toast.makeText(this, "Foto actualizada", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(this, "Error: " + json.getString("mensaje"), Toast.LENGTH_SHORT).show();
+                        }
+                    } catch (Exception e) {
+                        Log.e(TAG, "Error parseando respuesta foto", e);
+                    }
+                }
+            });
+        }
     }
 }
