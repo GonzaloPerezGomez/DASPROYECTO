@@ -9,6 +9,10 @@
             android:id="@+id/nav_exportar"
             android:icon="@android:drawable/ic_menu_save"
             android:title="@string/nav_exportar_txt" />
+        <item
+            android:id="@+id/nav_proximidad"
+            android:icon="@android:drawable/ic_menu_mylocation"
+            android:title="Iniciar Servicio Proximidad" />
     </group>
     <item android:title="@string/nav_configuracion">
         <menu>

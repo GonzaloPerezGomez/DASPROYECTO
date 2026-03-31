@@ -14,6 +14,11 @@
     <!-- Permisos de localización requeridos para Google Maps y FusedLocationProvider -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+
+    <!-- Permisos para el servicio en primer plano de ubicación -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
 
     <!-- Permiso para la cámara -->
     <uses-permission android:name="android.permission.CAMERA" />
@@ -111,6 +116,11 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
         </provider>
+
+        <service
+            android:name=".ProximidadService"
+            android:foregroundServiceType="location"
+            android:exported="false" />
 
     </application>
 

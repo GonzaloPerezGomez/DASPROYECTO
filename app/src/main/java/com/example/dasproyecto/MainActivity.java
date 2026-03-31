@@ -31,6 +31,8 @@ import com.example.dasproyecto.notification.NotificacionReceiver;
 
 import android.util.Log;
 import android.view.MenuItem;
+import android.content.BroadcastReceiver;
+import android.content.IntentFilter;
 
 import com.example.dasproyecto.db.DBmanager;
 import com.google.android.material.navigation.NavigationView;
@@ -73,6 +75,9 @@ public class MainActivity extends BaseActivity implements ListaTareasFragment.On
     private Uri photoUri;
     private String currentPhotoPath;
     private com.google.android.material.imageview.ShapeableImageView ivPerfil;
+
+    private BroadcastReceiver proximidadReceiver;
+    private boolean isProximidadActivo = false;
 
     /**
      * Se ejecuta al abrir la app.
@@ -125,8 +130,34 @@ public class MainActivity extends BaseActivity implements ListaTareasFragment.On
                     .commit();
         }
 
+        proximidadReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (ProximidadService.ACTION_PROXIMIDAD.equals(intent.getAction())) {
+                    String titulo = intent.getStringExtra(ProximidadService.EXTRA_TAREA_TITULO);
+                    Toast.makeText(MainActivity.this, "📍 ¡Estás muy cerca de: " + titulo + "!", Toast.LENGTH_LONG).show();
+                }
+            }
+        };
+
         solicitarPermisosNotificaciones();
         comprobarPlayServices();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(proximidadReceiver, new IntentFilter(ProximidadService.ACTION_PROXIMIDAD), Context.RECEIVER_NOT_EXPORTED);
+        } else {
+            registerReceiver(proximidadReceiver, new IntentFilter(ProximidadService.ACTION_PROXIMIDAD));
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(proximidadReceiver);
     }
 
     /**
@@ -174,10 +205,46 @@ public class MainActivity extends BaseActivity implements ListaTareasFragment.On
                     Intent intent = new Intent(MainActivity.this, AjustesActivity.class);
                     startActivity(intent);
                     return true;
+                } else if (id == R.id.nav_proximidad) {
+                    toggleProximidadService(item);
+                    drawerLayout.closeDrawer(GravityCompat.START);
+                    return true;
                 }
                 return false;
             }
         });
+    }
+
+    private void toggleProximidadService(MenuItem item) {
+        if (!isProximidadActivo) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 101);
+                Toast.makeText(this, "Se requiere permiso de ubicación. Inténtalo de nuevo tras concederlo.", Toast.LENGTH_LONG).show();
+                return;
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && 
+                ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION}, 102);
+                Toast.makeText(this, "Se requiere permitir ubicación TODO EL TIEMPO. Inténtalo de nuevo tras concederlo.", Toast.LENGTH_LONG).show();
+                return;
+            }
+            
+            Intent intent = new Intent(this, ProximidadService.class);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                startForegroundService(intent);
+            } else {
+                startService(intent);
+            }
+            isProximidadActivo = true;
+            item.setTitle("Detener Servicio Proximidad");
+            Toast.makeText(this, "Servicio iniciado", Toast.LENGTH_SHORT).show();
+        } else {
+            Intent intent = new Intent(this, ProximidadService.class);
+            stopService(intent);
+            isProximidadActivo = false;
+            item.setTitle("Iniciar Servicio Proximidad");
+            Toast.makeText(this, "Servicio detenido", Toast.LENGTH_SHORT).show();
+        }
     }
 
     /**
