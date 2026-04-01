@@ -26,3 +26,4 @@ replay_pid*
 memoria/*
 !memoria/memoria.tex
 !memoria/pdf_content.txt
+secrets.properties
