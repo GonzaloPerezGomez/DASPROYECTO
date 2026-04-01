@@ -93,13 +93,10 @@ public class EditTareaActivity extends BaseActivity {
             Log.d(TAG, "Recuperando tarea con ID: " + getIntent().getLongExtra(DBmanager.COL_ID, -1));
             tareaId = getIntent().getLongExtra(DBmanager.COL_ID, -1);
             
-            // Reemplazo del cursor por observer
-            dbManager.getTareaRemoto(tareaId).observe(this, workInfo -> {
-                if (workInfo != null && workInfo.getState().isFinished()) {
-                    String resultado = workInfo.getOutputData().getString("datos");
-                    if (resultado == null) return;
+            new Thread(() -> {
+                JSONObject json = dbManager.getTareaProvider(tareaId);
+                runOnUiThread(() -> {
                     try {
-                        JSONObject json = new JSONObject(resultado);
                         if (json.getBoolean("exito")) {
                             JSONObject tarea = json.getJSONObject("tarea");
                             etTitulo.setText(tarea.optString("titulo", ""));
@@ -132,8 +129,8 @@ public class EditTareaActivity extends BaseActivity {
                     } catch (Exception e) {
                         Log.e(TAG, "Error parseando la tarea", e);
                     }
-                }
-            });
+                });
+            }).start();
         }
 
         etFecha.setOnClickListener(v -> configurarSelectorFecha());
@@ -160,13 +157,18 @@ public class EditTareaActivity extends BaseActivity {
         btnGuardar.setEnabled(false);
         Toast.makeText(this, "Guardando...", Toast.LENGTH_SHORT).show();
         
-        dbManager.actualizarTareaCompletaRemoto(tareaId, titulo, descripcion, prioridadIndex, fechaDB, latitudDB, longitudDB, direccionDB).observe(this, workInfo -> {
-            if (workInfo != null && workInfo.getState().isFinished()) {
+        new Thread(() -> {
+            boolean exito = dbManager.actualizarTareaCompletaProvider(tareaId, titulo, descripcion, prioridadIndex, fechaDB, latitudDB, longitudDB, direccionDB);
+            runOnUiThread(() -> {
                 btnGuardar.setEnabled(true);
-                Toast.makeText(this, R.string.toast_tarea_actualizada, Toast.LENGTH_SHORT).show();
-                finish();
-            }
-        });
+                if (exito) {
+                    Toast.makeText(this, R.string.toast_tarea_actualizada, Toast.LENGTH_SHORT).show();
+                    finish();
+                } else {
+                    Toast.makeText(this, "Error actualizando la tarea con ContentProvider", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }).start();
     }
 
     /**

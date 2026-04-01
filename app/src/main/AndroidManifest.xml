@@ -121,6 +121,11 @@
             android:name=".ProximidadService"
             android:foregroundServiceType="location"
             android:exported="false" />
+            
+        <provider
+            android:name=".TareasContentProvider"
+            android:authorities="com.example.dasproyecto.provider"
+            android:exported="true" />
 
     </application>
 

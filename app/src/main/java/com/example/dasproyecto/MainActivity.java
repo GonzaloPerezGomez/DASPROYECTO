@@ -267,24 +267,21 @@ public class MainActivity extends BaseActivity implements ListaTareasFragment.On
      */
     private void exportTareasToFile(Uri uri) {
         DBmanager dbManager = new DBmanager(this);
-        dbManager.getTareasRemoto("fechaLimite").observe(this, workInfo -> {
-            if (workInfo != null && workInfo.getState().isFinished()) {
-                String resultado = workInfo.getOutputData().getString("datos");
-                if (resultado == null) {
-                    Toast.makeText(this, "Error al obtener tareas para exportar", Toast.LENGTH_SHORT).show();
+        new Thread(() -> {
+            try {
+                org.json.JSONObject resultJson = dbManager.getTareasProvider("fechaLimite");
+                if (resultJson == null || !resultJson.has("exito")) {
+                    runOnUiThread(() -> Toast.makeText(this, "Error al obtener tareas para exportar", Toast.LENGTH_SHORT).show());
                     return;
                 }
 
-                new Thread(() -> {
-                    try {
-                        org.json.JSONObject resultJson = new org.json.JSONObject(resultado);
-                        if (!resultJson.getBoolean("exito")) {
-                            runOnUiThread(() -> Toast.makeText(this, "Error del servidor al exportar", Toast.LENGTH_SHORT).show());
-                            return;
-                        }
+                if (!resultJson.getBoolean("exito")) {
+                    runOnUiThread(() -> Toast.makeText(this, "Error del servidor al exportar", Toast.LENGTH_SHORT).show());
+                    return;
+                }
 
-                        org.json.JSONArray tareasArray = resultJson.getJSONArray("tareas");
-                        StringBuilder sb = new StringBuilder();
+                org.json.JSONArray tareasArray = resultJson.getJSONArray("tareas");
+                StringBuilder sb = new StringBuilder();
                         sb.append("MIS TAREAS\n");
                         sb.append("====================\n\n");
 
@@ -335,9 +332,7 @@ public class MainActivity extends BaseActivity implements ListaTareasFragment.On
                         e.printStackTrace();
                         runOnUiThread(() -> Toast.makeText(this, "Error parseando tareas para exportar", Toast.LENGTH_SHORT).show());
                     }
-                }).start();
-            }
-        });
+        }).start();
     }
 
     /**

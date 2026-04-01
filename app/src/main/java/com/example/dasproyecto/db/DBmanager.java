@@ -23,6 +23,8 @@ import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 import com.example.dasproyecto.ConexionWorker;
 
+import org.json.JSONObject;
+
 /**
  * Clase que gestiona todas las operaciones con la base de datos de tareas:
  * crear, leer, actualizar y borrar (CRUD). También tiene métodos para formatear
@@ -170,7 +172,173 @@ public class DBmanager {
 
 
     // =========================================================================
-    // MÉTODOS REMOTOS (WorkManager Wrapper)
+    // MÉTODOS CONTENT PROVIDER (Síncronos para Tareas)
+    // =========================================================================
+
+    public int eliminarCompletadasProvider() {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        int userId = prefs.getInt("session_user_id", -1);
+
+        return context.getContentResolver().delete(
+                android.net.Uri.parse("content://com.example.dasproyecto.provider/tareas"),
+                "deleteCompletadas",
+                new String[]{String.valueOf(userId)}
+        );
+    }
+
+    public JSONObject getTareasProvider(String ordenUI) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        int userId = prefs.getInt("session_user_id", -1);
+        String ordenSQL = "prioridad".equals(ordenUI) ? "prioridad" : "fechaLimite";
+
+        Cursor cursor = context.getContentResolver().query(
+                android.net.Uri.parse("content://com.example.dasproyecto.provider/tareas"),
+                null,
+                "usuario_id=" + userId,
+                null,
+                ordenSQL
+        );
+
+        JSONObject result = new JSONObject();
+        try {
+            if (cursor != null) {
+                result.put("exito", true);
+                org.json.JSONArray tareasArray = new org.json.JSONArray();
+                while (cursor.moveToNext()) {
+                    JSONObject t = new JSONObject();
+                    t.put("id", cursor.getInt(cursor.getColumnIndexOrThrow("id")));
+                    t.put("titulo", cursor.getString(cursor.getColumnIndexOrThrow("titulo")));
+                    t.put("descripcion", cursor.getString(cursor.getColumnIndexOrThrow("descripcion")));
+                    t.put("prioridad", cursor.getInt(cursor.getColumnIndexOrThrow("prioridad")));
+                    t.put("fechaLimite", cursor.getString(cursor.getColumnIndexOrThrow("fechaLimite")));
+                    t.put("completada", cursor.getInt(cursor.getColumnIndexOrThrow("completada")));
+                    t.put("latitud", cursor.getString(cursor.getColumnIndexOrThrow("latitud")));
+                    t.put("longitud", cursor.getString(cursor.getColumnIndexOrThrow("longitud")));
+                    t.put("direccion", cursor.getString(cursor.getColumnIndexOrThrow("direccion")));
+                    tareasArray.put(t);
+                }
+                result.put("tareas", tareasArray);
+            } else {
+                result.put("exito", false);
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error getTareasProvider", e);
+        } finally {
+            if (cursor != null) cursor.close();
+        }
+        return result;
+    }
+
+    public JSONObject getTareaProvider(long tareaId) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        int userId = prefs.getInt("session_user_id", -1);
+
+        Cursor cursor = context.getContentResolver().query(
+                android.net.Uri.parse("content://com.example.dasproyecto.provider/tareas/" + tareaId),
+                null,
+                "usuario_id=" + userId,
+                null, null
+        );
+
+        JSONObject result = new JSONObject();
+        try {
+            if (cursor != null && cursor.moveToFirst()) {
+                result.put("exito", true);
+                JSONObject t = new JSONObject();
+                t.put("id", cursor.getInt(cursor.getColumnIndexOrThrow("id")));
+                t.put("titulo", cursor.getString(cursor.getColumnIndexOrThrow("titulo")));
+                t.put("descripcion", cursor.getString(cursor.getColumnIndexOrThrow("descripcion")));
+                t.put("prioridad", cursor.getInt(cursor.getColumnIndexOrThrow("prioridad")));
+                t.put("fechaLimite", cursor.getString(cursor.getColumnIndexOrThrow("fechaLimite")));
+                t.put("completada", cursor.getInt(cursor.getColumnIndexOrThrow("completada")));
+                t.put("latitud", cursor.getString(cursor.getColumnIndexOrThrow("latitud")));
+                t.put("longitud", cursor.getString(cursor.getColumnIndexOrThrow("longitud")));
+                t.put("direccion", cursor.getString(cursor.getColumnIndexOrThrow("direccion")));
+                result.put("tarea", t);
+            } else {
+                result.put("exito", false);
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error getTareaProvider", e);
+        } finally {
+            if (cursor != null) cursor.close();
+        }
+        return result;
+    }
+
+    public boolean insertarProvider(String titulo, String desc, int prioridad, String fecha, Double latitud, Double longitud, String direccion) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        int userId = prefs.getInt("session_user_id", -1);
+
+        ContentValues values = new ContentValues();
+        values.put("usuario_id", String.valueOf(userId)); 
+        values.put("titulo", titulo);
+        values.put("descripcion", desc);
+        values.put("prioridad", String.valueOf(prioridad));
+        values.put("fechaLimite", fecha != null ? fecha : "");
+        values.put("latitud", latitud != null ? String.valueOf(latitud) : "");
+        values.put("longitud", longitud != null ? String.valueOf(longitud) : "");
+        values.put("direccion", direccion != null ? direccion : "");
+
+        android.net.Uri result = context.getContentResolver().insert(
+                android.net.Uri.parse("content://com.example.dasproyecto.provider/tareas"),
+                values
+        );
+        return result != null;
+    }
+
+    public boolean actualizarTareaCompletaProvider(long tareaId, String titulo, String desc, int prioridad, String fecha, Double latitud, Double longitud, String direccion) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        int userId = prefs.getInt("session_user_id", -1);
+
+        ContentValues values = new ContentValues();
+        values.put("titulo", titulo);
+        values.put("descripcion", desc);
+        values.put("prioridad", String.valueOf(prioridad));
+        values.put("fechaLimite", fecha != null ? fecha : "");
+        values.put("latitud", latitud != null ? String.valueOf(latitud) : "");
+        values.put("longitud", longitud != null ? String.valueOf(longitud) : "");
+        values.put("direccion", direccion != null ? direccion : "");
+
+        int updated = context.getContentResolver().update(
+                android.net.Uri.parse("content://com.example.dasproyecto.provider/tareas/" + tareaId),
+                values,
+                "usuario_id=" + userId,
+                null
+        );
+        return updated > 0;
+    }
+
+    public boolean actualizarEstadoProvider(long tareaId, int estado) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        int userId = prefs.getInt("session_user_id", -1);
+
+        ContentValues values = new ContentValues();
+        values.put("completada", String.valueOf(estado));
+
+        int updated = context.getContentResolver().update(
+                android.net.Uri.parse("content://com.example.dasproyecto.provider/tareas/" + tareaId),
+                values,
+                "usuario_id=" + userId,
+                null
+        );
+        return updated > 0;
+    }
+
+    public boolean eliminarProvider(long tareaId) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        int userId = prefs.getInt("session_user_id", -1);
+
+        int deleted = context.getContentResolver().delete(
+                android.net.Uri.parse("content://com.example.dasproyecto.provider/tareas/" + tareaId),
+                "usuario_id=" + userId,
+                null
+        );
+        return deleted > 0;
+    }
+
+    // =========================================================================
+    // MÉTODOS WORKMANAGER (Asíncronos para Perfil/Auth)
     // =========================================================================
 
     public LiveData<WorkInfo> loginRemoto(String email, String password) {
@@ -200,154 +368,6 @@ public class DBmanager {
                 .setInputData(datos)
                 .build();
 
-        WorkManager.getInstance(context).enqueue(req);
-        return WorkManager.getInstance(context).getWorkInfoByIdLiveData(req.getId());
-    }
-
-    public LiveData<WorkInfo> getTareasRemoto(String ordenUI) {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        int userId = prefs.getInt("session_user_id", -1);
-        if (userId == -1) {
-            Log.e(TAG, "No hay usuario logueado");
-            return null;
-        }
-
-        boolean ocultarCompletadas = prefs.getBoolean("ocultar_completadas", false);
-        
-        String ordenSQL = "fechaLimite";
-        if ("prioridad".equals(ordenUI)) {
-            ordenSQL = "prioridad";
-        }
-
-        Data datos = new Data.Builder()
-                .putString("accion", "tareas")
-                .putString("tarea_accion", "getTareas")
-                .putInt("usuario_id", userId)
-                .putBoolean("ocultar_completadas", ocultarCompletadas)
-                .putString("orden", ordenSQL)
-                .build();
-
-        OneTimeWorkRequest req = new OneTimeWorkRequest.Builder(ConexionWorker.class)
-                .setInputData(datos)
-                .build();
-
-        Log.d(TAG, "Lanzando WorkManager para getTareas. Usuario: " + userId + " | Ocultar Completadas: "
-                + ocultarCompletadas + " | Orden: " + ordenSQL);
-        WorkManager.getInstance(context).enqueue(req);
-        return WorkManager.getInstance(context).getWorkInfoByIdLiveData(req.getId());
-    }
-
-    public LiveData<WorkInfo> insertarRemoto(String titulo, String desc, int prioridad, String fecha, Double latitud, Double longitud, String direccion) {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        int userId = prefs.getInt("session_user_id", -1);
-
-        Data datos = new Data.Builder()
-                .putString("accion", "tareas")
-                .putString("tarea_accion", "insertTarea")
-                .putInt("usuario_id", userId)
-                .putString("titulo", titulo)
-                .putString("descripcion", desc)
-                .putInt("prioridad", prioridad)
-                // Enviamos "" si la fecha es null para no romper el PHP, o no ponemos la key
-                .putString("fechaLimite", fecha != null ? fecha : "")
-                .putString("latitud", latitud != null ? String.valueOf(latitud) : "")
-                .putString("longitud", longitud != null ? String.valueOf(longitud) : "")
-                .putString("direccion", direccion != null ? direccion : "")
-                .build();
-
-        OneTimeWorkRequest req = new OneTimeWorkRequest.Builder(ConexionWorker.class)
-                .setInputData(datos)
-                .build();
-
-        Log.d(TAG, "Lanzando WorkManager para insertarTarea: " + titulo);
-        WorkManager.getInstance(context).enqueue(req);
-        return WorkManager.getInstance(context).getWorkInfoByIdLiveData(req.getId());
-    }
-
-    public LiveData<WorkInfo> getTareaRemoto(long tareaId) {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        int userId = prefs.getInt("session_user_id", -1);
-
-        Data datos = new Data.Builder()
-                .putString("accion", "tareas")
-                .putString("tarea_accion", "getTarea")
-                .putInt("usuario_id", userId)
-                .putInt("tarea_id", (int) tareaId)
-                .build();
-
-        OneTimeWorkRequest req = new OneTimeWorkRequest.Builder(ConexionWorker.class).setInputData(datos).build();
-        WorkManager.getInstance(context).enqueue(req);
-        return WorkManager.getInstance(context).getWorkInfoByIdLiveData(req.getId());
-    }
-
-    public LiveData<WorkInfo> actualizarTareaCompletaRemoto(long tareaId, String titulo, String desc, int prioridad,
-            String fecha, Double latitud, Double longitud, String direccion) {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        int userId = prefs.getInt("session_user_id", -1);
-
-        Data datos = new Data.Builder()
-                .putString("accion", "tareas")
-                .putString("tarea_accion", "updateTarea")
-                .putInt("usuario_id", userId)
-                .putInt("tarea_id", (int) tareaId)
-                .putString("titulo", titulo)
-                .putString("descripcion", desc)
-                .putInt("prioridad", prioridad)
-                .putString("fechaLimite", fecha != null ? fecha : "")
-                .putString("latitud", latitud != null ? String.valueOf(latitud) : "")
-                .putString("longitud", longitud != null ? String.valueOf(longitud) : "")
-                .putString("direccion", direccion != null ? direccion : "")
-                .build();
-
-        OneTimeWorkRequest req = new OneTimeWorkRequest.Builder(ConexionWorker.class).setInputData(datos).build();
-        WorkManager.getInstance(context).enqueue(req);
-        return WorkManager.getInstance(context).getWorkInfoByIdLiveData(req.getId());
-    }
-
-    public LiveData<WorkInfo> actualizarEstadoRemoto(long tareaId, int estado) {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        int userId = prefs.getInt("session_user_id", -1);
-
-        Data datos = new Data.Builder()
-                .putString("accion", "tareas")
-                .putString("tarea_accion", "updateTarea")
-                .putInt("usuario_id", userId)
-                .putInt("tarea_id", (int) tareaId)
-                .putInt("completada", estado)
-                .build();
-
-        OneTimeWorkRequest req = new OneTimeWorkRequest.Builder(ConexionWorker.class).setInputData(datos).build();
-        WorkManager.getInstance(context).enqueue(req);
-        return WorkManager.getInstance(context).getWorkInfoByIdLiveData(req.getId());
-    }
-
-    public LiveData<WorkInfo> eliminarRemoto(long tareaId) {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        int userId = prefs.getInt("session_user_id", -1);
-
-        Data datos = new Data.Builder()
-                .putString("accion", "tareas")
-                .putString("tarea_accion", "deleteTarea")
-                .putInt("usuario_id", userId)
-                .putInt("tarea_id", (int) tareaId)
-                .build();
-
-        OneTimeWorkRequest req = new OneTimeWorkRequest.Builder(ConexionWorker.class).setInputData(datos).build();
-        WorkManager.getInstance(context).enqueue(req);
-        return WorkManager.getInstance(context).getWorkInfoByIdLiveData(req.getId());
-    }
-
-    public LiveData<WorkInfo> eliminarCompletadasRemoto() {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        int userId = prefs.getInt("session_user_id", -1);
-
-        Data datos = new Data.Builder()
-                .putString("accion", "tareas")
-                .putString("tarea_accion", "deleteCompletadas")
-                .putInt("usuario_id", userId)
-                .build();
-
-        OneTimeWorkRequest req = new OneTimeWorkRequest.Builder(ConexionWorker.class).setInputData(datos).build();
         WorkManager.getInstance(context).enqueue(req);
         return WorkManager.getInstance(context).getWorkInfoByIdLiveData(req.getId());
     }

@@ -120,42 +120,34 @@ public class ProximidadService extends Service {
     }
 
     private void cargarTareasServidor() {
-        tareasObserver = workInfo -> {
-            if (workInfo != null && workInfo.getState().isFinished()) {
-                String resultado = workInfo.getOutputData().getString("datos");
-                if (resultado != null) {
-                    try {
-                        JSONObject json = new JSONObject(resultado);
-                        if (json.getBoolean("exito")) {
-                            JSONArray tareasArray = json.getJSONArray("tareas");
-                            tareasActivas.clear();
-                            for (int i = 0; i < tareasArray.length(); i++) {
-                                JSONObject t = tareasArray.getJSONObject(i);
-                                // Filtrar las completadas y las que no tengan lat/lng
-                                if (t.getInt("completada") == 0 && 
-                                    !t.isNull("latitud") && !t.isNull("longitud") &&
-                                    !t.getString("latitud").isEmpty() && !t.getString("longitud").isEmpty()) {
-                                    
-                                    try {
-                                        double lat = t.getDouble("latitud");
-                                        double lng = t.getDouble("longitud");
-                                        tareasActivas.add(t);
-                                    } catch (Exception e) {
-                                        // ignorar tarea sin validez num
-                                    }
-                                }
+        new Thread(() -> {
+            try {
+                JSONObject json = dbManager.getTareasProvider("fechaLimite");
+                if (json != null && json.optBoolean("exito", false)) {
+                    JSONArray tareasArray = json.getJSONArray("tareas");
+                    tareasActivas.clear();
+                    for (int i = 0; i < tareasArray.length(); i++) {
+                        JSONObject t = tareasArray.getJSONObject(i);
+                        // Filtrar las completadas y las que no tengan lat/lng
+                        if (t.getInt("completada") == 0 && 
+                            !t.isNull("latitud") && !t.isNull("longitud") &&
+                            !t.getString("latitud").isEmpty() && !t.getString("longitud").isEmpty()) {
+                            
+                            try {
+                                double lat = t.getDouble("latitud");
+                                double lng = t.getDouble("longitud");
+                                tareasActivas.add(t);
+                            } catch (Exception e) {
+                                // ignorar tarea sin validez num
                             }
-                            Log.d(TAG, "Tareas activas con ubicación cargadas: " + tareasActivas.size());
                         }
-                    } catch (Exception e) {
-                        Log.e(TAG, "Error parseando tareas", e);
                     }
+                    Log.d(TAG, "Tareas activas con ubicación cargadas: " + tareasActivas.size());
                 }
+            } catch (Exception e) {
+                Log.e(TAG, "Error parseando tareas", e);
             }
-        };
-
-        // Solicitar tareas usando la configuración por defecto
-        dbManager.getTareasRemoto("fechaLimite").observeForever(tareasObserver);
+        }).start();
     }
 
     private void iniciarLocationTracking() {

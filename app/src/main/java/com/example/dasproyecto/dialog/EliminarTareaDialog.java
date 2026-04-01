@@ -57,13 +57,20 @@ public class EliminarTareaDialog extends DialogFragment {
             DBmanager dbManager = new DBmanager(activityActivity);
             dbManager.open();
             
-            dbManager.eliminarRemoto(idTarea).observe(activityActivity, workInfo -> {
-                if (workInfo != null && workInfo.getState().isFinished()) {
-                    dbManager.close();
-                    if (listener != null) listener.onTareaEliminada();
-                    android.widget.Toast.makeText(activityActivity, activityActivity.getString(R.string.toast_tarea_eliminada, tituloTarea), android.widget.Toast.LENGTH_SHORT).show();
+            new Thread(() -> {
+                boolean exito = dbManager.eliminarProvider(idTarea);
+                if (activityActivity != null) {
+                    activityActivity.runOnUiThread(() -> {
+                        dbManager.close();
+                        if (exito) {
+                            if (listener != null) listener.onTareaEliminada();
+                            android.widget.Toast.makeText(activityActivity, activityActivity.getString(R.string.toast_tarea_eliminada, tituloTarea), android.widget.Toast.LENGTH_SHORT).show();
+                        } else {
+                            android.widget.Toast.makeText(activityActivity, "Error al borrar con ContentProvider", android.widget.Toast.LENGTH_SHORT).show();
+                        }
+                    });
                 }
-            });
+            }).start();
         });
         builder.setNegativeButton(getString(R.string.dialog_eliminar_cancelar), (dialog, i) -> dialog.dismiss());
         return builder.create();

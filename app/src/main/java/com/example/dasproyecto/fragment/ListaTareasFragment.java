@@ -192,16 +192,22 @@ public class ListaTareasFragment extends Fragment {
                         .newInstance(listenerEliminada);
                 dialogo.show(getParentFragmentManager(), "EliminarCompletadas");
             } else {
-                dbManager.eliminarCompletadasRemoto().observe(getViewLifecycleOwner(), workInfo -> {
-                    if (workInfo != null && workInfo.getState().isFinished()) {
-                        if (listenerEliminada != null) {
-                            listenerEliminada.onTareaEliminada();
-                        }
-                        Toast.makeText(requireContext(), R.string.toast_completadas_eliminadas, Toast.LENGTH_SHORT)
-                                .show();
-                        cargarTareas(ordenActual != null ? ordenActual : "fechaLimite");
+                new Thread(() -> {
+                    Log.d(TAG, "Eliminando tareas completadas usando provider...");
+                    int deleted = dbManager.eliminarCompletadasProvider();
+                    Log.d(TAG, "Tareas completadas eliminadas: " + deleted);
+                    if (getActivity() != null) {
+                        getActivity().runOnUiThread(() -> {
+                            if (deleted > 0) {
+                                if (listenerEliminada != null) listenerEliminada.onTareaEliminada();
+                                Toast.makeText(requireContext(), R.string.toast_completadas_eliminadas, Toast.LENGTH_SHORT).show();
+                                cargarTareas(ordenActual != null ? ordenActual : "fechaLimite");
+                            } else {
+                                Toast.makeText(requireContext(), "No había tareas completadas", Toast.LENGTH_SHORT).show();
+                            }
+                        });
                     }
-                });
+                }).start();
             }
             return true;
         } else if (id == R.id.ordenar_fecha) {
@@ -237,52 +243,49 @@ public class ListaTareasFragment extends Fragment {
             return;
         }
 
-        // Antes lo hacíamos con Cursores locales de SQLite. Ahora somos PROS y lo
-        // hacemos asíncrono.
-        dbManager.getTareasRemoto(orden).observe(getViewLifecycleOwner(), workInfo -> {
-            if (workInfo != null && workInfo.getState().isFinished()) {
-                String resultado = workInfo.getOutputData().getString("datos");
-                Log.d(TAG, "Respuesta cruda del servidor (getTareas): " + resultado);
-
-                if (resultado == null) {
-                    Log.e(TAG, "El resultado es NULL. Posible error de red o timeout.");
-                    return;
+        // Usando DBmanager para cargar las tareas vía Content Provider (Hito 7)
+        new Thread(() -> {
+            JSONObject resultJson = dbManager.getTareasProvider(orden);
+            if (resultJson != null && resultJson.optBoolean("exito", false)) {
+                JSONArray tareasArray;
+                try {
+                    tareasArray = resultJson.getJSONArray("tareas");
+                } catch (Exception e) {
+                    Log.e(TAG, "Error extrayendo array de tareas de JSON", e);
+                    tareasArray = new JSONArray();
                 }
 
-                try {
-                    JSONObject json = new JSONObject(resultado);
-                    if (json.getBoolean("exito")) {
-                        JSONArray tareasArray = json.getJSONArray("tareas");
-                        Log.d(TAG, "Parseo de JSON exitoso. Tareas recuperadas: " + tareasArray.length());
-
+                JSONArray finalTareasArray = tareasArray;
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
                         if (adapter == null) {
                             adapter = new TareasAdapter(requireContext(), listener);
                             recyclerView.setAdapter(adapter);
                         }
-                        adapter.setTareas(tareasArray);
+                        adapter.setTareas(finalTareasArray);
 
-                        // Lógica de tablet (orientación apaisada): selecciona automáticamente la
-                        // primera tarea
                         boolean orientationLandscape = getResources()
                                 .getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
                         if (!primeraSeleccionRealizada && listener != null && orientationLandscape
-                                && tareasArray.length() > 0) {
-                            long primeraTareaId = tareasArray.getJSONObject(0).getLong("id");
-                            Log.d(TAG, "Auto-seleccionando primera tarea remota con ID: " + primeraTareaId);
-                            listener.onTareaSeleccionada(primeraTareaId);
-                            primeraSeleccionRealizada = true;
+                                && finalTareasArray.length() > 0) {
+                            try {
+                                long primeraTareaId = finalTareasArray.getJSONObject(0).getLong("id");
+                                listener.onTareaSeleccionada(primeraTareaId);
+                                primeraSeleccionRealizada = true;
+                            } catch (Exception e) {
+                                Log.e(TAG, "Error auto-seleccionando tarea", e);
+                            }
                         }
-
-                    } else {
-                        Toast.makeText(requireContext(), "Error servidor: " + json.optString("mensaje"),
-                                Toast.LENGTH_LONG).show();
-                    }
-                } catch (Exception e) {
-                    Log.e(TAG, "Error parseando tareas del servidor: " + resultado, e);
-                    Toast.makeText(requireContext(), "Error de parseo", Toast.LENGTH_SHORT).show();
+                    });
+                }
+            } else {
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
+                        Toast.makeText(requireContext(), "Error obteniendo tareas del Provider", Toast.LENGTH_SHORT).show();
+                    });
                 }
             }
-        });
+        }).start();
     }
 
     /**

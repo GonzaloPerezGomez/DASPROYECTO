@@ -124,29 +124,19 @@ public class AddTareaActivity extends BaseActivity {
         btnGuardar.setEnabled(false);
         Toast.makeText(this, "Guardando tarea en el servidor...", Toast.LENGTH_SHORT).show();
 
-        dbManager.insertarRemoto(titulo, descripcion, prioridadIndex, fechaDB, latitudDB, longitudDB, direccionDB).observe(this, workInfo -> {
-            if (workInfo != null && workInfo.getState().isFinished()) {
+        new Thread(() -> {
+            boolean exito = dbManager.insertarProvider(titulo, descripcion, prioridadIndex, fechaDB, latitudDB, longitudDB, direccionDB);
+            runOnUiThread(() -> {
                 btnGuardar.setEnabled(true);
-                String resultado = workInfo.getOutputData().getString("datos");
-                if (resultado == null) {
-                    Toast.makeText(this, "Error de red al guardar", Toast.LENGTH_SHORT).show();
-                    return;
+                if (exito) {
+                    Log.i(TAG, "Tarea guardada exitosamente: " + titulo);
+                    Toast.makeText(this, R.string.toast_tarea_guardada, Toast.LENGTH_SHORT).show();
+                    finish();
+                } else {
+                    Toast.makeText(this, "Error insertando la tarea con ContentProvider", Toast.LENGTH_SHORT).show();
                 }
-                try {
-                    JSONObject json = new JSONObject(resultado);
-                    if (json.getBoolean("exito")) {
-                        Log.i(TAG, "Tarea guardada exitosamente: " + titulo);
-                        Toast.makeText(this, R.string.toast_tarea_guardada, Toast.LENGTH_SHORT).show();
-                        finish();
-                    } else {
-                        Toast.makeText(this, "Error del servidor: " + json.optString("mensaje"), Toast.LENGTH_LONG).show();
-                    }
-                } catch (Exception e) {
-                    Log.e(TAG, "Error parseando la respuesta al insertar: " + resultado, e);
-                    Toast.makeText(this, "Error interno al guardar", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
+            });
+        }).start();
     }
 
     /**

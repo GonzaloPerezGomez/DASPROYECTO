@@ -29,7 +29,7 @@ import java.io.File;
 public class ConexionWorker extends Worker {
 
     private static final String TAG = "ConexionWorker";
-    private static final String SERVER_URL = "http://104.154.52.92:81/";
+    private static final String SERVER_URL = "http://34.28.161.49:81/";
 
     public ConexionWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
