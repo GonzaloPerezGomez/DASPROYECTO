@@ -138,7 +138,6 @@ public class ListaTareasFragment extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
 
         dbManager = new DBmanager(requireContext());
-        dbManager.open();
 
         cargarTareas();
     }
@@ -258,6 +257,8 @@ public class ListaTareasFragment extends Fragment {
                 JSONArray finalTareasArray = tareasArray;
                 if (getActivity() != null) {
                     getActivity().runOnUiThread(() -> {
+                        if (!isAdded() || getActivity() == null) return;
+                        
                         if (adapter == null) {
                             adapter = new TareasAdapter(requireContext(), listener);
                             recyclerView.setAdapter(adapter);
@@ -313,8 +314,5 @@ public class ListaTareasFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        if (dbManager != null) {
-            dbManager.close();
-        }
     }
 }

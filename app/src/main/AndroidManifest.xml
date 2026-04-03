@@ -8,6 +8,9 @@
     <!-- Permiso para re-programar la alarma tras reinicio del dispositivo -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
+    <!-- Permiso para alarmas exactas (obligatorio en Android 12+) -->
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+
     <!-- Permiso para conexión a internet (obligatorio para BBDD remota) -->
     <uses-permission android:name="android.permission.INTERNET" />
     
@@ -126,6 +129,18 @@
             android:name=".TareasContentProvider"
             android:authorities="com.example.dasproyecto.provider"
             android:exported="true" />
+
+        <!-- Widget de Próximas Tareas (Hito 8) -->
+        <receiver
+            android:name=".TareasWidgetProvider"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_info" />
+        </receiver>
 
     </application>
 

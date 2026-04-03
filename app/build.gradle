@@ -59,6 +59,10 @@ dependencies {
     implementation libs.coordinatorlayout
     implementation libs.preference
     implementation libs.work.runtime
+
+    // Room (persistencia local moderna)
+    implementation libs.room.runtime
+    annotationProcessor libs.room.compiler
     testImplementation libs.junit
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core

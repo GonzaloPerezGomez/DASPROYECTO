@@ -17,16 +17,18 @@ import androidx.core.app.NotificationCompat;
 import androidx.preference.PreferenceManager;
 
 import com.example.dasproyecto.R;
-import com.example.dasproyecto.db.DBmanager;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Receiver que se dispara con la alarma diaria.
  * Mira si hay tareas pendientes y, si las hay, muestra una notificación.
+ * Corregido para realizar el acceso a la BD en un hilo secundario mediante goAsync().
  */
 public class NotificacionReceiver extends BroadcastReceiver {
 
@@ -34,14 +36,34 @@ public class NotificacionReceiver extends BroadcastReceiver {
     private static final int NOTIFICACION_TAREAS_ID = 1;
     private static final String CHANNEL_ID = "tareas_channel";
 
+    // Executor para realizar el trabajo de BD fuera del hilo principal
+    private static final ExecutorService executor = Executors.newSingleThreadExecutor();
+
     /**
      * Se ejecuta cuando salta la alarma.
-     * Comprueba los permisos, busca tareas pendientes y lanza la notificación.
+     * Usa goAsync para poder consultar la base de datos sin bloquear el hilo principal
+     * y evitar el IllegalStateException de Room.
      */
     @Override
     public void onReceive(Context context, Intent intent) {
-        Log.d(TAG, "onReceive ejecutado - Comprobando tareas pendientes...");
+        Log.d(TAG, "onReceive ejecutado - Iniciando procesamiento asíncrono...");
 
+        final PendingResult pendingResult = goAsync();
+
+        executor.execute(() -> {
+            try {
+                procesarNotificacion(context);
+            } catch (Exception e) {
+                Log.e(TAG, "Error al procesar la notificación en segundo plano", e);
+            } finally {
+                // Es crítico llamar a finish() para que el sistema sepa que el receiver ha terminado
+                pendingResult.finish();
+                Log.d(TAG, "Procesamiento de notificación finalizado.");
+            }
+        });
+    }
+
+    private void procesarNotificacion(Context context) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         boolean notificacionesActivadas = prefs.getBoolean("notificaciones", true);
         if (!notificacionesActivadas) {
@@ -53,19 +75,30 @@ public class NotificacionReceiver extends BroadcastReceiver {
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
         String fechaHoyDB = sdf.format(Calendar.getInstance().getTime());
-        Log.d(TAG, "Fecha de hoy: " + fechaHoyDB);
 
-        DBmanager dbManager = new DBmanager(context);
-        dbManager.open();
-        ArrayList<String> tareas = dbManager.tareasPendientes(fechaHoyDB);
-        dbManager.close();
-
-        if (tareas == null) {
-            Log.e(TAG, "Error al obtener las tareas pendientes");
+        SharedPreferences prefsUser = PreferenceManager.getDefaultSharedPreferences(context);
+        int userId = prefsUser.getInt("session_user_id", -1);
+        if (userId == -1) {
+            Log.w(TAG, "No hay usuario logueado, abortando notificación");
             return;
         }
 
+        // Acceso a Room (Ahora seguro porque estamos en el hilo del executor)
+        com.example.dasproyecto.db.TareaDao dao =
+                com.example.dasproyecto.db.AppDatabase.getInstance(context).tareaDao();
+        java.util.List<com.example.dasproyecto.db.TareaEntity> todasTareas = dao.getTareasPorFecha(userId);
+
+        ArrayList<String> tareas = new ArrayList<>();
+        for (com.example.dasproyecto.db.TareaEntity t : todasTareas) {
+            if (t.completada == 0 && t.fechaLimite != null && !t.fechaLimite.isEmpty()) {
+                if (t.fechaLimite.compareTo(fechaHoyDB) <= 0) {
+                    tareas.add(t.titulo);
+                }
+            }
+        }
+
         NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        if (manager == null) return;
 
         if (!tareas.isEmpty()) {
             StringBuilder mensaje = new StringBuilder(context.getString(R.string.notif_mensaje, tareas.size()));
@@ -90,13 +123,12 @@ public class NotificacionReceiver extends BroadcastReceiver {
             }
         } else {
             manager.cancel(NOTIFICACION_TAREAS_ID);
-            Log.d(TAG, "No hay tareas pendientes, notificación cancelada");
+            Log.d(TAG, "No hay tareas pendientes para hoy");
         }
     }
 
     /**
      * Crea el canal de notificaciones si estamos en Android 8 (Oreo) o superior.
-     * Sin esto, las notificaciones no se muestran.
      */
     @SuppressLint("ObsoleteSdkInt")
     private void crearCanalSiNecesario(Context context) {
@@ -106,7 +138,9 @@ public class NotificacionReceiver extends BroadcastReceiver {
                     context.getString(R.string.notif_canal_nombre),
                     NotificationManager.IMPORTANCE_DEFAULT);
             NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-            manager.createNotificationChannel(channel);
+            if (manager != null) {
+                manager.createNotificationChannel(channel);
+            }
         }
     }
 }

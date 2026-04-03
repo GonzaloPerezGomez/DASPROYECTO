@@ -89,7 +89,6 @@ public class EditTareaActivity extends BaseActivity {
 
         if (getIntent().hasExtra(DBmanager.COL_ID)) {
             dbManager = new DBmanager(this);
-            dbManager.open();
             Log.d(TAG, "Recuperando tarea con ID: " + getIntent().getLongExtra(DBmanager.COL_ID, -1));
             tareaId = getIntent().getLongExtra(DBmanager.COL_ID, -1);
             
@@ -178,9 +177,6 @@ public class EditTareaActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (dbManager != null) {
-            dbManager.close();
-        }
     }
 
     /**

@@ -129,7 +129,6 @@ public class DetalleTareaFragment extends Fragment {
         }
 
         dbManager = new DBmanager(requireContext());
-        dbManager.open();
 
         cargarDatos();
 
@@ -288,13 +287,10 @@ public class DetalleTareaFragment extends Fragment {
     }
 
     /**
-     * Al destruirse la vista, cierra la conexión con la BD.
+     * Al destruirse la vista.
      */
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        if (dbManager != null) {
-            dbManager.close();
-        }
     }
 }

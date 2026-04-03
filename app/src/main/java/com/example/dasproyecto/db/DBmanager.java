@@ -3,8 +3,6 @@ package com.example.dasproyecto.db;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.SQLException;
-import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 import java.text.ParseException;
@@ -26,100 +24,28 @@ import com.example.dasproyecto.ConexionWorker;
 import org.json.JSONObject;
 
 /**
- * Clase que gestiona todas las operaciones con la base de datos de tareas:
- * crear, leer, actualizar y borrar (CRUD). También tiene métodos para formatear
- * fechas.
+ * Fachada que gestiona el acceso a datos de la aplicación.
+ * 
+ * Tras el Hito 10, este manager actúa como interfaz de alto nivel que:
+ * - Usa el ContentProvider para operaciones CRUD de tareas (que internamente usa Room + Servidor).
+ * - Usa WorkManager para operaciones de autenticación y perfil.
+ * - Mantiene utilidades de formato de fecha.
  */
 public class DBmanager {
     private static final String TAG = "DBmanager";
-    public static final String TABLE_NAME = "tareas";
+
+    /** Constante usada como clave en Intents para pasar el ID de la tarea */
     public static final String COL_ID = "id";
-    public static final String COL_TITULO = "titulo";
-    public static final String COL_DESCRIPCION = "descripcion";
-    public static final String COL_PRIORIDAD = "prioridad";
-    public static final String COL_FECHALIMITE = "fechaLimite";
-    public static final String COL_COMPLETADA = "completada";
 
-    public static final String CREATE_TABLE = "CREATE TABLE tareas (" +
-            "id INTEGER PRIMARY KEY AUTOINCREMENT," +
-            "titulo TEXT NOT NULL," +
-            "descripcion TEXT," +
-            "prioridad INTEGER DEFAULT 0," +
-            "fechaLimite TEXT," +
-            "completada INTEGER DEFAULT 0" +
-            ")";
-
-    private final DBconexion conexion;
-    private SQLiteDatabase db;
     private final Context context;
 
     /**
-     * Constructor. Crea la conexión a la BD.
+     * Constructor.
      *
      * @param context Contexto de la app.
      */
     public DBmanager(Context context) {
         this.context = context;
-        conexion = new DBconexion(context);
-    }
-
-    /**
-     * Abre la base de datos en modo escritura.
-     *
-     * @throws SQLException Si hay algún problema al abrir.
-     */
-    public void open() throws SQLException {
-        db = conexion.getWritableDatabase();
-    }
-
-    /**
-     * Cierra la conexión con la BD.
-     */
-    public void close() {
-        conexion.close();
-    }
-
-    private static final String[] columnas = { COL_ID, COL_TITULO, COL_DESCRIPCION, COL_PRIORIDAD, COL_FECHALIMITE,
-            COL_COMPLETADA };
-
-
-
-    /**
-     * Busca las tareas pendientes cuya fecha límite ya haya pasado o sea hoy.
-     * Devuelve sus títulos para mostrarlos en la notificación.
-     */
-    public ArrayList<String> tareasPendientes(String fechaHoyDB) {
-        ArrayList<String> tareasPendientes = new ArrayList<>();
-
-        Cursor cursor = db.query(TABLE_NAME, columnas,
-                COL_COMPLETADA + " = 0", null, null, null, null);
-
-        SimpleDateFormat sdfDB = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-
-        Date hoy = null;
-        try {
-            hoy = sdfDB.parse(fechaHoyDB);
-        } catch (ParseException e) {
-            Log.e(TAG, "Error al parsear la fecha de hoy: " + fechaHoyDB, e);
-            return null;
-        }
-
-        while (cursor.moveToNext()) {
-            String fechaTarea = cursor.getString(cursor.getColumnIndexOrThrow(COL_FECHALIMITE));
-            if (fechaTarea != null && !fechaTarea.trim().isEmpty()) {
-                try {
-                    Date dateTarea = sdfDB.parse(fechaTarea);
-                    if (dateTarea != null && (dateTarea.before(hoy) || dateTarea.equals(hoy))) {
-                        tareasPendientes.add(cursor.getString(cursor.getColumnIndexOrThrow(COL_TITULO)));
-                    }
-                } catch (ParseException e) {
-                    Log.w(TAG, "Fecha no válida en tarea: " + fechaTarea, e);
-                }
-            }
-        }
-        cursor.close();
-        Log.i(TAG, "Tareas pendientes: " + tareasPendientes.toString());
-        return tareasPendientes;
     }
 
     /**
@@ -191,10 +117,16 @@ public class DBmanager {
         int userId = prefs.getInt("session_user_id", -1);
         String ordenSQL = "prioridad".equals(ordenUI) ? "prioridad" : "fechaLimite";
 
+        boolean ocultar = prefs.getBoolean("ocultar_completadas", false);
+        String selection = "usuario_id=" + userId;
+        if (ocultar) {
+            selection += " AND completada=0";
+        }
+
         Cursor cursor = context.getContentResolver().query(
                 android.net.Uri.parse("content://com.example.dasproyecto.provider/tareas"),
                 null,
-                "usuario_id=" + userId,
+                selection,
                 null,
                 ordenSQL
         );

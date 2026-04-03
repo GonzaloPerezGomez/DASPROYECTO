@@ -109,7 +109,9 @@ public class LoginActivity extends BaseActivity {
                         // Guardar estado de sesión (ej: id_usuario logueado)
                         int userId = json.optInt("usuario_id", -1);
                         String nombre = json.optString("nombre", "");
-                        String fotoUrl = json.optString("foto_url", "");
+                        
+                        // Evitar que el string "null" se guarde si el campo es nulo en JSON
+                        String fotoUrl = json.isNull("foto_url") ? "" : json.optString("foto_url", "");
                         String emailServer = json.optString("email", email);
 
                         pref.edit()

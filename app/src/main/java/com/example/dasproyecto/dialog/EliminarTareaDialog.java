@@ -55,13 +55,11 @@ public class EliminarTareaDialog extends DialogFragment {
             if (activityActivity == null) return;
             
             DBmanager dbManager = new DBmanager(activityActivity);
-            dbManager.open();
             
             new Thread(() -> {
                 boolean exito = dbManager.eliminarProvider(idTarea);
                 if (activityActivity != null) {
                     activityActivity.runOnUiThread(() -> {
-                        dbManager.close();
                         if (exito) {
                             if (listener != null) listener.onTareaEliminada();
                             android.widget.Toast.makeText(activityActivity, activityActivity.getString(R.string.toast_tarea_eliminada, tituloTarea), android.widget.Toast.LENGTH_SHORT).show();

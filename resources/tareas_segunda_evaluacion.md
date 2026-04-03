@@ -80,14 +80,14 @@
 - [x] CRUD vía ContentResolver
 - [x] Registrar en manifest
 
-### Hito 8: Widget
+### Hito 8: Widget (3 Próximas Tareas)
 
-- [ ] `TareasWidgetProvider`
-- [ ] Layout XML del widget
-- [ ] `widget_info.xml`
-- [ ] Registrar en manifest
-- [ ] Fetch + actualización periódica
-- [ ] Click → abrir app
+- [x] Crear `TareasWidgetProvider`
+- [x] Crear layout XML para el widget
+- [x] Crear configuración XML de widget
+- [x] Registrar en manifest
+- [x] Reflejar 3 siguientes tareas pendientes localmente (desde Room)
+- [x] Click en widget -> Abrir LoginActivity
 
 ### Hito 9: FCM
 
@@ -98,17 +98,16 @@
 - [ ] `fcm_enviar.php` funcional
 - [ ] Registrar servicio en manifest
 
-### Hito 10: Persistencia Moderna (Room + DataStore)
+### Hito 10: Persistencia Moderna (Room)
 
-- [ ] Añadir dependencias (Room, DataStore)
-- [ ] Migrar SharedPreferences a DataStore
-- [ ] Crear Entidad `TareaEntity`
-- [ ] Crear interfaz `TareaDao`
-- [ ] Implementar `AppDatabase` (Room)
-- [ ] Crear capa Repository (Single Source of Truth)
-- [ ] Configurar WorkManager para sincronización periódica
-- [ ] Refactorizar `TareasContentProvider` para usar Room
-- [ ] Eliminar `DBconexion` y clases Legacy
+- [x] Añadir dependencias (Room)
+- [x] Crear Entidad `TareaEntity`
+- [x] Crear interfaz `TareaDao`
+- [x] Implementar `AppDatabase` (Room)
+- [x] Crear capa Repository (Single Source of Truth)
+- [x] Configurar WorkManager para sincronización periódica
+- [x] Refactorizar `TareasContentProvider` para usar Room
+- [x] Eliminar `DBconexion` y clases Legacy
 
 ### Posteriores
 
@@ -116,3 +115,4 @@
 - [ ] Bonton de lapiz en el nav_drawer de main para acceder a formulario de editar perfil
 - [ ] La imagen de perfil de nav_drawer no abre la camara si no que amplia la imagen
 - [ ] Editar imagen perfil se mueve a formulario de editar perfil
+- [ ] Reorganizar archivos y modularizar el codigo

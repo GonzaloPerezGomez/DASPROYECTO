@@ -86,7 +86,6 @@ public class AddTareaActivity extends BaseActivity {
         spinnerPrioridad.setAdapter(adapter);
 
         dbManager = new DBmanager(this);
-        dbManager.open();
 
         etFecha.setOnClickListener(v -> configurarSelectorFecha());
 
@@ -146,9 +145,6 @@ public class AddTareaActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (dbManager != null) {
-            dbManager.close();
-        }
     }
 
     /**

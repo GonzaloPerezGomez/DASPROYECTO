@@ -133,7 +133,7 @@
 | 8.3 | `widget_info.xml` | `updatePeriodMillis` para actualización automática, `minWidth/minHeight` |
 | 8.4 | Registrar en manifest | `<receiver>` con `<intent-filter>` `APPWIDGET_UPDATE` + `<meta-data>` widget_info |
 | 8.5 | Fetch datos remotos | En `onUpdate()`, obtener las 3 próximas tareas del servidor y actualizar `RemoteViews` |
-| 8.6 | Click handler | Al pulsar el widget, abrir `MainActivity` |
+| 8.6 | Click handler | Al pulsar el widget, abrir `LoginActivity` |
 
 ---
 
@@ -158,7 +158,6 @@
 | # | Tarea | Detalle |
 |---|-------|---------|
 | 10.1 | Dependencias | Añadir `room-runtime`, `room-compiler` y `datastore-preferences` en `build.gradle` |
-| 10.2 | DataStore | Migrar de `SharedPreferences` a Preferences DataStore (flujo asíncrono para el ID de usuario) |
 | 10.3 | Entidad Room | Crear `@Entity` `TareaEntity` que refleje el modelo SQLite actual |
 | 10.4 | DAOs de Room | Crear `@Dao` `TareaDao` con operaciones CRUD (`getTareas()`, `insert()`, `delete()`) |
 | 10.5 | Base de Datos | Crear clase abstracta `AppDatabase extends RoomDatabase` |

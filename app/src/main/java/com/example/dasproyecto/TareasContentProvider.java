@@ -2,27 +2,27 @@ package com.example.dasproyecto;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
+import android.content.SharedPreferences;
 import android.content.UriMatcher;
 import android.database.Cursor;
-import android.database.MatrixCursor;
 import android.net.Uri;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.preference.PreferenceManager;
 
-import com.example.dasproyecto.db.DBmanager;
+import com.example.dasproyecto.db.TareaRepository;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.HttpURLConnection;
-import java.net.URL;
-
+/**
+ * ContentProvider que expone las tareas de la app a otras aplicaciones.
+ *
+ * Refactorizado en el Hito 10 para usar Room como fuente de datos local
+ * en lugar de hacer peticiones HTTP directas en cada operación.
+ *
+ * - query(): Lee de Room (instantáneo, sin red).
+ * - insert/update/delete(): Delegan en TareaRepository (HTTP + sync Room).
+ */
 public class TareasContentProvider extends ContentProvider {
 
     private static final String TAG = "TareasContentProvider";
@@ -40,140 +40,68 @@ public class TareasContentProvider extends ContentProvider {
         uriMatcher.addURI(AUTHORITY, "tareas/#", TAREA_ID);
     }
 
-    private static final String SERVER_URL = "http://34.28.161.49:81/tareas.php";
+    private TareaRepository repository;
 
     @Override
     public boolean onCreate() {
         Log.d(TAG, "ContentProvider creado");
+        // No inicializamos el repository aquí porque getContext() puede no estar listo.
         return true;
     }
 
     /**
-     * Realiza una petición HTTP POST síncrona al backend PHP.
+     * Obtiene el repository de forma lazy (se inicializa la primera vez que se necesita).
      */
-    private String realizarPeticionHttp(String parametros) {
-        HttpURLConnection urlConnection = null;
-        try {
-            URL url = new URL(SERVER_URL);
-            urlConnection = (HttpURLConnection) url.openConnection();
-            urlConnection.setConnectTimeout(5000);
-            urlConnection.setReadTimeout(5000);
-            urlConnection.setRequestMethod("POST");
-            urlConnection.setDoOutput(true);
-            urlConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-
-            if (parametros != null && !parametros.isEmpty()) {
-                PrintWriter out = new PrintWriter(urlConnection.getOutputStream());
-                out.print(parametros);
-                out.close();
-            }
-
-            int statusCode = urlConnection.getResponseCode();
-            if (statusCode == 200) {
-                BufferedInputStream inputStream = new BufferedInputStream(urlConnection.getInputStream());
-                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
-                StringBuilder result = new StringBuilder();
-                String line;
-                while ((line = bufferedReader.readLine()) != null) {
-                    result.append(line);
-                }
-                inputStream.close();
-
-                String rawData = result.toString();
-                int start = rawData.indexOf("{");
-                int end = rawData.lastIndexOf("}");
-                if (start != -1 && end != -1 && end >= start) {
-                    return rawData.substring(start, end + 1);
-                }
-                return rawData;
-            }
-        } catch (Exception e) {
-            Log.e(TAG, "Error en petición HTTP: " + e.getMessage());
-        } finally {
-            if (urlConnection != null) urlConnection.disconnect();
+    private TareaRepository getRepository() {
+        if (repository == null && getContext() != null) {
+            repository = new TareaRepository(getContext());
         }
-        return null;
+        return repository;
     }
+
+    /**
+     * Extrae el usuario_id del parámetro selection.
+     * Convenio: selection = "usuario_id=X"
+     */
+    private int extraerUserId(String selection) {
+        if (selection != null && selection.startsWith("usuario_id=")) {
+            try {
+                return Integer.parseInt(selection.split("=")[1]);
+            } catch (Exception e) {
+                Log.e(TAG, "Error extrayendo userId de selection: " + selection);
+            }
+        }
+        // Fallback: leer de SharedPreferences
+        if (getContext() != null) {
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
+            return prefs.getInt("session_user_id", -1);
+        }
+        return -1;
+    }
+
+    // =========================================================================
+    // QUERY — Lee desde Room (instantáneo)
+    // =========================================================================
 
     @Nullable
     @Override
     public Cursor query(@NonNull Uri uri, @Nullable String[] projection, @Nullable String selection,
                         @Nullable String[] selectionArgs, @Nullable String sortOrder) {
+        TareaRepository repo = getRepository();
+        if (repo == null) return null;
+
         int match = uriMatcher.match(uri);
-        String ordenSQL = sortOrder != null ? sortOrder : "fechaLimite";
+        int userId = extraerUserId(selection);
+        boolean ocultarCompletadas = selection != null && selection.contains("completada=0");
 
-        // Asumimos que podemos rescatar el usuario asociado (o le pasamos el id en un bundle,
-        // pero ContentResolver.query args no permiten ints nativos fácilmente. Pasaremos usuario_id como selection).
-        // Por simplificar, si el selection contiene "usuario_id=", lo extraemos.
-        int userId = -1;
-        if (selection != null && selection.startsWith("usuario_id=")) {
-            try {
-                userId = Integer.parseInt(selection.split("=")[1]);
-            } catch (Exception e) {}
-        }
-
-        Uri.Builder builder = new Uri.Builder();
         if (match == TAREAS) {
-            builder.appendQueryParameter("accion", "getTareas");
-            builder.appendQueryParameter("usuario_id", String.valueOf(userId));
-            builder.appendQueryParameter("ocultar_completadas", "false"); // o extraer de args
-            builder.appendQueryParameter("orden", ordenSQL);
+            return repo.getCursorTareas(userId, sortOrder, ocultarCompletadas);
         } else if (match == TAREA_ID) {
-            builder.appendQueryParameter("accion", "getTarea");
-            builder.appendQueryParameter("usuario_id", String.valueOf(userId));
-            builder.appendQueryParameter("tarea_id", uri.getLastPathSegment());
+            int tareaId = Integer.parseInt(uri.getLastPathSegment());
+            return repo.getCursorTarea(tareaId);
         } else {
             throw new IllegalArgumentException("Unknown URI: " + uri);
         }
-
-        String respuestaJson = realizarPeticionHttp(builder.build().getEncodedQuery());
-        if (respuestaJson == null) return null;
-
-        MatrixCursor matrixCursor = new MatrixCursor(new String[]{
-                DBmanager.COL_ID, DBmanager.COL_TITULO, DBmanager.COL_DESCRIPCION,
-                DBmanager.COL_PRIORIDAD, DBmanager.COL_FECHALIMITE, DBmanager.COL_COMPLETADA,
-                "latitud", "longitud", "direccion"
-        });
-
-        try {
-            JSONObject json = new JSONObject(respuestaJson);
-            if (json.getBoolean("exito")) {
-                if (match == TAREAS) {
-                    JSONArray tareasArray = json.getJSONArray("tareas");
-                    for (int i = 0; i < tareasArray.length(); i++) {
-                        JSONObject t = tareasArray.getJSONObject(i);
-                        matrixCursor.addRow(new Object[]{
-                                t.optInt("id", 0),
-                                t.optString("titulo", ""),
-                                t.optString("descripcion", ""),
-                                t.optInt("prioridad", 0),
-                                t.optString("fechaLimite", ""),
-                                t.optInt("completada", 0),
-                                t.optString("latitud", ""),
-                                t.optString("longitud", ""),
-                                t.optString("direccion", "")
-                        });
-                    }
-                } else if (match == TAREA_ID) {
-                    JSONObject t = json.getJSONObject("tarea");
-                    matrixCursor.addRow(new Object[]{
-                            t.optInt("id", 0),
-                            t.optString("titulo", ""),
-                            t.optString("descripcion", ""),
-                            t.optInt("prioridad", 0),
-                            t.optString("fechaLimite", ""),
-                            t.optInt("completada", 0),
-                            t.optString("latitud", ""),
-                            t.optString("longitud", ""),
-                            t.optString("direccion", "")
-                    });
-                }
-            }
-        } catch (Exception e) {
-            Log.e(TAG, "Error parseando JSON en query(): " + e.getMessage());
-        }
-
-        return matrixCursor;
     }
 
     @Nullable
@@ -189,68 +117,76 @@ public class TareasContentProvider extends ContentProvider {
         }
     }
 
+    // =========================================================================
+    // INSERT — Envía al servidor y sincroniza Room
+    // =========================================================================
+
     @Nullable
     @Override
     public Uri insert(@NonNull Uri uri, @Nullable ContentValues values) {
         if (uriMatcher.match(uri) != TAREAS) {
             throw new IllegalArgumentException("Unknown URI for insert: " + uri);
         }
-        
         if (values == null) return null;
 
-        Uri.Builder builder = new Uri.Builder();
-        builder.appendQueryParameter("accion", "insertTarea");
-        for (String key : values.keySet()) {
-            builder.appendQueryParameter(key, values.getAsString(key));
-        }
+        TareaRepository repo = getRepository();
+        if (repo == null) return null;
 
-        String respuestaJson = realizarPeticionHttp(builder.build().getEncodedQuery());
-        if (respuestaJson != null) {
-            try {
-                JSONObject json = new JSONObject(respuestaJson);
-                if (json.getBoolean("exito")) {
-                    // asumiremos el exito. En algunos backends devuelve el 'tarea_id'
-                    long newId = json.optLong("tarea_id", -1);
-                    return Uri.withAppendedPath(CONTENT_URI, String.valueOf(newId));
-                }
-            } catch (Exception e) {
-                Log.e(TAG, "Error parseando inserción: " + e.getMessage());
-            }
+        int userId = values.containsKey("usuario_id")
+                ? Integer.parseInt(values.getAsString("usuario_id"))
+                : extraerUserId(null);
+
+        boolean exito = repo.insertarRemoto(
+                userId,
+                values.getAsString("titulo"),
+                values.getAsString("descripcion"),
+                Integer.parseInt(values.getAsString("prioridad")),
+                values.getAsString("fechaLimite"),
+                values.getAsString("latitud"),
+                values.getAsString("longitud"),
+                values.getAsString("direccion")
+        );
+
+        if (exito) {
+            if (getContext() != null) getContext().getContentResolver().notifyChange(uri, null);
+            return Uri.withAppendedPath(CONTENT_URI, "0");
         }
         return null;
     }
 
+    // =========================================================================
+    // DELETE — Envía al servidor y sincroniza Room
+    // =========================================================================
+
     @Override
     public int delete(@NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
-        Uri.Builder builder = new Uri.Builder();
+        TareaRepository repo = getRepository();
+        if (repo == null) return 0;
 
         int match = uriMatcher.match(uri);
+
         if (match == TAREA_ID) {
-            builder.appendQueryParameter("accion", "deleteTarea");
-            builder.appendQueryParameter("tarea_id", uri.getLastPathSegment());
-            if (selection != null && selection.startsWith("usuario_id=")) {
-                builder.appendQueryParameter("usuario_id", selection.split("=")[1]);
-            }
+            int userId = extraerUserId(selection);
+            int tareaId = Integer.parseInt(uri.getLastPathSegment());
+            boolean exito = repo.eliminarRemoto(userId, tareaId);
+            if (exito && getContext() != null) getContext().getContentResolver().notifyChange(uri, null);
+            return exito ? 1 : 0;
+
         } else if (match == TAREAS && "deleteCompletadas".equals(selection)) {
-            builder.appendQueryParameter("accion", "deleteCompletadas");
-            if (selectionArgs != null && selectionArgs.length > 0) {
-                builder.appendQueryParameter("usuario_id", selectionArgs[0]);
-            }
+            int userId = (selectionArgs != null && selectionArgs.length > 0)
+                    ? Integer.parseInt(selectionArgs[0]) : extraerUserId(null);
+            int result = repo.eliminarCompletadasRemoto(userId);
+            if (result > 0 && getContext() != null) getContext().getContentResolver().notifyChange(uri, null);
+            return result;
+
         } else {
             throw new IllegalArgumentException("Unsupported URI for delete: " + uri);
         }
-
-        String respuestaJson = realizarPeticionHttp(builder.build().getEncodedQuery());
-        if (respuestaJson != null) {
-            try {
-                JSONObject json = new JSONObject(respuestaJson);
-                if (json.getBoolean("exito")) {
-                    return 1; // 1 row deleted
-                }
-            } catch (Exception e) {}
-        }
-        return 0;
     }
+
+    // =========================================================================
+    // UPDATE — Envía al servidor y sincroniza Room
+    // =========================================================================
 
     @Override
     public int update(@NonNull Uri uri, @Nullable ContentValues values, @Nullable String selection, @Nullable String[] selectionArgs) {
@@ -259,27 +195,32 @@ public class TareasContentProvider extends ContentProvider {
         }
         if (values == null) return 0;
 
-        Uri.Builder builder = new Uri.Builder();
-        builder.appendQueryParameter("accion", "updateTarea");
-        builder.appendQueryParameter("tarea_id", uri.getLastPathSegment());
+        TareaRepository repo = getRepository();
+        if (repo == null) return 0;
 
-        for (String key : values.keySet()) {
-            builder.appendQueryParameter(key, values.getAsString(key));
-        }
-        
-        if (selection != null && selection.startsWith("usuario_id=")) {
-            builder.appendQueryParameter("usuario_id", selection.split("=")[1]);
+        int userId = extraerUserId(selection);
+        int tareaId = Integer.parseInt(uri.getLastPathSegment());
+
+        boolean exito;
+
+        // Si solo se actualiza el estado (completada), usamos el método específico
+        if (values.size() == 1 && values.containsKey("completada")) {
+            exito = repo.actualizarEstadoRemoto(userId, tareaId,
+                    Integer.parseInt(values.getAsString("completada")));
+        } else {
+            exito = repo.actualizarRemoto(
+                    userId, tareaId,
+                    values.getAsString("titulo"),
+                    values.getAsString("descripcion"),
+                    Integer.parseInt(values.getAsString("prioridad")),
+                    values.getAsString("fechaLimite"),
+                    values.getAsString("latitud"),
+                    values.getAsString("longitud"),
+                    values.getAsString("direccion")
+            );
         }
 
-        String respuestaJson = realizarPeticionHttp(builder.build().getEncodedQuery());
-        if (respuestaJson != null) {
-            try {
-                JSONObject json = new JSONObject(respuestaJson);
-                if (json.getBoolean("exito")) {
-                    return 1; // 1 row updated
-                }
-            } catch (Exception e) {}
-        }
-        return 0;
+        if (exito && getContext() != null) getContext().getContentResolver().notifyChange(uri, null);
+        return exito ? 1 : 0;
     }
 }

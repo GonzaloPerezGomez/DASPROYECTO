@@ -48,13 +48,11 @@ public class EliminarTareasCompletadasDialog extends DialogFragment {
             if (activityActivity == null) return;
             
             DBmanager dbManager = new DBmanager(activityActivity);
-            dbManager.open();
             
             new Thread(() -> {
                 int eliminadas = dbManager.eliminarCompletadasProvider();
                 if (activityActivity != null) {
                     activityActivity.runOnUiThread(() -> {
-                        dbManager.close();
                         if (eliminadas >= 0) {
                             if (listener != null) listener.onTareaEliminada();
                             android.widget.Toast.makeText(activityActivity, activityActivity.getString(R.string.toast_tareas_completadas_eliminadas), android.widget.Toast.LENGTH_SHORT).show();

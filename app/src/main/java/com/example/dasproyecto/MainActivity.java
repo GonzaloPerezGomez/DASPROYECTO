@@ -58,6 +58,7 @@ import java.io.ByteArrayOutputStream;
 import com.bumptech.glide.Glide;
 import androidx.preference.PreferenceManager;
 import android.content.SharedPreferences;
+import android.provider.Settings;
 
 /**
  * Pantalla principal de la app.
@@ -142,6 +143,8 @@ public class MainActivity extends BaseActivity implements ListaTareasFragment.On
 
         solicitarPermisosNotificaciones();
         comprobarPlayServices();
+        programarSincronizacionPeriodica();
+        ejecutarSyncInicial();
     }
 
     @Override
@@ -514,12 +517,14 @@ public class MainActivity extends BaseActivity implements ListaTareasFragment.On
     private void cargarFotoPerfilLocal() {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         String fotoUrl = prefs.getString("session_user_foto", null);
-        if (fotoUrl != null && !fotoUrl.isEmpty()) {
+        if (fotoUrl != null && !fotoUrl.isEmpty() && !fotoUrl.equalsIgnoreCase("null")) {
             Glide.with(this)
                 .load(fotoUrl)
                 .placeholder(R.drawable.ic_launcher_background)
                 .circleCrop()
                 .into(ivPerfil);
+        } else {
+            ivPerfil.setImageResource(R.drawable.ic_launcher_background);
         }
     }
 
@@ -541,7 +546,7 @@ public class MainActivity extends BaseActivity implements ListaTareasFragment.On
                     try {
                         org.json.JSONObject json = new org.json.JSONObject(resultado);
                         if (json.getBoolean("exito")) {
-                            String fotoUrl = json.getString("foto_url");
+                            String fotoUrl = json.isNull("foto_url") ? "" : json.optString("foto_url", "");
                             prefs.edit().putString("session_user_foto", fotoUrl).apply();
                             cargarFotoPerfilLocal();
                             Toast.makeText(this, "Foto actualizada", Toast.LENGTH_SHORT).show();
@@ -553,6 +558,37 @@ public class MainActivity extends BaseActivity implements ListaTareasFragment.On
                     }
                 }
             });
+        }
+    }
+
+    /**
+     * Programa una sincronización periódica cada 15 minutos con el servidor.
+     * Usa ExistingPeriodicWorkPolicy.KEEP para no duplicar si ya existe.
+     */
+    private void programarSincronizacionPeriodica() {
+        androidx.work.PeriodicWorkRequest syncRequest =
+                new androidx.work.PeriodicWorkRequest.Builder(SyncWorker.class, 15, java.util.concurrent.TimeUnit.MINUTES)
+                        .build();
+
+        androidx.work.WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+                "sync_tareas_periodica",
+                androidx.work.ExistingPeriodicWorkPolicy.KEEP,
+                syncRequest
+        );
+        Log.d(TAG, "Sincronización periódica programada cada 15 minutos");
+    }
+
+    /**
+     * Ejecuta una sincronización inmediata al abrir la app para que Room esté actualizado.
+     */
+    private void ejecutarSyncInicial() {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        int userId = prefs.getInt("session_user_id", -1);
+        if (userId != -1) {
+            androidx.work.OneTimeWorkRequest syncRequest =
+                    new androidx.work.OneTimeWorkRequest.Builder(SyncWorker.class).build();
+            androidx.work.WorkManager.getInstance(this).enqueue(syncRequest);
+            Log.d(TAG, "Sincronización inicial lanzada");
         }
     }
 }

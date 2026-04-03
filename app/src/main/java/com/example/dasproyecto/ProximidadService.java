@@ -235,12 +235,6 @@ public class ProximidadService extends Service {
         if (fusedLocationClient != null && locationCallback != null) {
             fusedLocationClient.removeLocationUpdates(locationCallback);
         }
-        if (dbManager != null) {
-            // No podemos hacer removeObserver fácilmente sin referencia a un lifecycle
-            // Pero como observerForever se usa, idealmente deberíamos quitarlo.
-            // Omitido para simplicidad si DBmanager crea workers y los LiveData se completan rápido
-            dbManager.close();
-        }
         super.onDestroy();
     }
 
