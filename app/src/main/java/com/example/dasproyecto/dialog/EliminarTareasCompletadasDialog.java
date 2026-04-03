@@ -50,13 +50,20 @@ public class EliminarTareasCompletadasDialog extends DialogFragment {
             DBmanager dbManager = new DBmanager(activityActivity);
             dbManager.open();
             
-            dbManager.eliminarCompletadasRemoto().observe(activityActivity, workInfo -> {
-                if (workInfo != null && workInfo.getState().isFinished()) {
-                    dbManager.close();
-                    if (listener != null) listener.onTareaEliminada();
-                    android.widget.Toast.makeText(activityActivity, activityActivity.getString(R.string.toast_tareas_completadas_eliminadas), android.widget.Toast.LENGTH_SHORT).show();
+            new Thread(() -> {
+                int eliminadas = dbManager.eliminarCompletadasProvider();
+                if (activityActivity != null) {
+                    activityActivity.runOnUiThread(() -> {
+                        dbManager.close();
+                        if (eliminadas >= 0) {
+                            if (listener != null) listener.onTareaEliminada();
+                            android.widget.Toast.makeText(activityActivity, activityActivity.getString(R.string.toast_tareas_completadas_eliminadas), android.widget.Toast.LENGTH_SHORT).show();
+                        } else {
+                            android.widget.Toast.makeText(activityActivity, "Error al borrar tareas completadas", android.widget.Toast.LENGTH_SHORT).show();
+                        }
+                    });
                 }
-            });
+            }).start();
         });
         builder.setNegativeButton(getString(R.string.dialog_eliminar_cancelar), (dialog, i) -> dialog.dismiss());
         return builder.create();

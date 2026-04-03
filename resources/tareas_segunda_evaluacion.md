@@ -77,7 +77,7 @@
 
 - [x] `TareasContentProvider`
 - [x] URIs y authority
-- [ ] CRUD vía ContentResolver
+- [x] CRUD vía ContentResolver
 - [x] Registrar en manifest
 
 ### Hito 8: Widget
@@ -98,10 +98,21 @@
 - [ ] `fcm_enviar.php` funcional
 - [ ] Registrar servicio en manifest
 
+### Hito 10: Persistencia Moderna (Room + DataStore)
+
+- [ ] Añadir dependencias (Room, DataStore)
+- [ ] Migrar SharedPreferences a DataStore
+- [ ] Crear Entidad `TareaEntity`
+- [ ] Crear interfaz `TareaDao`
+- [ ] Implementar `AppDatabase` (Room)
+- [ ] Crear capa Repository (Single Source of Truth)
+- [ ] Configurar WorkManager para sincronización periódica
+- [ ] Refactorizar `TareasContentProvider` para usar Room
+- [ ] Eliminar `DBconexion` y clases Legacy
+
 ### Posteriores
 
 - [ ] Arreglar selector de color en ajustes
 - [ ] Bonton de lapiz en el nav_drawer de main para acceder a formulario de editar perfil
 - [ ] La imagen de perfil de nav_drawer no abre la camara si no que amplia la imagen
 - [ ] Editar imagen perfil se mueve a formulario de editar perfil
-- [ ] Cambiar todas las llamadas a la base de datos por ContentResolver

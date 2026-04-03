@@ -152,6 +152,22 @@
 
 ---
 
+### Hito 10: Persistencia Moderna (Room + DataStore)
+> Reimplementar la capa de persistencia local usando el estándar actual de Google (Single Source of Truth)
+
+| # | Tarea | Detalle |
+|---|-------|---------|
+| 10.1 | Dependencias | Añadir `room-runtime`, `room-compiler` y `datastore-preferences` en `build.gradle` |
+| 10.2 | DataStore | Migrar de `SharedPreferences` a Preferences DataStore (flujo asíncrono para el ID de usuario) |
+| 10.3 | Entidad Room | Crear `@Entity` `TareaEntity` que refleje el modelo SQLite actual |
+| 10.4 | DAOs de Room | Crear `@Dao` `TareaDao` con operaciones CRUD (`getTareas()`, `insert()`, `delete()`) |
+| 10.5 | Base de Datos | Crear clase abstracta `AppDatabase extends RoomDatabase` |
+| 10.6 | Repository | Crear `TareaRepository` para abstraer la decisión de acceder a Room (caché local) o `ConexionWorker` (remoto) |
+| 10.7 | Sync Periódico | Configurar `PeriodicWorkRequest` de WorkManager para sincronizar DB silenciosamente (Local ← Remoto) |
+| 10.8 | ContentProvider | Refactorizar `TareasContentProvider` para hacer consultas sobre Room (`TareaDao.getCursor()`) |
+
+---
+
 ## Orden de Implementación Sugerido
 
 ```mermaid
@@ -164,6 +180,7 @@ graph LR
     H3 --> H7[Hito 7<br/>Content Provider]
     H3 --> H8[Hito 8<br/>Widget]
     H2 --> H9[Hito 9<br/>FCM]
+    H3 --> H10[Hito 10<br/>Room+DataStore]
 ```
 
 > [!IMPORTANT]
@@ -183,3 +200,4 @@ graph LR
 | H7 (Content Provider) | 1 Java | 1 | ⭐⭐ |
 | H8 (Widget) | 1 Java + 2 XML | 1 | ⭐⭐ |
 | H9 (FCM) | 2 Java + 1 PHP | 3 | ⭐⭐⭐ |
+| H10 (Persistencia) | 5-6 Java | 4-5 | ⭐⭐⭐⭐⭐ |
