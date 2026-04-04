@@ -48,6 +48,9 @@ public class ColorSelectorPreference extends Preference {
             int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         setLayoutResource(R.layout.preference_color_selector);
+        // Fuerza que el espacio del icono esté siempre reservado, aunque no haya icono.
+        // Así la indentación del selector coincide con el resto de preferencias.
+        setIconSpaceReserved(true);
     }
 
     public ColorSelectorPreference(@NonNull Context context, @Nullable AttributeSet attrs,

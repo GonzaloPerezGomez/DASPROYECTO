@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "114402679505",
+    "project_id": "dasproyectofcm",
+    "storage_bucket": "dasproyectofcm.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:114402679505:android:0f9a1590e20551b0a143f0",
+        "android_client_info": {
+          "package_name": "com.example.dasproyecto"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyARp7OvS8Iqbtu0npUiVgkYsgEr09TlOfI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

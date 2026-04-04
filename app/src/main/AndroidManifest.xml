@@ -124,6 +124,15 @@
             android:name=".ProximidadService"
             android:foregroundServiceType="location"
             android:exported="false" />
+
+        <!-- Servicio FCM: recibe mensajes de Firebase Cloud Messaging (Hito 9) -->
+        <service
+            android:name=".MiFirebaseMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
             
         <provider
             android:name=".TareasContentProvider"

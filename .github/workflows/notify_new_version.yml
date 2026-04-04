@@ -1,0 +1,76 @@
+name: Notify New Version to Firebase
+
+on:
+  push:
+    branches:
+      - main # Disparar al hacer push a la rama principal (o master)
+    paths:
+      - 'app/build.gradle' # Solo ejecutar si el build.gradle cambia
+
+jobs:
+  notify-fcm:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout del código actual
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2 # Necesario para poder comparar con el commit anterior
+
+      - name: Obtener versionCode antiguo
+        id: check_old_version
+        run: |
+          # Lee el versionCode del commit anterior
+          OLD_VERSION=$(git show HEAD~1:app/build.gradle | grep "versionCode" | grep -o -E '[0-9]+' || echo "0")
+          echo "old_version=$OLD_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Obtener versionCode nuevo
+        id: check_new_version
+        run: |
+          # Lee el versionCode actual
+          NEW_VERSION=$(grep "versionCode" app/build.gradle | grep -o -E '[0-9]+' || echo "0")
+          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Comparar versiones
+        id: check_changed
+        run: |
+          OLD=${{ steps.check_old_version.outputs.old_version }}
+          NEW=${{ steps.check_new_version.outputs.new_version }}
+          echo "Versión anterior: $OLD, Nueva versión: $NEW"
+          if [ "$NEW" -gt "$OLD" ]; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "¡El versionCode ha aumentado!"
+          else
+            echo "changed=false" >> $GITHUB_OUTPUT
+            echo "El versionCode no ha cambiado."
+          fi
+
+      - name: Autenticarse con Google Cloud
+        if: steps.check_changed.outputs.changed == 'true'
+        id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          # Requiere que hayas configurado el Secret en GitHub: Settings -> Secrets and variables -> Actions
+          credentials_json: '${{ secrets.FCM_SERVICE_ACCOUNT_KEY }}'
+
+      - name: Enviar Notificación FCM a la app
+        if: steps.check_changed.outputs.changed == 'true'
+        run: |
+          # google-github-actions/auth ya configura el entorno para gcloud
+          TOKEN=$(gcloud auth print-access-token)
+          PROJECT_ID=${{ steps.auth.outputs.project_id }}
+          
+          echo "Enviando notificación Firebase al topic 'nueva_version'..."
+          
+          curl -s -X POST -H "Authorization: Bearer $TOKEN" \
+               -H "Content-Type: application/json" \
+               -d '{
+                 "message": {
+                   "topic": "nueva_version",
+                   "notification": {
+                     "title": "¡Actualización Disponible!",
+                     "body": "Hay una nueva versión de la app (v'${{ steps.check_new_version.outputs.new_version }}'). Ábrela para actualizar."
+                   }
+                 }
+               }' \
+               https://fcm.googleapis.com/v1/projects/$PROJECT_ID/messages:send

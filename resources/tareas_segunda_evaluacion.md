@@ -89,14 +89,25 @@
 - [x] Reflejar 3 siguientes tareas pendientes localmente (desde Room)
 - [x] Click en widget -> Abrir LoginActivity
 
-### Hito 9: FCM
+### Hito 9: FCM + CI/CD (Notificación de Nueva Versión)
 
-- [ ] Firebase Console + `google-services.json`
-- [ ] Dependencias Firebase
-- [ ] `MiFirebaseMessagingService`
-- [ ] Token FCM → servidor
-- [ ] `fcm_enviar.php` funcional
-- [ ] Registrar servicio en manifest
+**Flujo:** Al hacer push con un `versionCode` nuevo → GitHub Actions detecta el cambio → llama a la API REST de Firebase → todos los dispositivos reciben una notificación de "Nueva versión disponible".
+
+**Android (app):**
+- [x] Añadir Firebase al proyecto (`google-services.json` + dependencias)
+- [x] Implementar `MiFirebaseMessagingService` para manejar mensajes FCM en foreground
+- [x] Suscribirse al topic `"nueva_version"` al arrancar la app
+- [x] Registrar servicio en `AndroidManifest.xml`
+
+**Servidor / Backend:**
+- [ ] Crear Service Account en Google Cloud con permisos FCM
+- [ ] Guardar la clave JSON del Service Account como Secret en GitHub (`FCM_SERVICE_ACCOUNT_KEY`)
+
+**GitHub Actions (CI/CD):**
+- [x] Crear workflow `.github/workflows/notify_new_version.yml`
+- [x] Step: detectar si `versionCode` cambió respecto al commit anterior
+- [x] Step: obtener token OAuth2 usando el Service Account
+- [x] Step: llamar a la API HTTP v1 de Firebase para enviar al topic `"nueva_version"`
 
 ### Hito 10: Persistencia Moderna (Room)
 
@@ -111,8 +122,9 @@
 
 ### Posteriores
 
-- [ ] Arreglar selector de color en ajustes
+- [x] Arreglar selector de color en ajustes
 - [ ] Bonton de lapiz en el nav_drawer de main para acceder a formulario de editar perfil
 - [ ] La imagen de perfil de nav_drawer no abre la camara si no que amplia la imagen
 - [ ] Editar imagen perfil se mueve a formulario de editar perfil
+- [ ] Añadir uso de provide de google calendar para crear eventos en el calendario del usuario
 - [ ] Reorganizar archivos y modularizar el codigo

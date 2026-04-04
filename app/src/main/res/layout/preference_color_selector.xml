@@ -1,16 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    Layout para ColorSelectorPreference.
+    Estructura HORIZONTAL (como el layout estándar de AndroidX Preference)
+    con los círculos DENTRO de la columna de contenido, para que hereden
+    la indentación correcta respecto al icon_frame.
+-->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:baselineAligned="false"
-    android:clipToPadding="false"
     android:gravity="center_vertical"
     android:minHeight="?android:attr/listPreferredItemHeightSmall"
     android:paddingEnd="?android:attr/listPreferredItemPaddingEnd"
     android:paddingStart="?android:attr/listPreferredItemPaddingStart"
     android:orientation="horizontal">
 
-    <!-- Espacio reservado para el icono (AndroidX Preference base lo usa) -->
+    <!-- Espacio del icono: siempre visible (setIconSpaceReserved=true en Java)
+         para que la indentación coincida con el resto de preferencias -->
     <LinearLayout
         android:id="@android:id/icon_frame"
         android:layout_width="wrap_content"
@@ -19,7 +25,7 @@
         android:minWidth="56dp"
         android:orientation="horizontal"
         android:paddingBottom="4dp"
-        android:paddingEnd="12dp"
+        android:paddingEnd="8dp"
         android:paddingTop="4dp">
 
         <ImageView
@@ -28,6 +34,7 @@
             android:layout_height="wrap_content" />
     </LinearLayout>
 
+    <!-- Columna de contenido: título, summary y círculos alineados -->
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -53,19 +60,19 @@
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="?android:attr/textColorSecondary" />
 
+        <!-- Los círculos de color van aquí, DENTRO de la columna de contenido,
+             lo que les da la misma indentación que el título. -->
         <LinearLayout
             android:id="@+id/color_buttons_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:clipChildren="false"
-            android:clipToPadding="false"
             android:gravity="start"
             android:orientation="horizontal" />
 
     </LinearLayout>
 
-    <!-- Espacio para el widget (checkbox/switch), lo dejamos vacío pero presente -->
+    <!-- Widget frame: vacío pero obligatorio para que el sistema de preferencias funcione -->
     <LinearLayout
         android:id="@android:id/widget_frame"
         android:layout_width="wrap_content"

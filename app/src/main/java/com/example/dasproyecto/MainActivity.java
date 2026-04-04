@@ -141,10 +141,26 @@ public class MainActivity extends BaseActivity implements ListaTareasFragment.On
             }
         };
 
-        solicitarPermisosNotificaciones();
         comprobarPlayServices();
         programarSincronizacionPeriodica();
         ejecutarSyncInicial();
+        solicitarPermisosNotificaciones();
+        suscribirseATopicFCM();
+    }
+
+    /**
+     * Suscribe el dispositivo al topic "nueva_version" de Firebase Cloud Messaging.
+     * Permite recibir notificaciones broadcast aunque no guardemos tokens individuales.
+     */
+    private void suscribirseATopicFCM() {
+        com.google.firebase.messaging.FirebaseMessaging.getInstance().subscribeToTopic("nueva_version")
+                .addOnCompleteListener(task -> {
+                    String msg = "Suscrito al topic nueva_version (FCM)";
+                    if (!task.isSuccessful()) {
+                        msg = "Fallo al suscribirse al topic nueva_version (FCM)";
+                    }
+                    Log.d(TAG, msg);
+                });
     }
 
     @Override
