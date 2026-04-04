@@ -100,8 +100,8 @@
 - [x] Registrar servicio en `AndroidManifest.xml`
 
 **Servidor / Backend:**
-- [ ] Crear Service Account en Google Cloud con permisos FCM
-- [ ] Guardar la clave JSON del Service Account como Secret en GitHub (`FCM_SERVICE_ACCOUNT_KEY`)
+- [x] Crear Service Account en Google Cloud con permisos FCM
+- [x] Guardar la clave JSON del Service Account como Secret en GitHub (`FCM_SERVICE_ACCOUNT_KEY`)
 
 **GitHub Actions (CI/CD):**
 - [x] Crear workflow `.github/workflows/notify_new_version.yml`
