@@ -3,7 +3,7 @@ name: Notify New Version to Firebase
 on:
   push:
     branches:
-      - main # Disparar al hacer push a la rama principal (o master)
+      - das-002 # Ejecutar al hacer push a esta rama específica
     paths:
       - 'app/build.gradle' # Solo ejecutar si el build.gradle cambia
 
