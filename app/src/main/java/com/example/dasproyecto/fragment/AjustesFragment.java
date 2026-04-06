@@ -89,6 +89,13 @@ public class AjustesFragment extends PreferenceFragmentCompat
             } else {
                 cancelarAlarma();
             }
+        } else if ("sync_google_calendar".equals(key)) {
+            boolean estado = sharedPreferences.getBoolean(key, false);
+            if (estado) {
+                if (requireActivity() instanceof BaseActivity) {
+                    ((BaseActivity) requireActivity()).solicitarPermisosCalendario();
+                }
+            }
         }
     }
 

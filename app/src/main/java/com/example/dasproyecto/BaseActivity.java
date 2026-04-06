@@ -35,6 +35,7 @@ public class BaseActivity extends AppCompatActivity {
     private String colorActual;
     private String temaActual;
     private static final int NOTIFICACION_CODE = 0;
+    private static final int CALENDARIO_CODE = 101;
 
     /**
      * Envuelve el contexto con el idioma que haya elegido el usuario.
@@ -134,6 +135,17 @@ public class BaseActivity extends AppCompatActivity {
     }
 
     /**
+     * Pide al usuario permiso para acceder al calendario.
+     */
+    public void solicitarPermisosCalendario() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CALENDAR) != PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_CALENDAR) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[] { Manifest.permission.READ_CALENDAR, Manifest.permission.WRITE_CALENDAR }, CALENDARIO_CODE);
+        }
+    }
+
+    /**
      * Comprueba que los servicios de Google Play estén instalados y actualizados.
      * Si no, levanta un diálogo permitiendo al usuario solucionarlo.
      */
@@ -183,18 +195,20 @@ public class BaseActivity extends AppCompatActivity {
                     SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
                     prefs.edit().putBoolean("notificaciones", true).apply();
 
-                } else if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_DENIED) {
-                    Log.d(TAG, "Permiso denegado");
-                    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-                    prefs.edit().putBoolean("notificaciones", false).apply();
-
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
-                            !shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS)) {
-                        Log.d(TAG, "Permiso bloqueado permanentemente. Mostrando diálogo.");
-                        new PermisoNotificacionesDialog().show(getSupportFragmentManager(),
-                                PermisoNotificacionesDialog.TAG);
-                    }
                 }
+                break;
+            }
+            case CALENDARIO_CODE: {
+                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Log.d(TAG, "Permiso de calendario concedido");
+                    prefs.edit().putBoolean("sync_google_calendar", true).apply();
+                } else {
+                    Log.d(TAG, "Permiso de calendario denegado");
+                    prefs.edit().putBoolean("sync_google_calendar", false).apply();
+                    Toast.makeText(this, R.string.permiso_calendario_denegado, Toast.LENGTH_SHORT).show();
+                }
+                break;
             }
         }
     }

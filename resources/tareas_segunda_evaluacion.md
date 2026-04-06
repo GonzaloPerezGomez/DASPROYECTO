@@ -123,8 +123,8 @@
 ### Posteriores
 
 - [x] Arreglar selector de color en ajustes
-- [ ] Bonton de lapiz en el nav_drawer de main para acceder a formulario de editar perfil
-- [ ] La imagen de perfil de nav_drawer no abre la camara si no que amplia la imagen
+- [ ] Botón de lápiz en el nav_drawer de main para acceder a formulario de editar perfil
+- [ ] La imagen de perfil de nav_drawer no abre la cámara si no que amplia la imagen
 - [ ] Editar imagen perfil se mueve a formulario de editar perfil
-- [ ] Añadir uso de provide de google calendar para crear eventos en el calendario del usuario
+- [x] Añadir uso de provide de google calendar para crear eventos en el calendario del usuario
 - [ ] Reorganizar archivos y modularizar el codigo

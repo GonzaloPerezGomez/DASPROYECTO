@@ -75,6 +75,9 @@
     <string name="config_notificaciones_summary">Get notified when a task is approaching its due date.</string>
     <string name="config_seccion_datos">Data</string>
     <string name="config_confirmar_eliminar">Confirm before deleting</string>
+    <string name="config_sync_google_calendar">Google Calendar Synchronization</string>
+    <string name="config_sync_google_calendar_summary">Automatically add tasks to your Google calendar when creating them.</string>
+    <string name="permiso_calendario_denegado">Calendar permissions are required to enable synchronization.</string>
     <string name="editar">Edit</string>
 
     <!-- Summaries de Ajustes -->

@@ -78,6 +78,9 @@
     <string name="config_notificaciones_summary">Recibe un aviso cuando una tarea esté próxima a su fecha límite.</string>
     <string name="config_seccion_datos">Datos</string>
     <string name="config_confirmar_eliminar">Confirmar antes de eliminar</string>
+    <string name="config_sync_google_calendar">Sincronización con Google Calendar</string>
+    <string name="config_sync_google_calendar_summary">Añade automáticamente las tareas a tu calendario de Google al crearlas.</string>
+    <string name="permiso_calendario_denegado">Se requieren permisos de calendario para activar la sincronización.</string>
 
     <!-- Summaries de Ajustes -->
     <string name="config_idioma_summary">Selecciona el idioma de la aplicación</string>

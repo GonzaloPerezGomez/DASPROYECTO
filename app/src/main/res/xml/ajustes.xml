@@ -57,6 +57,12 @@
             app:summary="@string/config_notificaciones_summary"
             app:defaultValue="false" />
 
+        <androidx.preference.SwitchPreferenceCompat
+            app:key="sync_google_calendar"
+            app:title="@string/config_sync_google_calendar"
+            app:summary="@string/config_sync_google_calendar_summary"
+            app:defaultValue="false" />
+
     </PreferenceCategory>
 
     <!-- ═══ Datos ═══ -->

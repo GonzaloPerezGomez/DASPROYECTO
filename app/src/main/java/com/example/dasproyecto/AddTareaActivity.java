@@ -1,5 +1,6 @@
 package com.example.dasproyecto;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.widget.ArrayAdapter;
@@ -20,6 +21,16 @@ import org.json.JSONObject;
 
 import android.util.Log;
 import androidx.annotation.NonNull;
+import androidx.preference.PreferenceManager;
+import android.provider.CalendarContract;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
+import android.database.Cursor;
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.net.Uri;
 
 /**
  * Pantalla para crear una nueva tarea.
@@ -129,6 +140,14 @@ public class AddTareaActivity extends BaseActivity {
                 btnGuardar.setEnabled(true);
                 if (exito) {
                     Log.i(TAG, "Tarea guardada exitosamente: " + titulo);
+                    
+                    // Sincronización con Google Calendar
+                    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+                    if (prefs.getBoolean("sync_google_calendar", false)) {
+                        String ubicacion = (direccionDB != null) ? direccionDB : "";
+                        sincronizarEventoCalendario(titulo, descripcion, fechaDB, ubicacion);
+                    }
+
                     Toast.makeText(this, R.string.toast_tarea_guardada, Toast.LENGTH_SHORT).show();
                     finish();
                 } else {
@@ -145,6 +164,91 @@ public class AddTareaActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+    }
+
+    /**
+     * Inserta un evento en el calendario de Google del usuario.
+     * Busca la cuenta que coincida con el email de la sesión o la principal.
+     */
+    private void sincronizarEventoCalendario(String titulo, String descripcion, String fechaDB, String ubicacion) {
+        try {
+            // 1. Obtener el email del usuario de SharedPreferences
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+            String userEmail = prefs.getString("session_user_email", "");
+
+            // 2. Buscar ID del calendario (priorizando el del email o el de Google)
+            long calendarId = -1;
+            String selectedAccount = "N/A";
+            String[] projection = {
+                CalendarContract.Calendars._ID, 
+                CalendarContract.Calendars.ACCOUNT_NAME,
+                CalendarContract.Calendars.ACCOUNT_TYPE
+            };
+            
+            ContentResolver cr = getContentResolver();
+            Cursor cur = cr.query(CalendarContract.Calendars.CONTENT_URI, projection, null, null, null);
+            
+            if (cur != null) {
+                while (cur.moveToNext()) {
+                    long id = cur.getLong(0);
+                    String accountName = cur.getString(1);
+                    String accountType = cur.getString(2);
+
+                    if (calendarId == -1) {
+                        calendarId = id;
+                        selectedAccount = accountName;
+                    }
+
+                    // Preferir cuenta de Google sobre local
+                    if ("com.google".equals(accountType) && !accountName.equalsIgnoreCase(userEmail)) {
+                        calendarId = id;
+                        selectedAccount = accountName;
+                    }
+
+                    // El ideal es que coincida con el email
+                    if (accountName.equalsIgnoreCase(userEmail)) {
+                        calendarId = id;
+                        selectedAccount = accountName;
+                        break;
+                    }
+                }
+                cur.close();
+            }
+
+            Log.i(TAG, "Calendario seleccionado: ID=" + calendarId + ", Cuenta=" + selectedAccount);
+
+            if (calendarId == -1) {
+                Log.e(TAG, "No se encontró ningún calendario para sincronizar.");
+                return;
+            }
+
+            // 3. Parsear la fecha (YYYY-MM-DD) a milisegundos (UTC para All Day)
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+            sdf.setTimeZone(TimeZone.getTimeZone("UTC")); // All day events must be in UTC
+            Date date = sdf.parse(fechaDB);
+            if (date == null) return;
+            long startMillis = date.getTime();
+            long endMillis = startMillis + (24 * 60 * 60 * 1000); // 24 horas para evento de día completo
+
+            // 4. Insertar el evento
+            ContentValues values = new ContentValues();
+            values.put(CalendarContract.Events.DTSTART, startMillis);
+            values.put(CalendarContract.Events.DTEND, endMillis);
+            values.put(CalendarContract.Events.TITLE, "[DAS] " + titulo);
+            values.put(CalendarContract.Events.DESCRIPTION, descripcion);
+            values.put(CalendarContract.Events.EVENT_LOCATION, ubicacion);
+            values.put(CalendarContract.Events.CALENDAR_ID, calendarId);
+            values.put(CalendarContract.Events.EVENT_TIMEZONE, "UTC");
+            values.put(CalendarContract.Events.ALL_DAY, 1); // Hacerlo evento de todo el día mejora visibilidad
+
+            Uri uri = cr.insert(CalendarContract.Events.CONTENT_URI, values);
+            if (uri != null) {
+                Log.i(TAG, "Evento de calendario creado: " + uri.toString());
+            }
+
+        } catch (Exception e) {
+            Log.e(TAG, "Error sincronizando con el calendario: " + e.getMessage());
+        }
     }
 
     /**

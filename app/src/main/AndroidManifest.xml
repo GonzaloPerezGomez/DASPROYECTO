@@ -26,6 +26,10 @@
     <!-- Permiso para la cámara -->
     <uses-permission android:name="android.permission.CAMERA" />
 
+    <!-- Permisos para el proveedor de calendario -->
+    <uses-permission android:name="android.permission.READ_CALENDAR" />
+    <uses-permission android:name="android.permission.WRITE_CALENDAR" />
+
     <application
         android:name=".Idioma"
         android:allowBackup="true"
