@@ -329,16 +329,59 @@ Desde el Navigation Drawer se puede iniciar el sistema de proximidad, el cual mo
 
 \subsection{Mensajería FCM}
 
+Dentro de la aplicacion la mensajeria FCM se usa para notificar a los usuarios sobre una nueva version de la aplicacion. Estas notificaciones son completamente autonomas. Adicionalmente se pueden enviar notificaciones de forma manual, tanto a todos los usuarios como a usuarios individuales (\href{http://34.68.1.253:81/fcm_enviar.php}{demo}).
 
+\begin{figure}[H]
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=1.2\textwidth]{img/form_g.png}
+        \caption{Formulario para enviar notificaciones.}
+    \end{minipage}
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=0.6\textwidth]{img/not_g.jpeg}
+        \caption{Notificación FCM.}
+    \end{minipage}
+\end{figure}
+
+\begin{figure}[H]
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=1.2\textwidth]{img/form_todos.png}
+        \caption{Formulario para enviar notificaciones.}
+    \end{minipage}
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=0.6\textwidth]{img/not_todos_usuarios.jpeg}
+        \caption{Notificación FCM.}
+    \end{minipage}
+\end{figure}
+
+\begin{figure}[H]
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=0.6\textwidth]{img/not_nueva_version.jpeg}
+        \caption{Notificación FCM.}
+    \end{minipage}
+\end{figure}
 
 \subsection{Widget}
 
+Un simplre widget que muestra las tareas pendientes.
+
+\begin{figure}[H]
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=0.6\textwidth]{img/widget.jpeg}
+        \caption{Widget de tareas pendientes.}
+    \end{minipage}
+\end{figure}
 
 \newpage
 
 \section{Dificultades}
 
-
+El desafío más significativo del proyecto radicó en la migración integral del sistema de persistencia hacia su arquitectura actual. La mayor complejidad consistió en definir una estructura organizada donde cada componente tuviera una responsabilidad clara, garantizando que la interacción entre los diferentes entornos de datos operase con total fluidez.
 
 \section{Fuentes utilizadas}
 
