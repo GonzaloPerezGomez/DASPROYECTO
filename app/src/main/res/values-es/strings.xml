@@ -21,6 +21,8 @@
     <string name="error_titulo_requerido">El título es obligatorio</string>
     <string name="toast_tarea_guardada">Tarea guardada</string>
     <string name="toast_tarea_actualizada">Tarea actualizada</string>
+    <string name="label_ubicacion">Ubicación</string>
+    <string name="btn_ubicacion">📍 Añadir Ubicación</string>
 
     <!-- Prioridades -->
     <string-array name="prioridades_array">
@@ -78,6 +80,7 @@
     <string name="config_sync_google_calendar_summary">Añade automáticamente las tareas a tu calendario de Google al crearlas.</string>
     <string name="permiso_calendario_denegado">Se requieren permisos de calendario para activar la sincronización.</string>
     <string name="editar">Editar</string>
+
 
     <!-- Summaries de Ajustes -->
     <string name="config_idioma_summary">Selecciona el idioma de la aplicación</string>

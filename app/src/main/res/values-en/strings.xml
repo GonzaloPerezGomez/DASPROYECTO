@@ -22,6 +22,8 @@
     <string name="toast_tarea_guardada">Task saved</string>
     <string name="toast_tarea_actualizada">Task updated</string>
     <string name="eliminar">Delete</string>
+    <string name="label_ubicacion">Location</string>
+    <string name="btn_ubicacion">📍 Add Location</string>
 
     <!-- Prioridades -->
     <string-array name="prioridades_array">

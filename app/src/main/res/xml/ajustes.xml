@@ -26,7 +26,7 @@
             app:entryValues="@array/tema_values"
             app:defaultValue="claro" />
 
-        <com.example.dasproyecto.ColorSelectorPreference
+        <com.example.dasproyecto.ui.views.ColorSelectorPreference
             app:key="color_secundario"
             app:title="@string/config_color_secundario"
             app:summary="@string/config_color_secundario_summary"

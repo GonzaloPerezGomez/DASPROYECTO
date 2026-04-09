@@ -17,6 +17,7 @@ work = "2.9.0"
 room = "2.6.1"
 firebaseBom = "33.2.0"
 googleServices = "4.4.2"
+firebaseMessaging = "25.0.1"
 
 
 [libraries]
@@ -38,6 +39,7 @@ room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "
 room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
 firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging" }
+google-firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging", version.ref = "firebaseMessaging" }
 
 
 [plugins]

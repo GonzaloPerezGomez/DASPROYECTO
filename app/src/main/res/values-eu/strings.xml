@@ -21,6 +21,8 @@
     <string name="error_titulo_requerido">Izenburua derrigorrezkoa da</string>
     <string name="toast_tarea_guardada">Zeregina gordeta</string>
     <string name="toast_tarea_actualizada">Zeregina eguneratuta</string>
+    <string name="label_ubicacion">Kokapena</string>
+    <string name="btn_ubicacion">📍 Gehitu kokapena</string>
 
     <!-- Prioridades -->
     <string-array name="prioridades_array">
@@ -76,6 +78,9 @@
     <string name="config_confirmar_eliminar">Ezabatu aurretik berretsi</string>
     <string name="editar">Editatu</string>
     <string name="eliminar">Ezabatu</string>
+    <string name="config_sync_google_calendar">Google Calendarekin sinkronizazioa</string>
+    <string name="config_sync_google_calendar_summary">Zereginak automatikoki gehitzen ditu Google egutegira sortzean.</string>
+    <string name="permiso_calendario_denegado">Egutegi-baimenak behar dira sinkronizazioa aktibatzeko.</string>
 
     <!-- Summaries de Ajustes -->
     <string name="config_idioma_summary">Hautatu aplikazioaren hizkuntza</string>

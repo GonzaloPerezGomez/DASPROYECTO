@@ -15,7 +15,7 @@ jobs:
       - name: Checkout del código actual
         uses: actions/checkout@v4
         with:
-          fetch-depth: 2 # Necesario para poder comparar con el commit anterior
+          fetch-depth: 2
 
       - name: Obtener versionCode antiguo
         id: check_old_version
@@ -50,7 +50,6 @@ jobs:
         id: auth
         uses: google-github-actions/auth@v2
         with:
-          # Requiere que hayas configurado el Secret en GitHub: Settings -> Secrets and variables -> Actions
           credentials_json: '${{ secrets.FCM_SERVICE_ACCOUNT_KEY }}'
 
       - name: Enviar Notificación FCM a la app

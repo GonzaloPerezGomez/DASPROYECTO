@@ -31,7 +31,7 @@
     <uses-permission android:name="android.permission.WRITE_CALENDAR" />
 
     <application
-        android:name=".Idioma"
+        android:name=".utils.Idioma"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -47,13 +47,13 @@
             android:value="${MAPS_API_KEY}" />
 
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.activities.MainActivity"
             android:launchMode="singleTop"
             android:exported="false">
         </activity>
         
         <activity
-            android:name=".LoginActivity"
+            android:name=".ui.activities.LoginActivity"
             android:exported="true"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
@@ -63,29 +63,29 @@
         </activity>
         
         <activity
-            android:name=".RegistroActivity"
+            android:name=".ui.activities.RegistroActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize"/>
         <activity
-            android:name=".AddTareaActivity"
-            android:parentActivityName=".MainActivity" />
+            android:name=".ui.activities.AddTareaActivity"
+            android:parentActivityName=".ui.activities.MainActivity" />
         <activity
-            android:name=".EditTareaActivity"
-            android:parentActivityName=".MainActivity" />
+            android:name=".ui.activities.EditTareaActivity"
+            android:parentActivityName=".ui.activities.MainActivity" />
         <activity
-            android:name=".ViewTareaActivity"
+            android:name=".ui.activities.ViewTareaActivity"
             android:exported="false"
             android:label="@string/label_ver_tarea"
-            android:parentActivityName=".MainActivity" />
+            android:parentActivityName=".ui.activities.MainActivity" />
         <activity
-            android:name=".SeleccionarUbicacionActivity"
+            android:name=".ui.activities.SeleccionarUbicacionActivity"
             android:exported="false"
             android:label="Seleccionar Ubicación"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
         <activity
-            android:name=".AjustesActivity"
+            android:name=".ui.activities.AjustesActivity"
             android:label="@string/config_titulo"
-            android:parentActivityName=".MainActivity" />
+            android:parentActivityName=".ui.activities.MainActivity" />
 
         <!--
             NotificacionReceiver: se ejecuta cuando salta la alarma de AlarmManager.
@@ -94,7 +94,7 @@
             exported="false" porque solo nuestra app lo usa.
         -->
         <receiver
-            android:name=".notification.NotificacionReceiver"
+            android:name=".receiver.NotificacionReceiver"
             android:exported="false" />
 
         <!--
@@ -103,7 +103,7 @@
             exported="true" es obligatorio porque el evento viene del sistema (fuera de nuestra app).
         -->
         <receiver
-            android:name=".notification.BootReceiver"
+            android:name=".receiver.BootReceiver"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
@@ -125,13 +125,13 @@
         </provider>
 
         <service
-            android:name=".ProximidadService"
+            android:name=".services.background.ProximidadService"
             android:foregroundServiceType="location"
             android:exported="false" />
 
         <!-- Servicio FCM: recibe mensajes de Firebase Cloud Messaging (Hito 9) -->
         <service
-            android:name=".MiFirebaseMessagingService"
+            android:name=".services.background.MiFirebaseMessagingService"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
@@ -139,13 +139,13 @@
         </service>
             
         <provider
-            android:name=".TareasContentProvider"
+            android:name=".data.provider.TareasContentProvider"
             android:authorities="com.example.dasproyecto.provider"
             android:exported="true" />
 
         <!-- Widget de Próximas Tareas (Hito 8) -->
         <receiver
-            android:name=".TareasWidgetProvider"
+            android:name=".widget.TareasWidgetProvider"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
