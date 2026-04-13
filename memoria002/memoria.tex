@@ -24,7 +24,6 @@
   tabsize=2,
   showstringspaces=false,
   columns=flexible,
-  frame=single,
   backgroundcolor=\color{gray!5}
 }
 
@@ -73,7 +72,7 @@ En esta segunda entrega se sigue con la aplicación iniciada en la primera entre
 \begin{itemize}
     \item Uso de bases de datos remotas.
     \item Integración con Google Maps y Geolocalización.
-    \item Capturar imagenes desde la camara, guardarlas en el servidor y mostrarlas en la aplicación.
+    \item Capturar imágenes desde la cámara, guardarlas en el servidor y mostrarlas en la aplicación.
 \end{itemize}
 
 Adicionalmente, se ha proporcionado una lista de características opcionales para enriquecer la aplicación:
@@ -82,7 +81,7 @@ Adicionalmente, se ha proporcionado una lista de características opcionales par
     \item Uso de algún content provider.
     \item Servicio en primer plano y mensajes broadcast.
     \item Mensajería FCM.
-    \item Widget con actualizacion periodica.
+    \item Widget con actualización periódica.
     \item Uso de servicio o tarea programada mediante alarma.
 \end{itemize}
 
@@ -96,7 +95,7 @@ Para la implementación de estos requisitos se ha seguido la implementación de 
 
 \subsubsection{Base de datos remota}
 
-Se ha implementado un servidor con una base de datos remota para la gestión de tareas y usuarios, proporcionando un sistema de persistencia más robusto que el almacenamiento local. Para mitigar la dependencia de la conectividad a internet, se ha desarrollado un mecanismo de sincronización entre ambos entornos. \\
+Se ha implementado un servidor con una base de datos remota para la gestión de tareas y usuarios, proporcionando un sistema de persistencia más robusto que el almacenamiento local. Para mitigar la dependencia de la conectividad a internet, se ha desarrollado un mecanismo de sincronización entre ambos entornos.
 
 Bajo esta arquitectura, las operaciones de escritura (creación, modificación o borrado) se ejecutan prioritariamente en la base de datos remota y se replican posteriormente en la local. Por el contrario, las consultas de lectura se realizan directamente sobre la base de datos local para minimizar la latencia de red y optimizar la respuesta de la interfaz. Adicionalmente, el sistema ejecuta una actualización automática cada 15 minutos, garantizando así la integridad y consistencia de los datos almacenados en el dispositivo.
 
@@ -113,29 +112,29 @@ Se ha integrado una funcionalidad que permite al usuario capturar una fotografí
 
 \subsubsection{Content Provider}
 
-Se ha integrado el \textit{Content Provider} de Google Calendar para permitir la sincronización de las tareas creadas con el calendario del usuario. Esta funcionalidad es opcional y puede gestionarse directamente desde el menú de ajustes de la aplicación.\\
+Se ha integrado el \textit{Content Provider} de Google Calendar para permitir la sincronización de las tareas creadas con el calendario del usuario. Esta funcionalidad es opcional y puede gestionarse directamente desde el menú de ajustes de la aplicación.
 
 Paralelamente, se ha desarrollado un \textit{Content Provider} propio que actúa como capa de abstracción para la base de datos local. Este componente centraliza todas las operaciones CRUD de la aplicación y permite que aplicaciones externas, con los permisos adecuados, interactúen con los datos de las tareas. Internamente, la aplicación utiliza este proveedor como intermediario exclusivo para cualquier consulta o modificación de los datos locales, garantizando la integridad de la información.
 
 \subsubsection{Servicio en primer plano y mensajes \textit{broadcast}}
 
-Se ha desarrollado un servicio en primer plano (\textit{Foreground Service}) encargado de monitorizar la ubicación del usuario en tiempo real, manteniendo una notificación persistente que informa al usuario sobre el estado de la monitorización. \\
+Se ha desarrollado un servicio en primer plano (\textit{Foreground Service}) encargado de monitorizar la ubicación del usuario en tiempo real, manteniendo una notificación persistente que informa al usuario sobre el estado de la monitorización.
 
 Este servicio trabaja en conjunto con la funcionalidad de geolocalización para emitir alertas de proximidad. Mediante el uso de \textit{Broadcast Receivers}, el sistema detecta variaciones en las coordenadas geográficas y, al identificar que el usuario se encuentra en un radio cercano a una tarea pendiente, envía una señal para activar la notificación correspondiente.
 
 \subsubsection{Mensajería mediante Firebase Cloud Messaging (FCM)}
 
-Se ha implementado un sistema de notificaciones basado en \textit{Firebase Cloud Messaging} para informar a los usuarios sobre el lanzamiento de nuevas versiones de la aplicación. El flujo de trabajo se ha automatizado mediante un entorno de CI/CD utilizando GitHub Actions (\href{https://github.com/GonzaloPerezGomez/DASPROYECTO/blob/das-002/.github/workflows/notify_new_version.yml}{workflow}). \\
+Se ha implementado un sistema de notificaciones basado en \textit{Firebase Cloud Messaging} para informar a los usuarios sobre el lanzamiento de nuevas versiones de la aplicación. El flujo de trabajo se ha automatizado mediante un entorno de CI/CD utilizando GitHub Actions (\href{https://github.com/GonzaloPerezGomez/DASPROYECTO/blob/das-002/.github/workflows/notify_new_version.yml}{workflow}).
 
 Al detectar un incremento en la versión de la aplicación (clave \texttt{versionCode} en el archivo \texttt{build.gradle}), se dispara un flujo de trabajo que envía automáticamente un mensaje FCM al canal o «topic» denominado \texttt{'nueva\_version'}. De este modo, todos los dispositivos suscritos reciben una notificación en tiempo real sin intervención manual del desarrollador.
 
 \subsubsection{Widget}
 
-Se ha implementado un widget que muestra las 3 proximas tareas pendientes del usuario. El widget se actualiza automaticamente cada vez que se añade o modifica una tarea, o cada 30 minutos. Esto permite al usuario tener la informacion mas relevante sobre sus tareas sin necesidad de abrir la aplicación.
+Se ha implementado un widget que muestra las 3 próximas tareas pendientes del usuario. El widget se actualiza automáticamente cada vez que se añade o modifica una tarea, o cada 30 minutos. Esto permite al usuario tener la información más relevante sobre sus tareas sin necesidad de abrir la aplicación.
 
 \subsubsection{Servicio programado mediante alarma}
 
-La aplicacion cuenta con un sistema de notificaciones que informa todos los dias a las 8 de la mañana sobre las tareas del dia o de dias anteriores que no se han completado. Este servicio se implemento en la primera entrega y no se ha modificado.
+La aplicación cuenta con un sistema de notificaciones que informa todos los días a las 8 de la mañana sobre las tareas del día o de días anteriores que no se han completado. Este servicio se implementó en la primera entrega y no se ha modificado.
 
 \newpage
 
@@ -198,7 +197,7 @@ La comunicación con el servidor remoto se gestiona de forma asíncrona para no 
     \item \textbf{Comunicación HTTP}: Se realizan peticiones \texttt{POST} codificadas en \texttt{URL-form-encoded} hacia una API en PHP, procesando las respuestas en formato \texttt{JSON} para su posterior mapeo a objetos de Room.
 \end{itemize}
 
-En la Fig\ref{fig:flujo_db} se detalla el flujo completo de sincronización entre el cliente y el servidor.
+En la Figura~\ref{fig:flujo_db} se detalla el flujo completo de sincronización entre el cliente y el servidor.
 
 \begin{figure}[H]
     \centering
@@ -253,7 +252,7 @@ Para facilitar la comprensión de la estructura del proyecto, se han elaborado t
 
 \subsection{Login y Registro}
 
-Al entrar en la aplicación, se muestra una pantalla de login. Si no se tiene un cuenta se puede ir a la pantalla de registro pulsando el botón "Registrarse". En caso de tener una cuenta se puede iniciar sesión introduciendo el correo electrónico y la contraseña.
+Al entrar en la aplicación, se muestra una pantalla de login. Si no se tiene una cuenta se puede ir a la pantalla de registro pulsando el botón "Registrarse". En caso de tener una cuenta se puede iniciar sesión introduciendo el correo electrónico y la contraseña.
 
 \begin{figure}[H]
     \begin{minipage}{0.45\textwidth}
@@ -268,7 +267,7 @@ Al entrar en la aplicación, se muestra una pantalla de login. Si no se tiene un
     \end{minipage}
 \end{figure}
 
-Adicionalmente se puede marcar la casilla de "Recuerdame" para que en caso de cerrar sesión se mantenga el correo electrónico introducido. Se puede cerrar sesión desde el menu de ajustes.
+Adicionalmente se puede marcar la casilla de "Recuérdame" para que en caso de cerrar sesión se mantenga el correo electrónico introducido. Se puede cerrar sesión desde el menú de ajustes.
 
 \begin{figure}[H]
     \begin{minipage}{0.45\textwidth}
@@ -280,7 +279,7 @@ Adicionalmente se puede marcar la casilla de "Recuerdame" para que en caso de ce
 
 \subsection{Ubicación}
 
-Como se ha comentado, se puede añadir una ubicación a una tarea. Esto se realiza pulsando el botón de "Añadir ubicacion" en el formulario de añadir o editar tarea.
+Como se ha comentado, se puede añadir una ubicación a una tarea. Esto se realiza pulsando el botón de "Añadir ubicación" en el formulario de añadir o editar tarea.
 
 \begin{figure}[H]
     \begin{minipage}{0.45\textwidth}
@@ -295,7 +294,7 @@ Como se ha comentado, se puede añadir una ubicación a una tarea. Esto se reali
     \end{minipage}
 \end{figure}
 
-Aquellas tareas que tengan una ubicación asignada tendrán un icono de un mapa en la lista de tareas, y pulsandolo se abrirá un mapa con la ubicación de la tarea.
+Aquellas tareas que tengan una ubicación asignada tendrán un icono de un mapa en la lista de tareas, y pulsándolo se abrirá un mapa con la ubicación de la tarea.
 
 \begin{figure}[H]
     \begin{minipage}{0.45\textwidth}
@@ -329,7 +328,7 @@ Desde el Navigation Drawer se puede iniciar el sistema de proximidad, el cual mo
 
 \subsection{Mensajería FCM}
 
-Dentro de la aplicacion la mensajeria FCM se usa para notificar a los usuarios sobre una nueva version de la aplicacion. Estas notificaciones son completamente autonomas. Adicionalmente se pueden enviar notificaciones de forma manual, tanto a todos los usuarios como a usuarios individuales (\href{http://34.68.1.253:81/fcm_enviar.php}{demo}).
+Dentro de la aplicación la mensajería FCM se usa para notificar a los usuarios sobre una nueva versión de la aplicación. Estas notificaciones son completamente autónomas. Adicionalmente se pueden enviar notificaciones de forma manual, tanto a todos los usuarios como a usuarios individuales (\href{http://34.68.1.253:81/fcm_enviar.php}{demo}).
 
 \begin{figure}[H]
     \begin{minipage}{0.45\textwidth}
@@ -367,7 +366,7 @@ Dentro de la aplicacion la mensajeria FCM se usa para notificar a los usuarios s
 
 \subsection{Widget}
 
-Un simplre widget que muestra las tareas pendientes.
+Un simple widget que muestra las tareas pendientes.
 
 \begin{figure}[H]
     \begin{minipage}{0.45\textwidth}
@@ -389,9 +388,9 @@ Para la realización de este proyecto se han consultado diversas fuentes de docu
 
 \begin{itemize}
     \item \textbf{Diapositivas de la asignatura: } Principal fuente de información para la realización del proyecto.
-    \item \textbf{Documentación oficial de Android Developers:} Consultas varias puntuales(\url{https://developer.android.com/}).
-    \item \textbf{Stack Overflow:} Utilizado puntualmente para la resolución de errores específicos y búsqueda de enfoques alternativos de implementación.(\url{https://stackoverflow.com/})
-    \item \textbf{Asistente de IA (Antigravity):} Herramienta de inteligencia artificial usada para correción de errores, depuración de código, uso de buenas practicas de programación y revisión de la memoria.(\url{https://antigravity.google/})
+    \item \textbf{Documentación oficial de Android Developers:} Consultas varias puntuales (\url{https://developer.android.com/}).
+    \item \textbf{Stack Overflow:} Utilizado puntualmente para la resolución de errores específicos y búsqueda de enfoques alternativos de implementación. (\url{https://stackoverflow.com/})
+    \item \textbf{Asistente de IA (Antigravity):} Herramienta de inteligencia artificial usada para corrección de errores, depuración de código, uso de buenas prácticas de programación y revisión de la memoria. (\url{https://antigravity.google/})
 \end{itemize}
 
 \section{Repositorio de código}
@@ -399,7 +398,8 @@ Para la realización de este proyecto se han consultado diversas fuentes de docu
 El código fuente del proyecto se encuentra disponible en el siguiente repositorio de GitHub:
 
 \begin{center}
-    \url{https://github.com/GonzaloPerezGomez/DASPROYECTO/tree/das-002}
+    \url{https://github.com/GonzaloPerezGomez/DASPROYECTO/tree/das-002}\\
+    IP del servidor: 34.68.1.253
 \end{center}
 
 En la carpeta \texttt{server} se encuentran todos los ficheros php que se usan en el servidor remoto.
