@@ -33,6 +33,10 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Servicio foreground que monitoriza la ubicación del usuario y notifica
+ * cuando se encuentra cerca (< 200 m) de una tarea pendiente con coordenadas.
+ */
 public class ProximidadService extends Service {
     private static final String TAG = "ProximidadService";
     private static final String CHANNEL_ID = "ProximidadCanal";
@@ -64,6 +68,7 @@ public class ProximidadService extends Service {
         iniciarLocationTracking();
     }
 
+    /** Crea los canales de notificación: uno de baja prioridad para el foreground y otro de alta para las alertas. */
     private void crearCanalNotificacion() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel canal = new NotificationChannel(
@@ -88,9 +93,10 @@ public class ProximidadService extends Service {
         }
     }
 
+    /** Construye la notificación persistente y arranca el servicio en modo foreground con tipo LOCATION. */
     private void iniciarForeground() {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
-                .setSmallIcon(R.drawable.ic_launcher_foreground) // Asegurarse de que este icono existe
+                .setSmallIcon(R.drawable.ic_launcher_foreground) 
                 .setContentTitle(getString(R.string.app_name))
                 .setContentText("Monitorizando tareas cercanas")
                 .setPriority(NotificationCompat.PRIORITY_LOW)
@@ -119,6 +125,7 @@ public class ProximidadService extends Service {
         }
     }
 
+    /** Obtiene las tareas desde el ContentProvider en un hilo secundario y filtra las que tienen coordenadas válidas. */
     private void cargarTareasServidor() {
         new Thread(() -> {
             try {
@@ -150,6 +157,7 @@ public class ProximidadService extends Service {
         }).start();
     }
 
+    /** Registra un LocationCallback periódico (cada 10 s) para recibir actualizaciones de ubicación. */
     private void iniciarLocationTracking() {
         LocationRequest peticion = new LocationRequest.Builder(10000)
                 .setMinUpdateIntervalMillis(5000)
@@ -175,6 +183,7 @@ public class ProximidadService extends Service {
         }
     }
 
+    /** Compara la ubicación actual con cada tarea activa; si la distancia es < 200 m envía un broadcast y una notificación. */
     private void verificarProximidad(Location currentLoc) {
         for (JSONObject tarea : tareasActivas) {
             try {
@@ -209,6 +218,7 @@ public class ProximidadService extends Service {
         }
     }
 
+    /** Muestra una notificación de alta prioridad indicando el título de la tarea y la distancia en metros. */
     private void mostrarNotificacionAlerta(String titulo, int distanciaMts) {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "AlertaProximidad")
                 .setSmallIcon(R.drawable.ic_launcher_foreground)

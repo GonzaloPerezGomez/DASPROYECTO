@@ -77,11 +77,8 @@ public class SeleccionarUbicacionActivity extends AppCompatActivity implements O
     public void onMapReady(@NonNull GoogleMap googleMap) {
         elmapa = googleMap;
 
-        // Configurar mapa basico (usando constantes de los apuntes)
         elmapa.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 
-        // Ajustar el Padding de Google Maps dinámicamente para que la UI nativa 
-        // (botón de centrado, logo de Google) no quede tapada por nuestros marcos.
         Toolbar toolbar = findViewById(R.id.toolbarMapa);
         View panelInferior = findViewById(R.id.panelInferiorMapa);
         if (toolbar != null && panelInferior != null) {
@@ -89,7 +86,6 @@ public class SeleccionarUbicacionActivity extends AppCompatActivity implements O
                 if (elmapa != null) {
                     // padding(left, top, right, bottom)
                     elmapa.setPadding(0, toolbar.getHeight(), 0, panelInferior.getHeight() + 32); 
-                    // +32 píxeles por los margenes del CardView
                 }
             });
         }
@@ -186,7 +182,7 @@ public class SeleccionarUbicacionActivity extends AppCompatActivity implements O
                 enableMyLocation();
             } else {
                 Toast.makeText(this, "Permiso de ubicación denegado", Toast.LENGTH_SHORT).show();
-                // Coordenadas fijas de Bilbao de los apuntes para no dejar la pantalla en el mar
+                // Cordenadas fijas
                 LatLng defaultLocation = new LatLng(43.26, -2.95);
                 elmapa.moveCamera(CameraUpdateFactory.newLatLngZoom(defaultLocation, 12f));
             }

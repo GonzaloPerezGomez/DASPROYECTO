@@ -241,7 +241,7 @@ public class ListaTareasFragment extends Fragment {
             return;
         }
 
-        // Usando DBmanager para cargar las tareas vía Content Provider (Hito 7)
+        // Usando DBmanager para cargar las tareas vía Content Provider
         new Thread(() -> {
             JSONObject resultJson = dbManager.getTareasProvider(orden);
             if (resultJson != null && resultJson.optBoolean("exito", false)) {

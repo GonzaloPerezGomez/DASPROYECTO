@@ -28,7 +28,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * Proveedor del Widget de Tareas (Hito 8).
+ * Proveedor del Widget de Tareas
  * Lee las próximas 3 tareas desde la base de datos local Room de forma síncrona
  * y actualiza la UI del widget.
  */
@@ -67,7 +67,7 @@ public class TareasWidgetProvider extends AppWidgetProvider {
                 }
             }
 
-            // Actualizar todos los widgets pegados en la pantalla
+            // Actualizar todos los widgets
             for (int appWidgetId : appWidgetIds) {
                 updateAppWidget(context, appWidgetManager, appWidgetId, tareasPendientes);
             }

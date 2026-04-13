@@ -17,10 +17,7 @@ import com.example.dasproyecto.data.db.TareaRepository;
 /**
  * ContentProvider que expone las tareas de la app a otras aplicaciones.
  *
- * Refactorizado en el Hito 10 para usar Room como fuente de datos local
- * en lugar de hacer peticiones HTTP directas en cada operación.
- *
- * - query(): Lee de Room (instantáneo, sin red).
+ * - query(): Lee de Room (instantáneo).
  * - insert/update/delete(): Delegan en TareaRepository (HTTP + sync Room).
  */
 public class TareasContentProvider extends ContentProvider {

@@ -23,8 +23,7 @@ import java.io.File;
 
 /**
  * Worker para realizar conexiones en segundo plano con la base de datos remota
- * utilizando la API nativa HttpURLConnection, tal y como se especifica en la
- * guía del curso.
+ * utilizando la API nativa HttpURLConnection.
  */
 public class ConexionWorker extends Worker {
 
@@ -44,7 +43,7 @@ public class ConexionWorker extends Worker {
 
         HttpURLConnection urlConnection = null;
         try {
-            // Montar URL. Ej: http://104.198.26.237:81/login.php
+            // Montar URL
             URL destino = new URL(SERVER_URL + accion + ".php");
             urlConnection = (HttpURLConnection) destino.openConnection();
             urlConnection.setConnectTimeout(5000);
@@ -58,8 +57,7 @@ public class ConexionWorker extends Worker {
             // Construir los parámetros usando Uri.Builder (soportado por PHP $_POST nativo)
             Uri.Builder builder = new Uri.Builder();
             for (String key : getInputData().getKeyValueMap().keySet()) {
-                if (!key.equals("accion") && !key.equals("foto_path")) { // No enviamos 'accion' por POST si ya va en la
-                                                                         // URL (.php)
+                if (!key.equals("accion") && !key.equals("foto_path")) { 
                     Object value = getInputData().getKeyValueMap().get(key);
                     if (value != null) {
                         builder.appendQueryParameter(key, String.valueOf(value));

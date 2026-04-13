@@ -22,7 +22,7 @@ import org.json.JSONObject;
 /**
  * Fachada que gestiona el acceso a datos de la aplicación.
  * 
- * Tras el Hito 10, este manager actúa como interfaz de alto nivel que:
+ * Este manager actúa como interfaz de alto nivel que:
  * - Usa el ContentProvider para operaciones CRUD de tareas (que internamente usa Room + Servidor).
  * - Usa WorkManager para operaciones de autenticación y perfil.
  * - Mantiene utilidades de formato de fecha.
